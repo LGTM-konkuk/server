@@ -1,5 +1,6 @@
 package konkuk.ptal.controller;
 
+import jakarta.validation.Valid;
 import konkuk.ptal.dto.api.ApiResponse;
 import konkuk.ptal.dto.api.ResponseCode;
 import konkuk.ptal.dto.request.LoginRequestDto;
@@ -22,13 +23,13 @@ public class AuthController {
     private final IAuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> signup(@RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseEntity<ApiResponse<Void>> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
         authService.register(signupRequestDto);
         return ResponseEntity.ok(ApiResponse.success(ResponseCode.MEMBER_REGISTER_SUCCESS, null));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<TokenResponseDto>> login(@RequestBody LoginRequestDto loginRequestDto) {
+    public ResponseEntity<ApiResponse<TokenResponseDto>> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
         TokenResponseDto token = authService.login(loginRequestDto);
         return ResponseEntity.ok(ApiResponse.success(ResponseCode.LOGIN_SUCCESS, token));
     }
