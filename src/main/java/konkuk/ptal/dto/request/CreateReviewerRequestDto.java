@@ -15,7 +15,7 @@ import java.util.List;
 public class CreateReviewerRequestDto {
 
     @NotBlank
-    private Integer userId;
+    private Long userId;
 
     @NotBlank(message = "expertise는 비어 있을 수 없습니다.")
     private String expertise;

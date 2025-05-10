@@ -11,6 +11,9 @@ public enum ErrorCode {
     EMAIL_NOT_AVAILABLE(4006, false, "사용할 수 없는 이메일입니다."),
     USER_NOT_FOUND(4007, false, "사용자를 찾을 수 없습니다."),
     ACCESS_DENIED(4008, false, "접근 권한이 없습니다."),
+    UNAUTHORIZED_ACCESS(4009, false, "인증되지 않은 접근입니다."),
+    ALREADY_REVIEWER(4010, false, "이미 리뷰어로 등록된 사용자입니다."),
+    REVIEWER_NOT_FOUND(4011, false, "리뷰어를 찾을 수 없습니다."),
     INTERNAL_SERVER_ERROR(5000, false, "서버 내부 에러.");
 
     private final Integer code;
