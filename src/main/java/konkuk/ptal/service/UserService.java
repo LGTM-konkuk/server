@@ -23,7 +23,7 @@ public class UserService {
     public Reviewer registerReviewer(CreateReviewerRequestDto dto, Long authenticatedUserId) {
         // 1. 인증된 사용자와 요청된 사용자 ID가 일치하는지 확인
         if (!dto.getUserId().equals(authenticatedUserId)) {
-            throw new BadRequestException(ErrorCode.UNAUTHORIZED_ACCESS);
+            throw new BadRequestException(ErrorCode.INVALID_JWT);
         }
 
         // 2. 사용자 조회
@@ -54,7 +54,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public Reviewer getReviewer(Long id) {
         return reviewerRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.REVIEWER_NOT_FOUND));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
     }
 
     @Transactional
@@ -63,7 +63,7 @@ public class UserService {
         
         // 리뷰어 본인만 수정 가능
         if (!reviewer.getUser().getId().equals(authenticatedUserId)) {
-            throw new BadRequestException(ErrorCode.UNAUTHORIZED_ACCESS);
+            throw new BadRequestException(ErrorCode.INVALID_JWT);
         }
 
         reviewer.setExpertise(dto.getExpertise());
