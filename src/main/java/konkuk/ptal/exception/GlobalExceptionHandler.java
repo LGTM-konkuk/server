@@ -5,12 +5,28 @@ import konkuk.ptal.dto.api.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<?>> handleValidationException(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .findFirst()
+                .orElse("잘못된 요청입니다.");
+
+        log.warn("Validation failed: {}", errorMessage);
+
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.fail(ErrorCode.BAD_REQUEST, errorMessage, null));
+    }
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiResponse<?>> handleBadRequestException(BadRequestException ex) {
         return buildResponse(ex, HttpStatus.BAD_REQUEST);
@@ -39,4 +55,6 @@ public class GlobalExceptionHandler {
         ApiResponse<?> response = ApiResponse.fail(ex.getErrorCode(), ex.getMessage(), null);
         return new ResponseEntity<>(response, status);
     }
+
+
 }
