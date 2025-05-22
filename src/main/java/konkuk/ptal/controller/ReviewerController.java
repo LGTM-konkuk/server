@@ -47,3 +47,5 @@ public class ReviewerController {
         return ResponseEntity.ok(ApiResponse.success(ResponseCode.OK, responseDto));
     }
 
+}
+
