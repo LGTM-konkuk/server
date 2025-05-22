@@ -7,6 +7,7 @@ public enum ErrorCode {
     INVALID_JWT(401, false, "유효하지 않은 토큰입니다."),
     DUPLICATED_EMAIL(409, false, "중복 이메일입니다."),
     ALREADY_REVIEWER(409, false, "이미 등록된 리뷰어입니다."),
+    ALREADY_REVIEWEE(409, false, "이미 등록된 리뷰이입니다."),
     BAD_REQUEST(400, false, "잘못된 요청입니다."),
     PASSWORD_NOT_AVAILABLE(400, false, "사용할 수 없는 비밀번호입니다."),
     PASSWORD_NOT_EQUAL(400, false, "비밀번호가 일치하지 않습니다."),
