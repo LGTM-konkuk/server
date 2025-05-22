@@ -37,9 +37,10 @@ public class ReviewerControllerImpl implements ReviewerController {
 
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<ReviewerResponseDto> getReviewer(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ReviewerResponseDto>> getReviewer(@PathVariable Long id) {
         Reviewer reviewer = userService.getReviewer(id);
-        return ResponseEntity.ok(ReviewerResponseDto.from(reviewer));
+        ReviewerResponseDto responseDto = ReviewerResponseDto.from(reviewer);
+        return ResponseEntity.ok(ApiResponse.success(ResponseCode.DATA_RETRIEVED, responseDto));
     }
 
     @Override
