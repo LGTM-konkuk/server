@@ -45,11 +45,12 @@ public class ReviewerControllerImpl implements ReviewerController {
 
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<ReviewerResponseDto> updateReviewer(
+    public ResponseEntity<ApiResponse<ReviewerResponseDto>> updateReviewer(
             @PathVariable Long id,
             @Valid @RequestBody CreateReviewerRequestDto requestDto,
             @AuthenticationPrincipal Long userId) {
         Reviewer updatedReviewer = userService.updateReviewer(id, requestDto, userId);
-        return ResponseEntity.ok(ReviewerResponseDto.from(updatedReviewer));
+        ReviewerResponseDto responseDto = ReviewerResponseDto.from(updatedReviewer);
+        return ResponseEntity.ok(ApiResponse.success(ResponseCode.OK, responseDto));
     }
 } 

@@ -17,7 +17,7 @@ public interface ReviewerController {
 
     ResponseEntity<ApiResponse<ReviewerResponseDto>> getReviewer(@PathVariable Long id);
 
-    public ResponseEntity<ReviewerResponseDto> updateReviewer(
+    ResponseEntity<ApiResponse<ReviewerResponseDto>> updateReviewer(
             @PathVariable Long id,
             @Valid @RequestBody CreateReviewerRequestDto requestDto,
             @AuthenticationPrincipal Long userId);
