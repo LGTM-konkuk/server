@@ -23,7 +23,6 @@ public class ReviewerControllerImpl implements ReviewerController {
 
     @Override
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, ReviewerResponseDto>> registerReviewer(
             @Valid @RequestBody CreateReviewerRequestDto requestDto,
             @AuthenticationPrincipal Long userId) {
@@ -38,7 +37,6 @@ public class ReviewerControllerImpl implements ReviewerController {
 
     @Override
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReviewerResponseDto> getReviewer(@PathVariable Long id) {
         Reviewer reviewer = userService.getReviewer(id);
         return ResponseEntity.ok(ReviewerResponseDto.from(reviewer));
@@ -46,7 +44,6 @@ public class ReviewerControllerImpl implements ReviewerController {
 
     @Override
     @PutMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReviewerResponseDto> updateReviewer(
             @PathVariable Long id,
             @Valid @RequestBody CreateReviewerRequestDto requestDto,
