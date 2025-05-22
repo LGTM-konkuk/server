@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import konkuk.ptal.dto.request.CreateReviewerRequestDto;
 import konkuk.ptal.util.StringListConverter;
 import lombok.*;
-import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 import java.util.List;
