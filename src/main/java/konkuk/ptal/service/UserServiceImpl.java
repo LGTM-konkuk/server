@@ -36,12 +36,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 4. 리뷰어 엔티티 생성
-        Reviewer reviewer = Reviewer.builder()
-                .user(user)
-                .expertise(dto.getExpertise())
-                .bio(dto.getBio())
-                .tags(dto.getTags())
-                .build();
+        Reviewer reviewer = Reviewer.createReviewer(user, dto);
 
         // 5. 사용자 역할 업데이트
         user.updateRole(Role.REVIEWER);

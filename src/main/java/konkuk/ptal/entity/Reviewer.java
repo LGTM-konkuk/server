@@ -1,6 +1,7 @@
 package konkuk.ptal.entity;
 
 import jakarta.persistence.*;
+import konkuk.ptal.dto.request.CreateReviewerRequestDto;
 import konkuk.ptal.util.StringListConverter;
 import lombok.*;
 import org.hibernate.annotations.Type;
@@ -51,5 +52,14 @@ public class Reviewer {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public static Reviewer createReviewer(User user, CreateReviewerRequestDto dto){
+        return Reviewer.builder()
+                .user(user)
+                .expertise(dto.getExpertise())
+                .bio(dto.getBio())
+                .tags(dto.getTags())
+                .build();
     }
 }
