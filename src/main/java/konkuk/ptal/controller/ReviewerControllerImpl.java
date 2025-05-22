@@ -8,13 +8,9 @@ import konkuk.ptal.dto.response.ReviewerResponseDto;
 import konkuk.ptal.entity.Reviewer;
 import konkuk.ptal.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reviewer")
@@ -28,7 +24,7 @@ public class ReviewerControllerImpl implements ReviewerController {
     public ResponseEntity<ApiResponse<ReviewerResponseDto>> registerReviewer(
             @Valid @RequestBody CreateReviewerRequestDto requestDto,
             @AuthenticationPrincipal Long userId) {
-        
+
         Reviewer reviewer = userService.registerReviewer(requestDto, userId);
         ReviewerResponseDto responseDto = ReviewerResponseDto.from(reviewer);
 
