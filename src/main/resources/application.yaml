@@ -30,3 +30,16 @@ jwt:
   expiration: 86400000
   header: Authorization
   prefix: Bearer
+
+# SpringDoc OpenAPI 설정
+springdoc:
+  swagger-ui:
+    # Swagger UI가 참조할 OpenAPI 스펙 파일의 경로 (클래스패스 기준)
+    url: /openapi.yaml
+    # 기본 API Docs 경로 (/v3/api-docs)를 비활성화하고 싶다면 (선택 사항)
+    # path: /my-custom-swagger-ui-path.html # Swagger UI 접속 경로 변경 (선택 사항)
+  api-docs:
+    enabled: true # true가 기본값. 만약 YAML만 쓰고 자동생성 안할거면 false로. 하지만 보통은 true로 두고 YAML을 보조로 사용.
+    # path: /my-api-docs # API 스펙 JSON/YAML 제공 경로 변경 (선택 사항)
+  # 기본적으로 springdoc은 어노테이션 기반으로 API 문서를 생성.
+  # 위 url 설정은 Swagger UI가 '추가적으로' 또는 '대체하여' 참조할 파일을 지정하는 것.

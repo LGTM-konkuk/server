@@ -1,0 +1,898 @@
+openapi: 3.0.0
+info:
+  title: PTAL API
+  version: v1
+  description: API specification for the PTAL (Peer/Project Technical Advice & Learning) platform.
+servers:
+  - url: http://localhost:8080 # 실제 API가 서비스되는 기본 URL
+    description: Local development server
+  # 만약 API 경로가 /api/v1 로 시작한다면 다음과 같이 하는 것이 더 일반적
+  # - url: http://localhost:8080/api/v1
+  #   description: Local development server (API v1)
+  # 이 경우 아래 paths는 /auth/signup 처럼 상대경로로 시작
+
+components:
+  schemas:
+    # --- Common Schemas ---
+    ApiResponseVoid:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Response code (e.g., MEMBER_REGISTER_SUCCESS)
+        message:
+          type: string
+          description: Human-readable message
+        data:
+          type: object
+          nullable: true
+    ApiResponseToken:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/TokenResponseDto'
+    TokenResponseDto:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        # other token details
+
+    # --- DTO Placeholders (You need to define these in detail) ---
+    SignupRequestDto:
+      type: object
+      required:
+        - email
+        - password
+        # other required fields
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        # other fields
+    LoginRequestDto:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    CreateRevieweeDto:
+      type: object
+      properties:
+        displayName:
+          type: string
+        preferences:
+          type: array
+          items:
+            type: string
+    ResponseRevieweeDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        displayName:
+          type: string
+        preferences:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CreateReviewerRequestDto:
+      type: object
+      properties:
+        expertise:
+          type: string
+        bio:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+    ReviewerResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        expertise:
+          type: string
+        bio:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    UserResponseDto: # Placeholder
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [USER, REVIEWER, REVIEWEE, ADMIN]
+        # ... other user details
+    UserUpdateRequestDto: # Placeholder
+      type: object
+      properties:
+        displayName: # Example field
+          type: string
+        # ... other updatable fields
+    ReviewRequestCreateDto: # Placeholder
+      type: object
+      required: [reviewerId, githubLink, requestDetails]
+      properties:
+        reviewerId:
+          type: integer
+          format: int64
+          description: ID of the Reviewer being requested.
+        githubLink:
+          type: string
+          format: url
+        requestDetails:
+          type: string
+    ReviewRequestResponseDto: # Placeholder
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        reviewee:
+          $ref: '#/components/schemas/ResponseRevieweeDto' # or just revieweeId
+        reviewer:
+          $ref: '#/components/schemas/ReviewerResponseDto' # or just reviewerId
+        githubLink:
+          type: string
+        requestDetails:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED, CANCELED]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ReviewCreateDto: # Placeholder
+      type: object
+      required: [reviewRequestId, reviewContent]
+      properties:
+        reviewRequestId:
+          type: integer
+          format: int64
+        reviewContent:
+          type: string
+    ReviewUpdateDto: # Placeholder
+      type: object
+      properties:
+        reviewContent:
+          type: string
+    ReviewResponseDto: # Placeholder
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        reviewer:
+          $ref: '#/components/schemas/ReviewerResponseDto' # or reviewerId
+        reviewee:
+          $ref: '#/components/schemas/ResponseRevieweeDto' # or revieweeId
+        reviewRequestId:
+          type: integer
+          format: int64
+        reviewContent:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ReviewFeedItemDto: # Placeholder, might be same as ReviewResponseDto
+      type: object
+      # Define properties similar to ReviewResponseDto or specialized for feed display
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [] # Applies bearerAuth globally, can be overridden per operation
+
+# 만약 servers.url 에 /api/v1 을 포함했다면 아래 경로는 /auth/signup 과 같이 시작
+# 그렇지 않다면 /api/v1/auth/signup 과 같이 전체 경로 명시 필요
+paths:
+  /api/v1/auth/signup: # 서버 URL에 /api/v1이 없다면 이렇게 전체 경로
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequestDto'
+      responses:
+        '200':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseVoid'
+        '400':
+          description: Invalid request (e.g., validation error, email exists)
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login an existing user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDto'
+      responses:
+        '200':
+          description: Login successful, tokens returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseToken'
+        '400':
+          description: Invalid credentials
+        '401':
+          description: Authentication failed
+
+  /api/v1/users/me:
+    get:
+      tags:
+        - User
+      summary: Get current authenticated user's profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/UserResponseDto' }
+        '401':
+          description: Unauthorized
+    put:
+      tags:
+        - User
+      summary: Update current authenticated user's profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequestDto'
+      responses:
+        '200':
+          description: User profile updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/UserResponseDto' }
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+
+  /api/v1/reviewee:
+    post:
+      tags:
+        - Reviewee
+      summary: Register the authenticated user as a Reviewee
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRevieweeDto'
+      responses:
+        '200': # Or 201 Created
+          description: Reviewee registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ResponseRevieweeDto' }
+        '400':
+          description: Invalid request or user already a reviewee
+        '401':
+          description: Unauthorized
+
+  /api/v1/reviewee/{id}:
+    get:
+      tags:
+        - Reviewee
+      summary: Get Reviewee details by ID
+      security:
+        - bearerAuth: [] # Or allow public access depending on requirements
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Reviewee
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Reviewee data retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ResponseRevieweeDto' }
+        '401':
+          description: Unauthorized
+        '404':
+          description: Reviewee not found
+    put:
+      tags:
+        - Reviewee
+      summary: Update Reviewee details
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Reviewee to update (must match authenticated user's reviewee profile or be admin)
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRevieweeDto' # Or a specific UpdateRevieweeDto
+      responses:
+        '200':
+          description: Reviewee updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ResponseRevieweeDto' }
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (not allowed to update this reviewee)
+        '404':
+          description: Reviewee not found
+
+  /api/v1/reviewer:
+    post:
+      tags:
+        - Reviewer
+      summary: Register the authenticated user as a Reviewer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewerRequestDto'
+      responses:
+        '200': # Or 201 Created
+          description: Reviewer registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ReviewerResponseDto' }
+        '400':
+          description: Invalid request or user already a reviewer
+        '401':
+          description: Unauthorized
+
+  /api/v1/reviewer/{id}:
+    get:
+      tags:
+        - Reviewer
+      summary: Get Reviewer details by ID
+      security:
+        - bearerAuth: [] # Or allow public access
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Reviewer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Reviewer data retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ReviewerResponseDto' }
+        '401':
+          description: Unauthorized
+        '404':
+          description: Reviewer not found
+    put:
+      tags:
+        - Reviewer
+      summary: Update Reviewer details
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Reviewer to update (must match authenticated user's reviewer profile or be admin)
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewerRequestDto' # Or UpdateReviewerDto
+      responses:
+        '200':
+          description: Reviewer updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ReviewerResponseDto' }
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Reviewer not found
+
+  /api/v1/review-requests:
+    post:
+      tags:
+        - Review Request
+      summary: Create a new review request (by a Reviewee)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewRequestCreateDto'
+      responses:
+        '201': # Use 201 for creation
+          description: Review request created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ReviewRequestResponseDto' }
+        '400':
+          description: Invalid request (e.g., reviewerId not found)
+        '401':
+          description: Unauthorized (User not logged in or not a reviewee)
+    get:
+      tags:
+        - Review Request
+      summary: List review requests for the authenticated user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: false
+          description: Filter requests (e.g., "sent", "received", "all")
+          schema:
+            type: string
+            enum: [sent, received, all]
+      responses:
+        '200':
+          description: List of review requests retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReviewRequestResponseDto'
+        '401':
+          description: Unauthorized
+
+  /api/v1/review-requests/{requestId}:
+    get:
+      tags:
+        - Review Request
+      summary: Get a specific review request
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          description: ID of the Review Request
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Review request details retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ReviewRequestResponseDto' }
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (not involved in this request)
+        '404':
+          description: Review request not found
+
+  /api/v1/review-requests/{requestId}/approve:
+    patch:
+      tags:
+        - Review Request
+      summary: Reviewer approves a review request
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          description: ID of the Review Request to approve
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Review request approved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ReviewRequestResponseDto' }
+        '400':
+          description: Request cannot be approved (e.g., not PENDING)
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (not the designated reviewer)
+        '404':
+          description: Review request not found
+
+  /api/v1/review-requests/{requestId}/reject:
+    patch:
+      tags:
+        - Review Request
+      summary: Reviewer rejects a review request
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          description: ID of the Review Request to reject
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Review request rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ReviewRequestResponseDto' }
+        '400':
+          description: Request cannot be rejected
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Review request not found
+
+  /api/v1/review-requests/{requestId}/cancel:
+    patch:
+      tags:
+        - Review Request
+      summary: Reviewee cancels their own review request
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          description: ID of the Review Request to cancel
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Review request canceled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ReviewRequestResponseDto' }
+        '400':
+          description: Request cannot be canceled (e.g., not PENDING)
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (not the original reviewee)
+        '404':
+          description: Review request not found
+
+  /api/v1/reviews:
+    post:
+      tags:
+        - Review
+      summary: Submit a new review (by a Reviewer)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCreateDto'
+      responses:
+        '201':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ReviewResponseDto' }
+        '400':
+          description: Invalid request (e.g., review request not approved or already reviewed)
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (not the designated reviewer for the request)
+    get:
+      tags:
+        - Review
+      summary: List reviews for the authenticated user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: false
+          description: Filter reviews (e.g., "written", "received", "all")
+          schema:
+            type: string
+            enum: [written, received, all]
+      responses:
+        '200':
+          description: List of reviews retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReviewResponseDto'
+        '401':
+          description: Unauthorized
+
+  /api/v1/reviews/{reviewId}:
+    get:
+      tags:
+        - Review
+      summary: Get a specific review
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          description: ID of the Review
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Review details retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ReviewResponseDto' }
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (not involved in this review)
+        '404':
+          description: Review not found
+    put:
+      tags:
+        - Review
+      summary: Update an existing review (by the original Reviewer)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          description: ID of the Review to update
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewUpdateDto'
+      responses:
+        '200':
+          description: Review updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ReviewResponseDto' }
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (not the original reviewer or update window passed)
+        '404':
+          description: Review not found
+
+  /api/v1/feed:
+    get:
+      tags:
+        - Review Feed
+      summary: Get the personalized review feed for the authenticated user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number for pagination (0-indexed)
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          description: Number of items per page
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Review feed retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  data: # Could be an object with 'content', 'totalPages', 'totalElements' etc. for pagination
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReviewFeedItemDto'
+        '401':
+          description: Unauthorized

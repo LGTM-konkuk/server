@@ -13,7 +13,6 @@ import lombok.Getter;
 
         REVIEWER_REGISTER_SUCCESS(201, true, "리뷰어 등록 성공"),
         REVIEWEE_REGISTER_SUCCESS(201, true, "리뷰이 등록 성공");
-        REVIEWER_REGISTER_SUCCESS(201, true, "리뷰어 등록 성공");
 
 
         private final Integer code;
