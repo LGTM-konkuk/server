@@ -15,11 +15,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/reviewer")
 @RequiredArgsConstructor
-public class ReviewerController implements IReviewerController {
+public class ReviewerController {
 
     private final IUserService userService;
 
-    @Override
     @PostMapping
     public ResponseEntity<ApiResponse<ReviewerResponseDto>> registerReviewer(
             @Valid @RequestBody CreateReviewerRequestDto requestDto,
@@ -31,7 +30,6 @@ public class ReviewerController implements IReviewerController {
         return ResponseEntity.ok(ApiResponse.success(ResponseCode.REVIEWER_REGISTER_SUCCESS, responseDto));
     }
 
-    @Override
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ReviewerResponseDto>> getReviewer(@PathVariable Long id) {
         Reviewer reviewer = userService.getReviewer(id);
@@ -39,7 +37,6 @@ public class ReviewerController implements IReviewerController {
         return ResponseEntity.ok(ApiResponse.success(ResponseCode.DATA_RETRIEVED, responseDto));
     }
 
-    @Override
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ReviewerResponseDto>> updateReviewer(
             @PathVariable Long id,
