@@ -1,13 +1,16 @@
 package konkuk.ptal.service;
 
+import konkuk.ptal.domain.enums.Role;
 import konkuk.ptal.dto.api.ErrorCode;
+import konkuk.ptal.dto.request.CreateRevieweeDto;
 import konkuk.ptal.dto.request.CreateReviewerRequestDto;
+import konkuk.ptal.entity.Reviewee;
 import konkuk.ptal.entity.Reviewer;
 import konkuk.ptal.entity.User;
 import konkuk.ptal.exception.BadRequestException;
-import konkuk.ptal.repository.UserRepository;
+import konkuk.ptal.repository.RevieweeRepository;
 import konkuk.ptal.repository.ReviewerRepository;
-import konkuk.ptal.domain.enums.Role;
+import konkuk.ptal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +21,7 @@ public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
     private final ReviewerRepository reviewerRepository;
+    private final RevieweeRepository revieweeRepository;
 
     @Transactional
     public Reviewer registerReviewer(CreateReviewerRequestDto dto, Long authenticatedUserId) {
@@ -55,7 +59,7 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public Reviewer updateReviewer(Long id, CreateReviewerRequestDto dto, Long authenticatedUserId) {
         Reviewer reviewer = getReviewer(id);
-        
+
         // 리뷰어 본인만 수정 가능
         if (!reviewer.getUser().getId().equals(authenticatedUserId)) {
             throw new BadRequestException(ErrorCode.INVALID_JWT);
@@ -66,5 +70,47 @@ public class UserServiceImpl implements IUserService {
         reviewer.setTags(dto.getTags());
 
         return reviewerRepository.save(reviewer);
+    }
+
+    @Override
+    public Reviewee registerReviewee(CreateRevieweeDto dto, Long authenticatedUserId) {
+        if (!dto.getUserId().equals(authenticatedUserId)) {
+            throw new BadRequestException(ErrorCode.INVALID_JWT);
+        }
+
+        User user = userRepository.findById(authenticatedUserId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+
+        if (Role.REVIEWEE.equals(user.getRole())) {
+            throw new BadRequestException(ErrorCode.ALREADY_REVIEWEE);
+        }
+
+        Reviewee reviewee = Reviewee.createReviewee(user, dto);
+
+        user.updateRole(Role.REVIEWEE);
+        userRepository.save(user);
+
+        return revieweeRepository.save(reviewee);
+    }
+
+    @Override
+    public Reviewee getReviewee(Long id) {
+        return revieweeRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    @Override
+    public Reviewee updateReviewee(Long id, CreateRevieweeDto dto, Long authenticatedUserId) {
+        Reviewee reviewee = getReviewee(id);
+
+        // 리뷰어 본인만 수정 가능
+        if (!reviewee.getUser().getId().equals(authenticatedUserId)) {
+            throw new BadRequestException(ErrorCode.INVALID_JWT);
+        }
+
+        reviewee.setDisplayName(dto.getDisplayName());
+        reviewee.setPreferences(dto.getPreferences());
+
+        return revieweeRepository.save(reviewee);
     }
 }

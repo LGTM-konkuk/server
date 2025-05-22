@@ -46,4 +46,6 @@ public class ReviewerController {
         ReviewerResponseDto responseDto = ReviewerResponseDto.from(updatedReviewer);
         return ResponseEntity.ok(ApiResponse.success(ResponseCode.OK, responseDto));
     }
-} 
+
+}
+
