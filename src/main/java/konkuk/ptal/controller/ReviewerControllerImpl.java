@@ -1,6 +1,8 @@
 package konkuk.ptal.controller;
 
 import jakarta.validation.Valid;
+import konkuk.ptal.dto.api.ApiResponse;
+import konkuk.ptal.dto.api.ResponseCode;
 import konkuk.ptal.dto.request.CreateReviewerRequestDto;
 import konkuk.ptal.dto.response.ReviewerResponseDto;
 import konkuk.ptal.entity.Reviewer;
@@ -23,16 +25,14 @@ public class ReviewerControllerImpl implements ReviewerController {
 
     @Override
     @PostMapping
-    public ResponseEntity<Map<String, ReviewerResponseDto>> registerReviewer(
+    public ResponseEntity<ApiResponse<ReviewerResponseDto>> registerReviewer(
             @Valid @RequestBody CreateReviewerRequestDto requestDto,
             @AuthenticationPrincipal Long userId) {
         
         Reviewer reviewer = userService.registerReviewer(requestDto, userId);
         ReviewerResponseDto responseDto = ReviewerResponseDto.from(reviewer);
-        
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(Map.of("reviewer", responseDto));
+
+        return ResponseEntity.ok(ApiResponse.success(ResponseCode.REVIEWER_REGISTER_SUCCESS, responseDto));
     }
 
     @Override
@@ -48,7 +48,6 @@ public class ReviewerControllerImpl implements ReviewerController {
             @PathVariable Long id,
             @Valid @RequestBody CreateReviewerRequestDto requestDto,
             @AuthenticationPrincipal Long userId) {
-        
         Reviewer updatedReviewer = userService.updateReviewer(id, requestDto, userId);
         return ResponseEntity.ok(ReviewerResponseDto.from(updatedReviewer));
     }
