@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/feed") // Or "/api/review-feed"
+@RequestMapping("/api/v1/feed") // Or "/api/review-feed"
 @RequiredArgsConstructor
 public class ReviewFeedController {
 

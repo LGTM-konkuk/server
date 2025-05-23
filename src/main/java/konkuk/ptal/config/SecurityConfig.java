@@ -49,11 +49,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(SWAGGER_PATHS).permitAll() // Swagger 경로 허용
-                        .requestMatchers("/api/reviewer/**").authenticated()
-                        .requestMatchers("/api/reviewee/**").authenticated()
+                        .requestMatchers("/api/v1/reviewer/**").authenticated()
+                        .requestMatchers("/api/v1/reviewee/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))

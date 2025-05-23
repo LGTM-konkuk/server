@@ -12,9 +12,9 @@ import lombok.Getter;
         DATA_RETRIEVED(200, true, "데이터 조회 성공"),
 
         REVIEWER_REGISTER_SUCCESS(201, true, "리뷰어 등록 성공"),
-        REVIEWEE_REGISTER_SUCCESS(201, true, "리뷰이 등록 성공");
-
-
+        REVIEWEE_REGISTER_SUCCESS(201, true, "리뷰이 등록 성공"),
+        REVIEW_CREATED(201, true, "리뷰 생성 성공"),
+        REVIEW_UPDATED(200, true, "리뷰 업데이트 성공");
         private final Integer code;
         private final Boolean success;
         private final String message;

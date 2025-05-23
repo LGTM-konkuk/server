@@ -14,7 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/users") // Base path for user-specific operations
+@RequestMapping("/api/v1/users") // Base path for user-specific operations
 @RequiredArgsConstructor
 public class UserController {
 
