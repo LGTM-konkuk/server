@@ -11,10 +11,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewUpdateRequest {
+public class CreateReviewSubmissionRequest {
     @NotNull
-    @Size(min = 10, max = 5000) // 예시: 최소 10자, 최대 5000자
-    private String reviewContent;
+    private Long reviewerId;
 
-    // 필요한 경우 추가 필드
+    @NotNull
+    private String gitUrl;
+
+    @NotNull
+    private String requestDetails;
 }

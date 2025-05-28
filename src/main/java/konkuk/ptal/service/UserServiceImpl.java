@@ -24,30 +24,8 @@ public class UserServiceImpl implements IUserService {
     private final RevieweeRepository revieweeRepository;
 
     @Transactional
-    public Reviewer registerReviewer(CreateReviewerRequest dto, Long authenticatedUserId) {
-        // 1. 인증된 사용자와 요청된 사용자 ID가 일치하는지 확인
-        if (!dto.getUserId().equals(authenticatedUserId)) {
-            throw new BadRequestException(ErrorCode.INVALID_JWT);
-        }
-
-        // 2. 사용자 조회
-        User user = userRepository.findById(authenticatedUserId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-
-        // 3. 이미 리뷰어인지 확인
-        if (Role.REVIEWER.equals(user.getRole())) {
-            throw new BadRequestException(ErrorCode.ALREADY_REVIEWER);
-        }
-
-        // 4. 리뷰어 엔티티 생성
-        Reviewer reviewer = Reviewer.createReviewer(user, dto);
-
-        // 5. 사용자 역할 업데이트
-        user.updateRole(Role.REVIEWER);
-        userRepository.save(user);
-
-        // 6. 리뷰어 정보 저장 및 반환
-        return reviewerRepository.save(reviewer);
+    public Reviewer registerReviewer(CreateReviewerRequest dto) {
+        return null;
     }
 
     @Transactional(readOnly = true)
@@ -65,7 +43,6 @@ public class UserServiceImpl implements IUserService {
             throw new BadRequestException(ErrorCode.INVALID_JWT);
         }
 
-        reviewer.setExpertise(dto.getExpertise());
         reviewer.setBio(dto.getBio());
         reviewer.setTags(dto.getTags());
 
@@ -73,24 +50,8 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Reviewee registerReviewee(CreateRevieweeRequest dto, Long authenticatedUserId) {
-        if (!dto.getUserId().equals(authenticatedUserId)) {
-            throw new BadRequestException(ErrorCode.INVALID_JWT);
-        }
-
-        User user = userRepository.findById(authenticatedUserId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-
-        if (Role.REVIEWEE.equals(user.getRole())) {
-            throw new BadRequestException(ErrorCode.ALREADY_REVIEWEE);
-        }
-
-        Reviewee reviewee = Reviewee.createReviewee(user, dto);
-
-        user.updateRole(Role.REVIEWEE);
-        userRepository.save(user);
-
-        return revieweeRepository.save(reviewee);
+    public Reviewee registerReviewee(CreateRevieweeRequest dto) {
+        return null;
     }
 
     @Override
@@ -107,8 +68,6 @@ public class UserServiceImpl implements IUserService {
         if (!reviewee.getUser().getId().equals(authenticatedUserId)) {
             throw new BadRequestException(ErrorCode.INVALID_JWT);
         }
-
-        reviewee.setDisplayName(dto.getDisplayName());
         reviewee.setPreferences(dto.getPreferences());
 
         return revieweeRepository.save(reviewee);

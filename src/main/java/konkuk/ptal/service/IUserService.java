@@ -7,13 +7,13 @@ import konkuk.ptal.entity.Reviewee;
 import konkuk.ptal.entity.Reviewer;
 
 public interface IUserService {
-    Reviewer registerReviewer(CreateReviewerRequest dto, Long authenticatedUserId);
+    Reviewer registerReviewer(CreateReviewerRequest dto);
 
     Reviewer getReviewer(Long id);
 
     Reviewer updateReviewer(Long id, CreateReviewerRequest dto, Long authenticatedUserId);
 
-    Reviewee registerReviewee(CreateRevieweeRequest dto, Long authenticatedUserId);
+    Reviewee registerReviewee(CreateRevieweeRequest dto);
 
     Reviewee getReviewee(Long id);
 

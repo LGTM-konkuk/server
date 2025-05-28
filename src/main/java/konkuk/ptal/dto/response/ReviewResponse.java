@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ReviewResponse {
     private Long id;
-    private ReviewerResponse reviewer; // 또는 Long reviewerId;
-    private RevieweeResponse reviewee; // 또는 Long revieweeId;
+    private CreateReviewerResponse reviewer; // 또는 Long reviewerId;
+    private CreateRevieweeResponse reviewee; // 또는 Long revieweeId;
     private Long reviewRequestId;
     private String reviewContent;
     private LocalDateTime createdAt;

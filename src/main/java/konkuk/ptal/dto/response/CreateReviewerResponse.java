@@ -13,22 +13,23 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReviewerResponse {
+public class CreateReviewerResponse {
     private Long id;
-    private String expertise;
+    private List<String> preferences;
     private List<String> tags;
     private String bio;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static ReviewerResponse from(Reviewer reviewer) {
-        return ReviewerResponse.builder()
+    public static CreateReviewerResponse from(Reviewer reviewer) {
+        BaseAuditResponse baseAuditResponse = BaseAuditResponse.from(reviewer.getCreatedAt());
+        return CreateReviewerResponse.builder()
                 .id(reviewer.getId())
-                .expertise(reviewer.getExpertise())
+                .preferences(reviewer.getPreferences())
                 .tags(reviewer.getTags())
                 .bio(reviewer.getBio())
-                .createdAt(reviewer.getCreatedAt())
-                .updatedAt(reviewer.getUpdatedAt())
+                .createdAt(baseAuditResponse.getCreatedAt())
+                .updatedAt(baseAuditResponse.getUpdatedAt())
                 .build();
     }
 }

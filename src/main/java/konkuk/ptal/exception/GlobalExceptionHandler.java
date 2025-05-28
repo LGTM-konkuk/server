@@ -5,7 +5,6 @@ import konkuk.ptal.dto.api.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -13,8 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<?>> handleValidationException(MethodArgumentNotValidException ex) {
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<?>> handleValidationException(org.springframework.web.bind.MethodArgumentNotValidException ex) {
         String errorMessage = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -25,7 +24,7 @@ public class GlobalExceptionHandler {
         log.warn("Validation failed: {}", errorMessage);
 
         return ResponseEntity.badRequest()
-                .body(ApiResponse.fail(ErrorCode.BAD_REQUEST, errorMessage, null));
+                .body(ApiResponse.fail(errorMessage, null));
     }
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiResponse<?>> handleBadRequestException(BadRequestException ex) {
@@ -35,6 +34,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ApiResponse<?>> handleUnauthorizedException(UnauthorizedException ex) {
         return buildResponse(ex, HttpStatus.UNAUTHORIZED);
+    }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        return buildResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
@@ -46,13 +49,13 @@ public class GlobalExceptionHandler {
         BaseException baseException = new BaseException(ErrorCode.INTERNAL_SERVER_ERROR);
 
         // API 응답 생성
-        ApiResponse<?> response = ApiResponse.fail(baseException.getErrorCode(), baseException.getMessage(), null);
+        ApiResponse<?> response = ApiResponse.fail(baseException.getMessage(), null);
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<ApiResponse<?>> buildResponse(BaseException ex, HttpStatus status) {
-        ApiResponse<?> response = ApiResponse.fail(ex.getErrorCode(), ex.getMessage(), null);
+        ApiResponse<?> response = ApiResponse.fail(ex.getMessage(), null);
         return new ResponseEntity<>(response, status);
     }
 

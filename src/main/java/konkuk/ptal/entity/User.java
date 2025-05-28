@@ -23,6 +23,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
+    private String name;
+
     @Column(nullable = false, name = "password_hash")
     private String passwordHash;
 
@@ -46,9 +49,10 @@ public class User {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-    public static User createUser(String email, String passwordHash) {
+    public static User createUser(String email, String name, String passwordHash) {
         return User.builder()
                 .email(email)
+                .name(name)
                 .passwordHash(passwordHash)
                 .role(Role.USER)
                 .build();

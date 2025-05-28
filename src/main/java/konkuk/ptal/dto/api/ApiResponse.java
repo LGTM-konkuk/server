@@ -22,19 +22,9 @@ public class ApiResponse<T> {
         return new ApiResponse<>(message, result);
     }
 
-    // 성공 - ResponseCode 사용
-    public static <T> ApiResponse<T> success(ResponseCode code, T result) {
-        return new ApiResponse<>(code.getMessage(), result);
-    }
-
     // 실패 - 코드, 메시지 직접 지정
-    public static <T> ApiResponse<T> fail(ErrorCode errorCode, String message, T result) {
+    public static <T> ApiResponse<T> fail(String message, T result) {
         return new ApiResponse<>(message, result);
-    }
-
-    // 실패 - ErrorCode 사용
-    public static <T> ApiResponse<T> fail(ErrorCode errorCode, T result) {
-        return new ApiResponse<>(errorCode.getMessage(), result);
     }
 
 }

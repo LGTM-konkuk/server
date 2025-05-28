@@ -1,11 +1,10 @@
 package konkuk.ptal.service;
 
-import konkuk.ptal.dto.request.LoginRequest;
-import konkuk.ptal.dto.request.SignupRequest;
-import konkuk.ptal.dto.response.TokenResponse;
+import konkuk.ptal.dto.request.CreateRevieweeRequest;
+import konkuk.ptal.dto.request.CreateReviewerRequest;
+import konkuk.ptal.dto.request.UserLoginRequest;
+import konkuk.ptal.dto.response.AuthTokenResponse;
 
 public interface IAuthService {
-    public TokenResponse login(LoginRequest dto);
-    public void register(SignupRequest signupRequest);
-
+    public AuthTokenResponse login(UserLoginRequest dto);
 }

@@ -25,9 +25,6 @@ public class Reviewee {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(nullable = false, name="display_name")
-    private String displayName;
-
     @Convert(converter = StringListConverter.class)
     @Column(columnDefinition = "TEXT")
     private List<String> preferences;
@@ -52,7 +49,6 @@ public class Reviewee {
     public static Reviewee createReviewee(User user, CreateRevieweeRequest dto){
         return Reviewee.builder()
                 .user(user)
-                .displayName(dto.getDisplayName())
                 .preferences(dto.getPreferences())
                 .build();
     }
