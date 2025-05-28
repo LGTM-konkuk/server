@@ -3,9 +3,9 @@ package konkuk.ptal.controller;
 import jakarta.validation.Valid;
 import konkuk.ptal.dto.api.ApiResponse;
 import konkuk.ptal.dto.api.ResponseCode;
-import konkuk.ptal.dto.request.LoginRequestDto;
-import konkuk.ptal.dto.request.SignupRequestDto;
-import konkuk.ptal.dto.response.TokenResponseDto;
+import konkuk.ptal.dto.request.LoginRequest;
+import konkuk.ptal.dto.request.SignupRequest;
+import konkuk.ptal.dto.response.TokenResponse;
 import konkuk.ptal.service.IAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +23,14 @@ public class AuthController {
     private final IAuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
-        authService.register(signupRequestDto);
+    public ResponseEntity<ApiResponse<Void>> signup(@Valid @RequestBody SignupRequest signupRequest) {
+        authService.register(signupRequest);
         return ResponseEntity.ok(ApiResponse.success(ResponseCode.MEMBER_REGISTER_SUCCESS, null));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<TokenResponseDto>> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
-        TokenResponseDto token = authService.login(loginRequestDto);
+    public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
+        TokenResponse token = authService.login(loginRequest);
         return ResponseEntity.ok(ApiResponse.success(ResponseCode.LOGIN_SUCCESS, token));
     }
 }

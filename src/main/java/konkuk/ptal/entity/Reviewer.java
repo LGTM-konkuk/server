@@ -1,7 +1,7 @@
 package konkuk.ptal.entity;
 
 import jakarta.persistence.*;
-import konkuk.ptal.dto.request.CreateReviewerRequestDto;
+import konkuk.ptal.dto.request.CreateReviewerRequest;
 import konkuk.ptal.util.StringListConverter;
 import lombok.*;
 
@@ -53,7 +53,7 @@ public class Reviewer {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public static Reviewer createReviewer(User user, CreateReviewerRequestDto dto){
+    public static Reviewer createReviewer(User user, CreateReviewerRequest dto){
         return Reviewer.builder()
                 .user(user)
                 .expertise(dto.getExpertise())

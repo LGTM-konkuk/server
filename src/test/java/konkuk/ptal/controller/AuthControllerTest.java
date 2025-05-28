@@ -1,8 +1,8 @@
 package konkuk.ptal.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import konkuk.ptal.dto.request.LoginRequestDto;
-import konkuk.ptal.dto.request.SignupRequestDto;
+import konkuk.ptal.dto.request.LoginRequest;
+import konkuk.ptal.dto.request.SignupRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,7 +24,7 @@ class AuthControllerTest {
 
     @Test
     void signupSuccessIntegration() throws Exception {
-        SignupRequestDto dto = new SignupRequestDto();
+        SignupRequest dto = new SignupRequest();
         dto.setEmail("integration@example.com");
         dto.setPassword("123456");
 
@@ -39,7 +38,7 @@ class AuthControllerTest {
 
     @Test
     void signupFailureValidation() throws Exception {
-        SignupRequestDto dto = new SignupRequestDto();
+        SignupRequest dto = new SignupRequest();
         dto.setEmail("not-an-email");
         dto.setPassword("123"); // too short
 
@@ -53,7 +52,7 @@ class AuthControllerTest {
     @Test
     void loginSuccessIntegration() throws Exception {
         // 1. 먼저 회원가입을 선행하여 유저를 등록합니다.
-        SignupRequestDto signupDto = new SignupRequestDto();
+        SignupRequest signupDto = new SignupRequest();
         signupDto.setEmail("logintest@example.com");
         signupDto.setPassword("123456");
 
@@ -63,7 +62,7 @@ class AuthControllerTest {
                 .andExpect(status().isOk());
 
         // 2. 로그인 요청
-        LoginRequestDto loginDto = new LoginRequestDto();
+        LoginRequest loginDto = new LoginRequest();
         loginDto.setEmail("logintest@example.com");
         loginDto.setPassword("123456");
 
@@ -78,7 +77,7 @@ class AuthControllerTest {
 
     @Test
     void loginFailureValidation() throws Exception {
-        LoginRequestDto dto = new LoginRequestDto();
+        LoginRequest dto = new LoginRequest();
         dto.setEmail("");
         dto.setPassword("");
 

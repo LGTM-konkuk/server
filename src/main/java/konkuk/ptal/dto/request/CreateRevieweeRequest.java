@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateRevieweeDto {
+public class CreateRevieweeRequest {
 
     @NotBlank
     private Long userId;

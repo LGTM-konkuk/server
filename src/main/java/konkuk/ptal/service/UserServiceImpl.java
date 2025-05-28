@@ -2,8 +2,8 @@ package konkuk.ptal.service;
 
 import konkuk.ptal.domain.enums.Role;
 import konkuk.ptal.dto.api.ErrorCode;
-import konkuk.ptal.dto.request.CreateRevieweeDto;
-import konkuk.ptal.dto.request.CreateReviewerRequestDto;
+import konkuk.ptal.dto.request.CreateRevieweeRequest;
+import konkuk.ptal.dto.request.CreateReviewerRequest;
 import konkuk.ptal.entity.Reviewee;
 import konkuk.ptal.entity.Reviewer;
 import konkuk.ptal.entity.User;
@@ -24,7 +24,7 @@ public class UserServiceImpl implements IUserService {
     private final RevieweeRepository revieweeRepository;
 
     @Transactional
-    public Reviewer registerReviewer(CreateReviewerRequestDto dto, Long authenticatedUserId) {
+    public Reviewer registerReviewer(CreateReviewerRequest dto, Long authenticatedUserId) {
         // 1. 인증된 사용자와 요청된 사용자 ID가 일치하는지 확인
         if (!dto.getUserId().equals(authenticatedUserId)) {
             throw new BadRequestException(ErrorCode.INVALID_JWT);
@@ -57,7 +57,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Transactional
-    public Reviewer updateReviewer(Long id, CreateReviewerRequestDto dto, Long authenticatedUserId) {
+    public Reviewer updateReviewer(Long id, CreateReviewerRequest dto, Long authenticatedUserId) {
         Reviewer reviewer = getReviewer(id);
 
         // 리뷰어 본인만 수정 가능
@@ -73,7 +73,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Reviewee registerReviewee(CreateRevieweeDto dto, Long authenticatedUserId) {
+    public Reviewee registerReviewee(CreateRevieweeRequest dto, Long authenticatedUserId) {
         if (!dto.getUserId().equals(authenticatedUserId)) {
             throw new BadRequestException(ErrorCode.INVALID_JWT);
         }
@@ -100,7 +100,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Reviewee updateReviewee(Long id, CreateRevieweeDto dto, Long authenticatedUserId) {
+    public Reviewee updateReviewee(Long id, CreateRevieweeRequest dto, Long authenticatedUserId) {
         Reviewee reviewee = getReviewee(id);
 
         // 리뷰어 본인만 수정 가능

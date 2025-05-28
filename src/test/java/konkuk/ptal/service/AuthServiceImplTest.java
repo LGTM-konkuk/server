@@ -3,9 +3,9 @@ package konkuk.ptal.service;
 import konkuk.ptal.config.JwtTokenProvider;
 import konkuk.ptal.domain.TokenInfo;
 import konkuk.ptal.dto.api.ErrorCode;
-import konkuk.ptal.dto.request.LoginRequestDto;
-import konkuk.ptal.dto.request.SignupRequestDto;
-import konkuk.ptal.dto.response.TokenResponseDto;
+import konkuk.ptal.dto.request.LoginRequest;
+import konkuk.ptal.dto.request.SignupRequest;
+import konkuk.ptal.dto.response.TokenResponse;
 import konkuk.ptal.entity.User;
 import konkuk.ptal.exception.BadRequestException;
 import konkuk.ptal.exception.UnauthorizedException;
@@ -39,7 +39,7 @@ class AuthServiceImplTest {
 
     @Test
     void registerSuccess() {
-        SignupRequestDto dto = new SignupRequestDto();
+        SignupRequest dto = new SignupRequest();
         dto.setEmail("test@example.com");
         dto.setPassword("123456");
 
@@ -53,7 +53,7 @@ class AuthServiceImplTest {
 
     @Test
     void registerDuplicateEmail() {
-        SignupRequestDto dto = new SignupRequestDto();
+        SignupRequest dto = new SignupRequest();
         dto.setEmail("dup@example.com");
         dto.setPassword("123456");
 
@@ -65,7 +65,7 @@ class AuthServiceImplTest {
 
     @Test
     void loginSuccess() {
-        LoginRequestDto dto = new LoginRequestDto();
+        LoginRequest dto = new LoginRequest();
         dto.setEmail("user@example.com");
         dto.setPassword("password");
 
@@ -85,7 +85,7 @@ class AuthServiceImplTest {
                         .build()
         );
 
-        TokenResponseDto response = authService.login(dto);
+        TokenResponse response = authService.login(dto);
         assertEquals("access-token", response.getToken());
         assertEquals(1L, response.getUserId());
         assertEquals("user@example.com", response.getEmail());
@@ -93,7 +93,7 @@ class AuthServiceImplTest {
 
     @Test
     void loginUserNotFound() {
-        LoginRequestDto dto = new LoginRequestDto();
+        LoginRequest dto = new LoginRequest();
         dto.setEmail("notfound@example.com");
         dto.setPassword("pw");
 
@@ -105,7 +105,7 @@ class AuthServiceImplTest {
 
     @Test
     void loginPasswordMismatch() {
-        LoginRequestDto dto = new LoginRequestDto();
+        LoginRequest dto = new LoginRequest();
         dto.setEmail("user@example.com");
         dto.setPassword("wrong");
 

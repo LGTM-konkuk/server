@@ -3,8 +3,8 @@ package konkuk.ptal.controller;
 import jakarta.validation.Valid;
 import konkuk.ptal.dto.api.ApiResponse;
 import konkuk.ptal.dto.api.ResponseCode;
-import konkuk.ptal.dto.request.CreateRevieweeDto;
-import konkuk.ptal.dto.response.ResponseRevieweeDto;
+import konkuk.ptal.dto.request.CreateRevieweeRequest;
+import konkuk.ptal.dto.response.RevieweeResponse;
 import konkuk.ptal.entity.Reviewee;
 import konkuk.ptal.service.IUserService;
 import lombok.RequiredArgsConstructor;
@@ -20,31 +20,31 @@ public class RevieweeController {
     private final IUserService IUserService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ResponseRevieweeDto>> registerReviewee(
-            @Valid @RequestBody CreateRevieweeDto requestDto,
+    public ResponseEntity<ApiResponse<RevieweeResponse>> registerReviewee(
+            @Valid @RequestBody CreateRevieweeRequest requestDto,
             @AuthenticationPrincipal Long userId) {
 
         Reviewee reviewee = IUserService.registerReviewee(requestDto, userId);
-        ResponseRevieweeDto responseDto = ResponseRevieweeDto.from(reviewee);
+        RevieweeResponse responseDto = RevieweeResponse.from(reviewee);
 
         return ResponseEntity.ok(ApiResponse.success(ResponseCode.REVIEWEE_REGISTER_SUCCESS, responseDto));
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ResponseRevieweeDto>> getReviewee(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<RevieweeResponse>> getReviewee(@PathVariable Long id) {
         Reviewee reviewee = IUserService.getReviewee(id);
-        ResponseRevieweeDto responseDto = ResponseRevieweeDto.from(reviewee);
+        RevieweeResponse responseDto = RevieweeResponse.from(reviewee);
         return ResponseEntity.ok(ApiResponse.success(ResponseCode.DATA_RETRIEVED, responseDto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ResponseRevieweeDto>> updateReviewee(
+    public ResponseEntity<ApiResponse<RevieweeResponse>> updateReviewee(
             @PathVariable Long id,
-            @Valid @RequestBody CreateRevieweeDto requestDto,
+            @Valid @RequestBody CreateRevieweeRequest requestDto,
             @AuthenticationPrincipal Long userId) {
         Reviewee updatedReviewee = IUserService.updateReviewee(id, requestDto, userId);
-        ResponseRevieweeDto responseDto = ResponseRevieweeDto.from(updatedReviewee);
+        RevieweeResponse responseDto = RevieweeResponse.from(updatedReviewee);
         return ResponseEntity.ok(ApiResponse.success(ResponseCode.OK, responseDto));
     }
 }

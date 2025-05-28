@@ -1,7 +1,7 @@
 package konkuk.ptal.entity;
 
 import jakarta.persistence.*;
-import konkuk.ptal.dto.request.CreateRevieweeDto;
+import konkuk.ptal.dto.request.CreateRevieweeRequest;
 import konkuk.ptal.util.StringListConverter;
 import lombok.*;
 
@@ -49,7 +49,7 @@ public class Reviewee {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public static Reviewee createReviewee(User user, CreateRevieweeDto dto){
+    public static Reviewee createReviewee(User user, CreateRevieweeRequest dto){
         return Reviewee.builder()
                 .user(user)
                 .displayName(dto.getDisplayName())

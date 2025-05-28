@@ -3,13 +3,13 @@ package konkuk.ptal.dto.response;
 import lombok.Data;
 
 @Data
-public class TokenResponseDto {
+public class TokenResponse {
     private String token;
     private Long userId;
     private String email;
 
-    public static TokenResponseDto of(String token, Long userId, String email) {
-        TokenResponseDto dto = new TokenResponseDto();
+    public static TokenResponse of(String token, Long userId, String email) {
+        TokenResponse dto = new TokenResponse();
         dto.setToken(token);
         dto.setUserId(userId);
         dto.setEmail(email);

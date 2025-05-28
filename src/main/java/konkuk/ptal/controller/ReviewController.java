@@ -3,22 +3,19 @@ package konkuk.ptal.controller;
 import jakarta.validation.Valid;
 import konkuk.ptal.dto.api.ApiResponse;
 import konkuk.ptal.dto.api.ResponseCode;
-import konkuk.ptal.dto.request.ReviewCreateDto;
-import konkuk.ptal.dto.request.ReviewUpdateDto;
-import konkuk.ptal.dto.response.ResponseRevieweeDto;
-import konkuk.ptal.dto.response.ReviewResponseDto;
-import konkuk.ptal.dto.response.ReviewerResponseDto;
+import konkuk.ptal.dto.request.ReviewCreateRequest;
+import konkuk.ptal.dto.request.ReviewUpdateRequest;
+import konkuk.ptal.dto.response.RevieweeResponse;
+import konkuk.ptal.dto.response.ReviewResponse;
+import konkuk.ptal.dto.response.ReviewerResponse;
 import konkuk.ptal.service.IReviewService; // TODO: Create this service interface
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/reviews")
@@ -37,8 +34,8 @@ public class ReviewController {
      * @return ResponseEntity with ApiResponse containing the created ReviewResponseDto.
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<ReviewResponseDto>> createReview(
-            @Valid @RequestBody ReviewCreateDto createDto,
+    public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
+            @Valid @RequestBody ReviewCreateRequest createDto,
             @AuthenticationPrincipal Long reviewerUserId) {
         // TODO: Implement service logic:
         // 1. Validate if the authenticated user (reviewerUserId) is a reviewer.
@@ -56,9 +53,9 @@ public class ReviewController {
 
         // Dummy ReviewResponseDto for demonstration
         // userId 필드를 완전히 제거했습니다.
-        ReviewResponseDto dummyResponse = new ReviewResponseDto(
+        ReviewResponse dummyResponse = new ReviewResponse(
                 1L, // Dummy Review ID (ReviewResponseDto의 id)
-                ReviewerResponseDto.builder()
+                ReviewerResponse.builder()
                         .id(10L) // Dummy Reviewer Profile ID (Reviewer 테이블의 ID)
                         .expertise("Expertise A")
                         .bio("Bio A")
@@ -66,7 +63,7 @@ public class ReviewController {
                         .createdAt(LocalDateTime.now())
                         .updatedAt(LocalDateTime.now())
                         .build(),
-                ResponseRevieweeDto.builder()
+                RevieweeResponse.builder()
                         .id(20L) // Dummy Reviewee Profile ID (Reviewee 테이블의 ID)
                         .displayName("Reviewee Display")
                         .preferences(List.of("pref1"))
@@ -91,7 +88,7 @@ public class ReviewController {
      * @return ResponseEntity with ApiResponse containing a list of ReviewResponseDto.
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ReviewResponseDto>>> listMyReviews(
+    public ResponseEntity<ApiResponse<List<ReviewResponse>>> listMyReviews(
             @AuthenticationPrincipal Long userId,
             @RequestParam(required = false) String type // e.g., "written", "received", "all"
     ) {
@@ -110,10 +107,10 @@ public class ReviewController {
 
         // Dummy list of ReviewResponseDto for demonstration
         // userId 필드를 완전히 제거했습니다.
-        List<ReviewResponseDto> dummyReviews = List.of(
-                new ReviewResponseDto(
+        List<ReviewResponse> dummyReviews = List.of(
+                new ReviewResponse(
                         101L,
-                        ReviewerResponseDto.builder() // Builder 패턴 사용
+                        ReviewerResponse.builder() // Builder 패턴 사용
                                 .id(1L)
                                 .expertise("Java Expert")
                                 .bio("Passionate about code reviews")
@@ -121,7 +118,7 @@ public class ReviewController {
                                 .createdAt(LocalDateTime.now().minusDays(10))
                                 .updatedAt(LocalDateTime.now().minusDays(10))
                                 .build(),
-                        ResponseRevieweeDto.builder()
+                        RevieweeResponse.builder()
                                 .id(1L)
                                 .displayName("Learning Dev")
                                 .preferences(List.of("backend"))
@@ -133,9 +130,9 @@ public class ReviewController {
                         LocalDateTime.now().minusDays(5),
                         LocalDateTime.now().minusDays(5)
                 ),
-                new ReviewResponseDto(
+                new ReviewResponse(
                         102L,
-                        ReviewerResponseDto.builder() // Builder 패턴 사용
+                        ReviewerResponse.builder() // Builder 패턴 사용
                                 .id(2L)
                                 .expertise("Frontend Guru")
                                 .bio("Loves UI/UX")
@@ -143,7 +140,7 @@ public class ReviewController {
                                 .createdAt(LocalDateTime.now().minusDays(8))
                                 .updatedAt(LocalDateTime.now().minusDays(8))
                                 .build(),
-                        ResponseRevieweeDto.builder()
+                        RevieweeResponse.builder()
                                 .id(2L)
                                 .displayName("Learning Dev")
                                 .preferences(List.of("backend"))
@@ -168,7 +165,7 @@ public class ReviewController {
      * @return ResponseEntity with ApiResponse containing the ReviewResponseDto.
      */
     @GetMapping("/{reviewId}")
-    public ResponseEntity<ApiResponse<ReviewResponseDto>> getReview(
+    public ResponseEntity<ApiResponse<ReviewResponse>> getReview(
             @PathVariable Long reviewId,
             @AuthenticationPrincipal Long userId) {
         // TODO: Implement service logic:
@@ -182,9 +179,9 @@ public class ReviewController {
 
         // Dummy ReviewResponseDto for demonstration
         // userId 필드를 완전히 제거했습니다.
-        ReviewResponseDto dummyResponse = new ReviewResponseDto(
+        ReviewResponse dummyResponse = new ReviewResponse(
                 reviewId,
-                ReviewerResponseDto.builder()
+                ReviewerResponse.builder()
                         .id(1L)
                         .expertise("Java Expert")
                         .bio("Passionate about code reviews")
@@ -192,7 +189,7 @@ public class ReviewController {
                         .createdAt(LocalDateTime.now().minusDays(10))
                         .updatedAt(LocalDateTime.now().minusDays(10))
                         .build(),
-                ResponseRevieweeDto.builder()
+                RevieweeResponse.builder()
                         .id(1L)
                         .displayName("Reviewee Alice")
                         .preferences(List.of("backend"))
@@ -217,9 +214,9 @@ public class ReviewController {
      * @return ResponseEntity with ApiResponse containing the updated ReviewResponseDto.
      */
     @PutMapping("/{reviewId}")
-    public ResponseEntity<ApiResponse<ReviewResponseDto>> updateReview(
+    public ResponseEntity<ApiResponse<ReviewResponse>> updateReview(
             @PathVariable Long reviewId,
-            @Valid @RequestBody ReviewUpdateDto updateDto,
+            @Valid @RequestBody ReviewUpdateRequest updateDto,
             @AuthenticationPrincipal Long reviewerUserId) {
         // TODO: Implement service logic:
         // 1. Fetch the review by reviewId.
@@ -234,9 +231,9 @@ public class ReviewController {
 
         // Dummy ReviewResponseDto for demonstration, reflecting the update
         // userId 필드를 완전히 제거했습니다.
-        ReviewResponseDto dummyUpdatedResponse = new ReviewResponseDto(
+        ReviewResponse dummyUpdatedResponse = new ReviewResponse(
                 reviewId,
-                ReviewerResponseDto.builder()
+                ReviewerResponse.builder()
                         .id(1L)
                         .expertise("Java Expert")
                         .bio("Passionate about code reviews")
@@ -244,7 +241,7 @@ public class ReviewController {
                         .createdAt(LocalDateTime.now().minusDays(10))
                         .updatedAt(LocalDateTime.now())
                         .build(),
-                ResponseRevieweeDto.builder()
+                RevieweeResponse.builder()
                         .id(1L)
                         .displayName("Reviewee Alice")
                         .preferences(List.of("backend"))

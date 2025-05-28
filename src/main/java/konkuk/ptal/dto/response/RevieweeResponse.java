@@ -12,18 +12,18 @@ import java.util.Optional; // Optional 임포트 추가
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ResponseRevieweeDto {
+public class RevieweeResponse {
     private Long id;
     private String displayName;
     private List<String> preferences;
     private LocalDateTime createdAt; // DTO 필드
     private LocalDateTime updatedAt; // DTO 필드
 
-    public static ResponseRevieweeDto from(Reviewee reviewee) {
+    public static RevieweeResponse from(Reviewee reviewee) {
         if (reviewee == null) {
             return null;
         }
-        return ResponseRevieweeDto.builder()
+        return RevieweeResponse.builder()
                 .id(reviewee.getId())
                 .displayName(reviewee.getDisplayName())
                 .preferences(Optional.ofNullable(reviewee.getPreferences()).orElse(List.of())) // null 체크 추가

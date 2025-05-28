@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReviewerResponseDto {
+public class ReviewerResponse {
     private Long id;
     private String expertise;
     private List<String> tags;
@@ -21,8 +21,8 @@ public class ReviewerResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static ReviewerResponseDto from(Reviewer reviewer) {
-        return ReviewerResponseDto.builder()
+    public static ReviewerResponse from(Reviewer reviewer) {
+        return ReviewerResponse.builder()
                 .id(reviewer.getId())
                 .expertise(reviewer.getExpertise())
                 .tags(reviewer.getTags())
