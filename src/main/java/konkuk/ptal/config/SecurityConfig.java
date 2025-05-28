@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,6 +29,18 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final CustomUserDetailsService userDetailsService;
 
+    // Swagger UI 및 OpenAPI 문서 접근을 위한 경로 정의 (JwtAuthenticationFilter에서도 사용 가능하도록 public static으로)
+    public static final String[] SWAGGER_PATHS = {
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",      // springdoc-openapi 기본 스펙 경로
+            "/openapi.yaml",
+            // 만약 /docs/openapi.yaml 로 설정했다면 "/docs/openapi.yaml"
+            "/swagger-resources/**",
+            "/webjars/**",
+            "/favicon.ico"
+    };
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -39,11 +49,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/api/reviewer/**").authenticated()
-
-                        .requestMatchers("/api/reviewee/**").authenticated()
+                        .requestMatchers(SWAGGER_PATHS).permitAll() // Swagger 경로 허용
+                        .requestMatchers("/api/v1/reviewer/**").authenticated()
+                        .requestMatchers("/api/v1/reviewee/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))

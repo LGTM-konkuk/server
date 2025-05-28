@@ -1,0 +1,1509 @@
+openapi: 3.1.0
+info:
+  title: PTAL API
+  version: v1
+  description: "PTAL 플랫폼을 위한 API 명세서입니다."
+servers:
+  - url: http://localhost:8080/api/v1
+    description: "로컬 개발 서버 (API V1)"
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "API 응답 메시지"
+
+    AuthTokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: "API 접근을 위한 JWT 액세스 토큰"
+        refreshToken:
+          type: string
+          description: "액세스 토큰 재발급을 위한 JWT 리프레시 토큰"
+      example:
+        accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    UserSignupRequest:
+      type: object
+      description: "사용자 회원가입 요청 시 필요한 기본 정보 (이제 CreateReviewee/ReviewerRequest에 통합됨)"
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          description: "사용자 이메일 주소 (로그인 시 ID로 사용)"
+        password:
+          type: string
+          format: password
+          description: "사용자 비밀번호"
+        name:
+          type: string
+          description: "사용자 이름 (실명 또는 활동명)"
+      example:
+        email: "user@example.com"
+        password: "password123"
+        name: "홍길동"
+
+    UserLoginRequest:
+      type: object
+      description: "사용자 로그인 요청 시 필요한 정보"
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: "가입 시 사용한 이메일 주소"
+        password:
+          type: string
+          format: password
+          description: "가입 시 사용한 비밀번호"
+      example:
+        email: "user@example.com"
+        password: "password123"
+
+    BaseAuditResponse:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          description: "데이터 생성 일시"
+        updatedAt:
+          type: string
+          format: date-time
+          description: "데이터 마지막 수정 일시"
+      example:
+        createdAt: "2024-05-01T10:00:00Z"
+        updatedAt: "2024-05-01T10:00:00Z"
+
+    UserMinimalResponse:
+      type: object
+      description: "다른 스키마에 임베디드되는 최소한의 사용자 정보"
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: "사용자 고유 ID"
+        name:
+          type: string
+          description: "사용자 이름"
+        email:
+          type: string
+          format: email
+          description: "사용자 이메일 주소 (필요시 포함)"
+      example:
+        id: 101
+        name: "홍길동"
+        email: "user@example.com"
+
+    CreateRevieweeRequest:
+      type: object
+      description: "리뷰이 프로필 생성 및 기본 사용자 회원가입 요청 정보."
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          description: "리뷰이 이메일 주소 (로그인 ID)"
+        password:
+          type: string
+          format: password
+          description: "리뷰이 비밀번호"
+        name:
+          type: string
+          description: "리뷰이 이름"
+        preferences:
+          type: array
+          items:
+            type: string
+          description: "리뷰이가 관심 있는 기술 분야 목록 (예: Java, Spring, React)"
+      example:
+        email: "reviewee@example.com"
+        password: "password123"
+        name: "김리뷰"
+        preferences: ["Java", "Spring Boot"]
+
+    CreateRevieweeResponse:
+      type: object
+      description: "리뷰이 프로필 생성 완료 응답 정보"
+      allOf:
+        - $ref: "#/components/schemas/BaseAuditResponse"
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: "생성된 리뷰이 프로필의 고유 ID"
+            preferences:
+              type: array
+              items:
+                type: string
+              description: "리뷰이의 관심 기술 분야 목록"
+      example:
+        id: 1
+        preferences: ["Java", "Spring Boot"]
+        createdAt: "2024-05-01T10:00:00Z"
+        updatedAt: "2024-05-01T10:00:00Z"
+
+    CreateReviewerRequest:
+      type: object
+      description: "리뷰어 프로필 생성 및 기본 사용자 회원가입 요청 정보."
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          description: "리뷰어 이메일 주소 (로그인 ID)"
+        password:
+          type: string
+          format: password
+          description: "리뷰어 비밀번호"
+        name:
+          type: string
+          description: "리뷰어 이름"
+        preferences:
+          type: array
+          items:
+            type: string
+          description: "리뷰어가 전문성을 가진 기술 분야 목록 (예: Python, Django, Machine Learning)"
+        bio:
+          type: string
+          description: "리뷰어 자기소개 (경력, 주요 기술 등)"
+        tags:
+          type: array
+          items:
+            type: string
+          description: "리뷰어 관련 태그 목록 (검색 및 필터링에 사용)"
+      example:
+        email: "reviewer@example.com"
+        password: "password456"
+        name: "박리뷰"
+        preferences: ["Python", "Django"]
+        bio: "10년차 백엔드 개발자입니다."
+        tags: ["backend", "python", "api"]
+
+    CreateReviewerResponse:
+      type: object
+      description: "리뷰어 프로필 생성 완료 응답 정보"
+      allOf:
+        - $ref: "#/components/schemas/BaseAuditResponse"
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: "생성된 리뷰어 프로필의 고유 ID"
+            preferences:
+              type: array
+              items:
+                type: string
+              description: "리뷰어의 전문 기술 분야 목록"
+            bio:
+              type: string
+              description: "리뷰어 자기소개"
+            tags:
+              type: array
+              items:
+                type: string
+              description: "리뷰어 관련 태그 목록"
+      example:
+        id: 2
+        preferences: ["Python", "Django"]
+        bio: "10년차 백엔드 개발자입니다."
+        tags: ["backend", "python", "api"]
+        createdAt: "2024-05-01T10:00:00Z"
+        updatedAt: "2024-05-01T10:00:00Z"
+
+    ReadUserResponse:
+      type: object
+      description: "사용자 정보 조회 응답"
+      allOf:
+        - $ref: "#/components/schemas/BaseAuditResponse"
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: "사용자 고유 ID"
+            email:
+              type: string
+              format: email
+              description: "사용자 이메일 주소"
+            name:
+              type: string
+              description: "사용자 이름"
+            role:
+              type: string
+              enum: [USER, REVIEWER, REVIEWEE, ADMIN]
+              description: "사용자 권한 역할 (일반사용자, 리뷰어, 리뷰이, 관리자)"
+      example:
+        id: 101
+        email: "user@example.com"
+        name: "홍길동"
+        role: "REVIEWEE"
+        createdAt: "2024-01-15T10:30:00Z"
+        updatedAt: "2024-04-20T15:00:00Z"
+
+    UpdateUserRequest:
+      type: object
+      description: "사용자 정보 수정 요청. 주로 사용자 이름 변경 등에 사용됩니다."
+      properties:
+        name:
+          type: string
+          description: "새로 변경할 사용자 이름"
+      example:
+        name: "고길동"
+
+    UpdateRevieweeRequest:
+      type: object
+      description: "리뷰이 프로필 정보 수정 요청"
+      properties:
+        preferences:
+          type: array
+          items:
+            type: string
+          description: "새로 변경할 관심 기술 분야 목록"
+      example:
+        preferences: ["JavaScript", "React"]
+
+    UpdateReviewerRequest:
+      type: object
+      description: "리뷰어 프로필 정보 수정 요청"
+      properties:
+        preferences:
+          type: array
+          items:
+            type: string
+          description: "새로 변경할 전문 기술 분야 목록"
+        bio:
+          type: string
+          description: "새로 변경할 자기소개"
+        tags:
+          type: array
+          items:
+            type: string
+          description: "새로 변경할 태그 목록"
+      example:
+        preferences: ["JavaScript", "Vue.js"]
+        bio: "프론트엔드 개발에 관심 많습니다."
+        tags: ["frontend", "vue"]
+
+    ReadRevieweeResponse:
+      type: object
+      description: "리뷰이 프로필 상세 정보 응답. 리뷰이 프로필 조회 시 사용됩니다."
+      allOf:
+        - $ref: "#/components/schemas/BaseAuditResponse"
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: "리뷰이 프로필 고유 ID"
+            preferences:
+              type: array
+              items:
+                type: string
+              description: "리뷰이의 관심 기술 분야 목록"
+            user:
+              $ref: "#/components/schemas/UserMinimalResponse"
+              description: "리뷰이의 기본 사용자 정보"
+      example:
+        id: 1
+        preferences: ["Java", "Spring Boot"]
+        user:
+          id: 101
+          name: "김리뷰"
+          email: "reviewee@example.com"
+        createdAt: "2024-05-01T10:00:00Z"
+        updatedAt: "2024-05-01T10:00:00Z"
+
+    ReadReviewerResponse:
+      type: object
+      description: "리뷰어 프로필 상세 정보 응답. 리뷰어 프로필 조회 시 사용됩니다."
+      allOf:
+        - $ref: "#/components/schemas/BaseAuditResponse"
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: "리뷰어 프로필 고유 ID"
+            preferences:
+              type: array
+              items:
+                type: string
+              description: "리뷰어의 전문 기술 분야 목록"
+            bio:
+              type: string
+              description: "리뷰어 자기소개"
+            tags:
+              type: array
+              items:
+                type: string
+              description: "리뷰어 관련 태그 목록"
+            user:
+              $ref: "#/components/schemas/UserMinimalResponse"
+              description: "리뷰어의 기본 사용자 정보"
+      example:
+        id: 2
+        preferences: ["Python", "Django"]
+        bio: "10년차 백엔드 개발자입니다."
+        tags: ["backend", "python", "api"]
+        user:
+          id: 102
+          name: "박리뷰"
+          email: "reviewer@example.com"
+        createdAt: "2024-05-01T10:00:00Z"
+        updatedAt: "2024-05-01T10:00:00Z"
+
+    CreateReviewSubmissionRequest:
+      type: object
+      description: "새로운 리뷰 제출(요청) 생성 시 필요한 정보"
+      required: [reviewerId, gitUrl, requestDetails]
+      properties:
+        reviewerId:
+          type: integer
+          format: int64
+          description: "리뷰를 요청할 특정 리뷰어의 프로필 ID"
+        gitUrl:
+          type: string
+          format: url
+          description: "리뷰받을 프로젝트의 Git 저장소 URL (예: Github, Gitlab 링크)"
+        requestDetails:
+          type: string
+          description: "리뷰 요청에 대한 상세 설명 (예: 특정 기능, 코드 범위 등)"
+      example:
+        reviewerId: 12
+        gitUrl: "https://github.com/user/project/pull/1"
+        requestDetails: "회원가입 기능 구현 관련 코드 리뷰 부탁드립니다. UserServiceImpl.java 파일을 봐주세요."
+
+    ReadReviewSubmissionResponse:
+      type: object
+      description: "리뷰 제출(요청) 정보 응답"
+      allOf:
+        - $ref: "#/components/schemas/BaseAuditResponse"
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: "리뷰 제출 건의 고유 ID"
+            reviewee:
+              $ref: "#/components/schemas/ReadRevieweeResponse"
+              description: "리뷰를 제출한 리뷰이의 프로필 정보"
+            reviewer:
+              $ref: "#/components/schemas/ReadReviewerResponse"
+              description: "리뷰를 수행할 (또는 수행한) 리뷰어의 프로필 정보"
+            gitUrl:
+              type: string
+              format: url
+              description: "리뷰 대상 프로젝트의 Git 저장소 URL"
+            requestDetails:
+              type: string
+              description: "리뷰 요청 상세 설명"
+            status:
+              type: string
+              enum: [PENDING, CANCELED, REVIEWED]
+              description: "리뷰 제출 건의 현재 상태 (PENDING: 대기중, CANCELED: 취소됨, REVIEWED: 리뷰완료)"
+      example:
+        id: 1001
+        reviewee:
+          id: 1
+          preferences: ["Java", "Spring Boot"]
+          user:
+            id: 101
+            name: "김리뷰"
+            email: "reviewee@example.com"
+          createdAt: "2024-05-01T10:00:00Z"
+          updatedAt: "2024-05-01T10:00:00Z"
+        reviewer:
+          id: 2
+          preferences: ["Python", "Django"]
+          bio: "10년차 백엔드 개발자입니다."
+          tags: ["backend", "python", "api"]
+          user:
+            id: 102
+            name: "박리뷰"
+            email: "reviewer@example.com"
+          createdAt: "2024-05-01T10:00:00Z"
+          updatedAt: "2024-05-01T10:00:00Z"
+        gitUrl: "https://github.com/user/project/pull/1"
+        requestDetails: "회원가입 기능 구현 관련 코드 리뷰 부탁드립니다."
+        status: "PENDING"
+        createdAt: "2024-05-15T14:00:00Z"
+        updatedAt: "2024-05-15T14:00:00Z"
+
+    CreateReviewRequest:
+      type: object
+      description: "리뷰어가 리뷰를 작성하여 제출할 때 필요한 정보"
+      required: [reviewSubmissionId, reviewContent]
+      properties:
+        reviewSubmissionId:
+          type: integer
+          format: int64
+          description: "리뷰 대상이 되는 리뷰 제출(요청) 건의 고유 ID"
+        reviewContent:
+          type: string
+          description: "리뷰 내용 (마크다운 형식 등 상세 내용)"
+      example:
+        reviewSubmissionId: 1001
+        reviewContent: "코드 잘 봤습니다. UserDTO 네이밍을 UserRequestDTO 등으로 변경하는 것이 좋겠습니다."
+
+    UpdateReviewRequest:
+      type: object
+      description: "작성된 리뷰의 내용을 수정할 때 필요한 정보"
+      properties:
+        reviewContent:
+          type: string
+          description: "새롭게 수정할 리뷰 내용"
+      example:
+        reviewContent: "코멘트 추가: UserServiceImpl.java의 A 메서드에서 NPE 가능성이 있습니다."
+
+    ReadReviewResponse:
+      type: object
+      description: "단일 리뷰 조회 응답 정보"
+      allOf:
+        - $ref: "#/components/schemas/BaseAuditResponse"
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: "리뷰의 고유 ID"
+            reviewer:
+              $ref: "#/components/schemas/ReadReviewerResponse"
+              description: "리뷰를 작성한 리뷰어의 프로필 정보"
+            reviewee:
+              $ref: "#/components/schemas/ReadRevieweeResponse"
+              description: "리뷰를 받은 리뷰이의 프로필 정보"
+            reviewSubmissionId:
+              type: integer
+              format: int64
+              description: "해당 리뷰가 속한 리뷰 제출(요청) 건의 고유 ID"
+            reviewContent:
+              type: string
+              description: "리뷰 내용"
+      example:
+        id: 201
+        reviewer:
+          id: 2
+          preferences: ["Python", "Django"]
+          bio: "10년차 백엔드 개발자입니다."
+          tags: ["backend", "python", "api"]
+          user:
+            id: 102
+            name: "박리뷰"
+            email: "reviewer@example.com"
+          createdAt: "2024-05-01T10:00:00Z"
+          updatedAt: "2024-05-01T10:00:00Z"
+        reviewee:
+          id: 1
+          preferences: ["Java", "Spring Boot"]
+          user:
+            id: 101
+            name: "김리뷰"
+            email: "reviewee@example.com"
+          createdAt: "2024-05-01T10:00:00Z"
+          updatedAt: "2024-05-01T10:00:00Z"
+        reviewSubmissionId: 1001
+        reviewContent: "코드 잘 봤습니다. UserDTO 네이밍을 UserRequestDTO 등으로 변경하는 것이 좋겠습니다."
+        createdAt: "2024-05-16T10:00:00Z"
+        updatedAt: "2024-05-16T10:00:00Z"
+
+    BasePageResponse:
+      type: object
+      description: "페이지네이션(목록 조회) 응답 시 공통적으로 사용되는 기본 정보"
+      properties:
+        totalPages:
+          type: integer
+          description: "전체 페이지 수"
+        totalElements:
+          type: integer
+          description: "전체 항목(데이터) 수"
+        page:
+          type: integer
+          description: "현재 페이지 번호 (0부터 시작)"
+        size:
+          type: integer
+          description: "한 페이지 당 항목(데이터) 수"
+        first:
+          type: boolean
+          description: "현재 페이지가 첫 번째 페이지인지 여부"
+        last:
+          type: boolean
+          description: "현재 페이지가 마지막 페이지인지 여부"
+        numberOfElements:
+          type: integer
+          description: "현재 페이지에 포함된 항목(데이터) 수"
+      example:
+        totalPages: 5
+        totalElements: 48
+        page: 0
+        size: 10
+        first: true
+        last: false
+        numberOfElements: 10
+
+    ListReviewSubmissionsResponse:
+      description: "리뷰 제출(요청) 목록 조회 응답. 페이지네이션 정보를 포함합니다."
+      allOf:
+        - $ref: "#/components/schemas/BasePageResponse"
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: "#/components/schemas/ReadReviewSubmissionResponse"
+              description: "조회된 리뷰 제출(요청) 목록"
+      example:
+        totalPages: 1
+        totalElements: 2
+        page: 0
+        size: 10
+        first: true
+        last: true
+        numberOfElements: 2
+        content:
+          - id: 1001
+            reviewee:
+              id: 1
+              preferences: ["Java", "Spring Boot"]
+              user:
+                id: 101
+                name: "김리뷰"
+                email: "reviewee@example.com"
+              createdAt: "2024-05-01T10:00:00Z"
+              updatedAt: "2024-05-01T10:00:00Z"
+            reviewer:
+              id: 2
+              preferences: ["Python", "Django"]
+              bio: "10년차 백엔드 개발자입니다."
+              tags: ["backend", "python", "api"]
+              user:
+                id: 102
+                name: "박리뷰"
+                email: "reviewer@example.com"
+              createdAt: "2024-05-01T10:00:00Z"
+              updatedAt: "2024-05-01T10:00:00Z"
+            gitUrl: "https://github.com/user/project/pull/1"
+            requestDetails: "회원가입 기능 구현 관련 코드 리뷰 부탁드립니다."
+            status: "PENDING"
+            createdAt: "2024-05-15T14:00:00Z"
+            updatedAt: "2024-05-15T14:00:00Z"
+          - id: 1002
+            # ... (another ReadReviewSubmissionResponse example)
+            status: "REVIEWED"
+            createdAt: "2024-05-16T10:00:00Z"
+            updatedAt: "2024-05-16T10:00:00Z"
+
+    ListReviewsResponse:
+      description: "리뷰 목록 조회 응답. 페이지네이션 정보를 포함합니다."
+      allOf:
+        - $ref: "#/components/schemas/BasePageResponse"
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: "#/components/schemas/ReadReviewResponse"
+              description: "조회된 리뷰 목록"
+      example:
+        totalPages: 1
+        totalElements: 2
+        page: 0
+        size: 10
+        first: true
+        last: true
+        numberOfElements: 2
+        content:
+          - id: 201
+            # ... (ReadReviewResponse example data)
+            reviewContent: "좋은 코드입니다."
+            createdAt: "2024-05-16T10:00:00Z"
+            updatedAt: "2024-05-16T10:00:00Z"
+          - id: 202
+            # ... (ReadReviewResponse example data)
+            reviewContent: "몇 가지 개선점이 보입니다."
+            createdAt: "2024-05-17T11:00:00Z"
+            updatedAt: "2024-05-17T11:00:00Z"
+
+    ListReviewFeedItemsResponse:
+      description: "사용자 맞춤 리뷰 피드 목록 응답. 페이지네이션 정보를 포함합니다."
+      allOf:
+        - $ref: "#/components/schemas/BasePageResponse"
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: "#/components/schemas/ReadReviewResponse"
+              description: "조회된 리뷰 피드 아이템 목록"
+      example:
+        totalPages: 1
+        totalElements: 1
+        page: 0
+        size: 10
+        first: true
+        last: true
+        numberOfElements: 1
+        content:
+          - id: 205
+            # ... (ReadReviewResponse example data)
+            reviewContent: "피드에 노출될 리뷰 내용입니다."
+            createdAt: "2024-05-18T10:00:00Z"
+            updatedAt: "2024-05-18T10:00:00Z"
+
+    ListReviewersResponse:
+      description: "리뷰어 목록 조회 응답. 페이지네이션 정보를 포함합니다."
+      allOf:
+        - $ref: "#/components/schemas/BasePageResponse"
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: "#/components/schemas/ReadReviewerResponse"
+              description: "조회된 리뷰어 프로필 목록"
+      example:
+        totalPages: 1
+        totalElements: 1
+        page: 0
+        size: 10
+        first: true
+        last: true
+        numberOfElements: 1
+        content:
+          - id: 12
+            user: { id: 102, name: "박전문", email: "reviewer1@example.com" }
+            preferences: ["Java", "Spring Boot"]
+            bio: "Java, Spring 전문가입니다."
+            tags: ["java", "spring", "backend"]
+            createdAt: "2024-03-10T11:00:00Z"
+            updatedAt: "2024-05-01T17:30:00Z"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "JWT를 이용한 Bearer 토큰 인증 방식입니다. API 요청 시 `Authorization` 헤더에 `Bearer {JWT_TOKEN}` 형식으로 토큰을 포함해야 합니다."
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/signup/reviewee:
+    post:
+      tags:
+        - 인증 (Authentication)
+      summary: "리뷰이 신규 회원가입"
+      description: "새로운 사용자를 리뷰이(코드를 리뷰받는 사람)로 가입시킵니다. 가입 정보에 리뷰이 프로필 정보(관심분야)를 포함합니다."
+      requestBody:
+        required: true
+        description: "리뷰이 가입에 필요한 정보 (기본 사용자 정보 및 리뷰이 선호 분야)"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRevieweeRequest"
+            example:
+              email: "reviewee@example.com"
+              password: "password123"
+              name: "김리뷰"
+              preferences: ["Java", "Spring Boot"]
+      responses:
+        "201":
+          description: "리뷰이 회원가입 및 프로필 생성 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/CreateRevieweeResponse"
+              example:
+                message: "리뷰이 가입 및 프로필 생성이 완료되었습니다."
+                data:
+                  id: 1
+                  preferences: ["Java", "Spring Boot"]
+                  createdAt: "2024-05-01T10:00:00Z"
+                  updatedAt: "2024-05-01T10:00:00Z"
+        "400":
+          description: "잘못된 요청 (예: 필수 필드 누락, 이메일 형식 오류, 이미 가입된 사용자 등)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "이미 가입된 이메일입니다."
+
+  /auth/signup/reviewer:
+    post:
+      tags:
+        - 인증 (Authentication)
+      summary: "리뷰어 신규 회원가입"
+      description: "새로운 사용자를 리뷰어(코드를 리뷰해주는 사람)로 가입시킵니다. 가입 정보에 리뷰어 프로필 정보(전문분야, 자기소개 등)를 포함합니다."
+      requestBody:
+        required: true
+        description: "리뷰어 가입에 필요한 정보 (기본 사용자 정보, 전문 분야, 자기소개, 태그 등)"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewerRequest"
+            example:
+              email: "reviewer@example.com"
+              password: "password456"
+              name: "박리뷰"
+              preferences: ["Python", "Django"]
+              bio: "10년차 백엔드 개발자입니다."
+              tags: ["backend", "python", "api"]
+      responses:
+        "201":
+          description: "리뷰어 회원가입 및 프로필 생성 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/CreateReviewerResponse"
+              example:
+                message: "리뷰어 가입 및 프로필 생성이 완료되었습니다."
+                data:
+                  id: 2
+                  preferences: ["Python", "Django"]
+                  bio: "10년차 백엔드 개발자입니다."
+                  tags: ["backend", "python", "api"]
+                  createdAt: "2024-05-01T10:00:00Z"
+                  updatedAt: "2024-05-01T10:00:00Z"
+        "400":
+          description: "잘못된 요청 (예: 필수 필드 누락, 이미 가입된 사용자 등)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "이미 가입된 이메일입니다."
+
+  /auth/signin:
+    post:
+      tags:
+        - 인증 (Authentication)
+      summary: "사용자 로그인"
+      description: "등록된 사용자가 이메일과 비밀번호를 사용하여 시스템에 로그인하고, 성공 시 JWT 인증 토큰 (액세스 토큰, 리프레시 토큰)을 발급받습니다."
+      requestBody:
+        required: true
+        description: "로그인에 필요한 사용자 이메일과 비밀번호"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserLoginRequest"
+            example:
+              email: "user@example.com"
+              password: "password123"
+      responses:
+        "200":
+          description: "로그인 성공. JWT 토큰 발급"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/AuthTokenResponse"
+              example:
+                message: "로그인 성공"
+                data:
+                  accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "400":
+          description: "잘못된 요청 (예: 이메일 또는 비밀번호 누락)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "이메일 또는 비밀번호를 입력해주세요."
+        "401":
+          description: "인증 실패 (예: 잘못된 이메일 또는 비밀번호)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "이메일 또는 비밀번호가 일치하지 않습니다."
+
+  /auth/refresh:
+    post:
+      tags:
+        - 인증 (Authentication)
+      summary: "액세스 토큰 갱신"
+      description: "만료된 액세스 토큰을 리프레시 토큰을 사용하여 갱신합니다."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+                  description: "토큰 갱신에 사용될 리프레시 토큰"
+            example:
+              refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ey..."
+      responses:
+        "200":
+          description: "토큰 갱신 성공. 새로운 액세스 토큰 및 (선택적으로) 리프레시 토큰 발급."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/AuthTokenResponse"
+              example:
+                message: "토큰이 성공적으로 갱신되었습니다."
+                data:
+                  accessToken: "new_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  refreshToken: "new_or_same_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "401":
+          description: "인증 실패 (예: 유효하지 않거나 만료된 리프레시 토큰)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "유효하지 않은 리프레시 토큰입니다."
+
+  /auth/signout:
+    post:
+      tags:
+        - 인증 (Authentication)
+      summary: "사용자 로그아웃"
+      description: "현재 인증된 사용자의 세션을 종료합니다. 서버는 필요시 (예: 리프레시 토큰) 관련 인증 토큰을 무효화할 수 있습니다."
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "로그아웃 성공"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "성공적으로 로그아웃되었습니다."
+        "401":
+          description: "인증되지 않은 사용자 (토큰 누락 또는 만료)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "인증되지 않은 사용자입니다."
+
+  /users/me:
+    get:
+      tags:
+        - 사용자 (User)
+      summary: "내 정보 조회"
+      description: "현재 인증된(로그인한) 사용자 본인의 상세 정보를 조회합니다."
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "사용자 정보 조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ReadUserResponse"
+              example:
+                message: "사용자 정보 조회 성공"
+                data:
+                  id: 101
+                  email: "user@example.com"
+                  name: "홍길동"
+                  role: "REVIEWEE"
+                  createdAt: "2024-01-15T10:30:00Z"
+                  updatedAt: "2024-04-20T15:00:00Z"
+        "401":
+          description: "인증되지 않은 사용자 (토큰 누락 또는 만료)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "인증 토큰이 없거나 만료되었습니다."
+    put:
+      tags:
+        - 사용자 (User)
+      summary: "내 정보 수정"
+      description: "현재 인증된 사용자 본인의 정보를 수정합니다. 주로 이름 변경 등에 사용됩니다. (리뷰이/리뷰어 프로필의 상세 정보는 각 프로필 수정 API를 사용하세요.)"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        description: "수정할 사용자 정보 (예: 이름)"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+            example:
+              name: "고길동"
+      responses:
+        "200":
+          description: "사용자 정보 수정 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ReadUserResponse"
+              example:
+                message: "사용자 정보가 성공적으로 수정되었습니다."
+                data:
+                  id: 101
+                  email: "user@example.com"
+                  name: "고길동"
+                  role: "REVIEWEE"
+                  createdAt: "2024-01-15T10:30:00Z"
+                  updatedAt: "2024-05-15T11:00:00Z"
+        "400":
+          description: "잘못된 요청 (예: 변경할 수 없는 필드 시도)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "잘못된 요청입니다."
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "인증 토큰이 없거나 만료되었습니다."
+
+  /review-submissions/new:
+    post:
+      tags:
+        - "리뷰 제출 (Review Submission)"
+      summary: "새 리뷰 제출(요청) 생성"
+      description: "리뷰이가 특정 리뷰어에게 코드 리뷰를 요청하는 새로운 제출 건을 생성합니다. 리뷰받을 Git 저장소 URL과 상세 요청 내용을 포함해야 합니다."
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        description: "새로운 리뷰 제출에 필요한 정보"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewSubmissionRequest"
+            example:
+              reviewerId: 12
+              gitUrl: "https://github.com/user/project/pull/1"
+              requestDetails: "회원가입 기능 구현 관련 코드 리뷰 부탁드립니다. UserServiceImpl.java 파일을 봐주세요."
+      responses:
+        "201":
+          description: "리뷰 제출 생성 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ReadReviewSubmissionResponse"
+              example:
+                message: "리뷰 제출이 성공적으로 생성되었습니다."
+                data:
+                  id: 1001
+                  reviewee:
+                    id: 1
+                    preferences: ["Java", "Spring Boot"]
+                    user:
+                      id: 101
+                      name: "김리뷰"
+                      email: "reviewee@example.com"
+                    createdAt: "2024-05-01T10:00:00Z"
+                    updatedAt: "2024-05-01T10:00:00Z"
+                  reviewer:
+                    id: 2
+                    preferences: ["Python", "Django"]
+                    bio: "10년차 백엔드 개발자입니다."
+                    tags: ["backend", "python", "api"]
+                    user:
+                      id: 102
+                      name: "박리뷰"
+                      email: "reviewer@example.com"
+                    createdAt: "2024-05-01T10:00:00Z"
+                    updatedAt: "2024-05-01T10:00:00Z"
+                  gitUrl: "https://github.com/user/project/pull/1"
+                  requestDetails: "회원가입 기능 구현 관련 코드 리뷰 부탁드립니다."
+                  status: "PENDING"
+                  createdAt: "2024-05-15T14:00:00Z"
+                  updatedAt: "2024-05-15T14:00:00Z"
+        "400":
+          description: "잘못된 요청 (예: 필수 필드 누락, 존재하지 않는 리뷰어 ID)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "필수 정보를 모두 입력해주세요."
+        "401":
+          description: "인증되지 않은 사용자 또는 리뷰이가 아닌 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "리뷰를 제출할 권한이 없습니다."
+
+  /review-submissions:
+    get:
+      tags:
+        - "리뷰 제출 (Review Submission)"
+      summary: "리뷰 제출(요청) 목록 조회"
+      description: "리뷰 제출(요청) 목록을 조회합니다. 인증된 사용자를 기준으로 '자신이 보낸 요청', '자신이 받은 요청'(리뷰어의 경우), 또는 '모든 관련된 요청' 등으로 필터링할 수 있으며, 페이지네이션을 통해 결과를 제공합니다."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: false
+          description: "조회할 제출 목록의 타입. `sent`: 내가 보낸 요청, `received`: 내가 받은 요청 (리뷰어만 해당), `all`: 나와 관련된 모든 요청. 기본값은 `all` 또는 사용자의 역할에 따라 적절히 설정될 수 있습니다."
+          schema:
+            type: string
+            enum: [sent, received, all]
+            example: "sent"
+        - name: page
+          in: query
+          required: false
+          description: "페이지 번호 (0부터 시작)"
+          schema:
+            type: integer
+            default: 0
+            example: 0
+        - name: size
+          in: query
+          required: false
+          description: "한 페이지당 항목 수"
+          schema:
+            type: integer
+            default: 10
+            example: 10
+      responses:
+        "200":
+          description: "리뷰 제출 목록 조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ListReviewSubmissionsResponse"
+              example:
+                message: "리뷰 제출 목록 조회 성공"
+                data:
+                  totalPages: 1
+                  totalElements: 2
+                  page: 0
+                  size: 10
+                  first: true
+                  last: true
+                  numberOfElements: 2
+                  content:
+                    - id: 1001
+                      reviewee:
+                        id: 1
+                        preferences: ["Java", "Spring Boot"]
+                        user:
+                          id: 101
+                          name: "김리뷰"
+                          email: "reviewee@example.com"
+                        createdAt: "2024-05-01T10:00:00Z"
+                        updatedAt: "2024-05-01T10:00:00Z"
+                      reviewer:
+                        id: 2
+                        preferences: ["Python", "Django"]
+                        bio: "10년차 백엔드 개발자입니다."
+                        tags: ["backend", "python", "api"]
+                        user:
+                          id: 102
+                          name: "박리뷰"
+                          email: "reviewer@example.com"
+                        createdAt: "2024-05-01T10:00:00Z"
+                        updatedAt: "2024-05-01T10:00:00Z"
+                      gitUrl: "https://github.com/user/project/pull/1"
+                      requestDetails: "회원가입 기능 구현 관련 코드 리뷰 부탁드립니다."
+                      status: "PENDING"
+                      createdAt: "2024-05-15T14:00:00Z"
+                      updatedAt: "2024-05-15T14:00:00Z"
+                    - id: 1002
+                      # ... (another ReadReviewSubmissionResponse example)
+                      status: "REVIEWED"
+                      createdAt: "2024-05-16T10:00:00Z"
+                      updatedAt: "2024-05-16T10:00:00Z"
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "목록을 조회할 권한이 없습니다."
+
+  /review-submissions/{submissionId}:
+    get:
+      tags:
+        - "리뷰 제출 (Review Submission)"
+      summary: "특정 리뷰 제출(요청) 상세 조회"
+      description: "지정된 ID에 해당하는 리뷰 제출(요청) 건의 상세 정보를 조회합니다."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          description: "조회할 리뷰 제출 건의 고유 ID"
+          schema:
+            type: integer
+            example: 1001
+      responses:
+        "200":
+          description: "리뷰 제출 상세 정보 조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ReadReviewSubmissionResponse"
+              example:
+                message: "리뷰 제출 정보 조회 성공"
+                data:
+                  id: 1001
+                  # ... (ReadReviewSubmissionResponse 상세 내용) ...
+                  status: "PENDING"
+        "401":
+          description: "인증되지 않은 사용자 또는 해당 제출 건에 접근 권한이 없는 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 리뷰 제출 정보를 조회할 권한이 없습니다."
+        "403":
+          description: "접근 금지 (해당 제출 건과 관련 없는 사용자)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "접근 권한이 없습니다."
+        "404":
+          description: "존재하지 않는 리뷰 제출(요청) ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 ID의 리뷰 제출(요청)을 찾을 수 없습니다."
+    patch:
+      tags:
+        - "리뷰 제출 (Review Submission)"
+      summary: "리뷰 제출(요청) 취소"
+      description: "리뷰이가 자신이 생성한 특정 리뷰 제출(요청) 건을 취소합니다. 이미 리뷰가 진행 중이거나 완료된 경우에는 취소가 불가능할 수 있습니다."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          description: "취소할 리뷰 제출 건의 고유 ID"
+          schema:
+            type: integer
+            example: 1001
+      responses:
+        "200":
+          description: "리뷰 제출 취소 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ReadReviewSubmissionResponse"
+              example:
+                message: "리뷰 제출이 성공적으로 취소되었습니다."
+                data:
+                  id: 1001
+                  # ... (ReadReviewSubmissionResponse 상세 내용, status: CANCELED)
+                  status: "CANCELED"
+        "400":
+          description: "잘못된 요청 (예: 취소할 수 없는 상태의 제출 건)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "이미 처리 중이거나 완료된 리뷰 제출은 취소할 수 없습니다."
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "리뷰 제출을 취소할 권한이 없습니다."
+        "403":
+          description: "접근 금지 (해당 제출 건을 생성한 리뷰이가 아닌 경우)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "본인이 요청한 리뷰 제출 건만 취소할 수 있습니다."
+        "404":
+          description: "존재하지 않는 리뷰 제출(요청) ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 ID의 리뷰 제출(요청)을 찾을 수 없습니다."
+
+  /reviews/{reviewId}:
+    get:
+      tags:
+        - 리뷰 (Review)
+      summary: "특정 리뷰 상세 조회"
+      description: "지정된 ID에 해당하는 단일 리뷰의 상세 정보를 조회합니다."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          description: "조회할 리뷰의 고유 ID"
+          schema:
+            type: integer
+            example: 201
+      responses:
+        "200":
+          description: "리뷰 상세 정보 조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ReadReviewResponse"
+              example:
+                message: "리뷰 정보 조회 성공"
+                data:
+                  id: 201
+                  # ... (ReadReviewResponse 상세 내용) ...
+        "401":
+          description: "인증되지 않은 사용자 또는 해당 리뷰에 접근 권한이 없는 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 리뷰 정보를 조회할 권한이 없습니다."
+        "403":
+          description: "접근 금지 (해당 리뷰와 관련 없는 사용자)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "접근 권한이 없습니다."
+        "404":
+          description: "존재하지 않는 리뷰 ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 ID의 리뷰를 찾을 수 없습니다."
+    put:
+      tags:
+        - 리뷰 (Review)
+      summary: "리뷰 수정"
+      description: "리뷰를 작성한 원본 리뷰어가 특정 리뷰의 내용을 수정합니다. 수정 기한이 있거나, 특정 조건 하에서만 수정이 가능할 수 있습니다."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          description: "수정할 리뷰의 고유 ID"
+          schema:
+            type: integer
+            example: 201
+      requestBody:
+        required: true
+        description: "수정할 리뷰 내용"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReviewRequest"
+            example:
+              reviewContent: "코멘트 추가: UserServiceImpl.java의 A 메서드에서 NPE 가능성이 있습니다."
+      responses:
+        "200":
+          description: "리뷰 수정 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ReadReviewResponse"
+              example:
+                message: "리뷰가 성공적으로 수정되었습니다."
+                data:
+                  id: 201
+                  # ... (수정된 ReadReviewResponse 내용) ...
+        "400":
+          description: "잘못된 요청 (예: 수정할 내용 누락)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "리뷰 내용이 누락되었습니다."
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "리뷰를 수정할 권한이 없습니다."
+        "403":
+          description: "접근 금지 (원본 리뷰어가 아니거나 수정 권한이 없는 경우)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "원본 리뷰어만 수정할 수 있습니다."
+        "404":
+          description: "존재하지 않는 리뷰 ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 ID의 리뷰를 찾을 수 없습니다."
+
+  /feed:
+    get:
+      tags:
+        - "리뷰 피드 (Review Feed)"
+      summary: "사용자 맞춤 리뷰 피드 조회"
+      description: "현재 인증된 사용자를 위한 개인화된 리뷰 피드(예: 내가 참여한 리뷰, 완료된 리뷰 등)를 조회합니다. 페이지네이션을 통해 결과를 제공합니다."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: "페이지 번호 (0부터 시작)"
+          schema:
+            type: integer
+            default: 0
+            example: 0
+        - name: size
+          in: query
+          required: false
+          description: "한 페이지당 항목 수"
+          schema:
+            type: integer
+            default: 10
+            example: 10
+      responses:
+        "200":
+          description: "리뷰 피드 조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ListReviewFeedItemsResponse"
+              example:
+                message: "리뷰 피드 조회 성공"
+                data:
+                  totalPages: 1
+                  totalElements: 1
+                  page: 0
+                  size: 10
+                  first: true
+                  last: true
+                  numberOfElements: 1
+                  content:
+                    - id: 205
+                      # ... (ReadReviewResponse 내용) ...
+                      reviewContent: "피드에 노출될 리뷰 내용입니다."
+                      createdAt: "2024-05-18T10:00:00Z"
+                      updatedAt: "2024-05-18T10:00:00Z"
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "피드를 조회할 권한이 없습니다."
