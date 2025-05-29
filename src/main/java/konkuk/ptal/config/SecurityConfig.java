@@ -48,7 +48,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/signup/reviewer").permitAll()
+                        .requestMatchers("/api/v1/auth/signup/reviewee").permitAll()
+                        .requestMatchers("/api/v1/auth/signin").permitAll()
+                        .requestMatchers("/api/v1/auth/signout").authenticated()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(SWAGGER_PATHS).permitAll() // Swagger 경로 허용
                         .requestMatchers("/api/v1/reviewer/**").authenticated()
