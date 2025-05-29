@@ -1,7 +1,7 @@
 package konkuk.ptal.entity;
 
 import jakarta.persistence.*;
-import konkuk.ptal.dto.request.CreateReviewerRequestDto;
+import konkuk.ptal.dto.request.CreateReviewerRequest;
 import konkuk.ptal.util.StringListConverter;
 import lombok.*;
 
@@ -25,8 +25,9 @@ public class Reviewer {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(nullable = false)
-    private String expertise;
+    @Convert(converter = StringListConverter.class)
+    @Column(columnDefinition = "TEXT")  // 태그 길이가 가변적일 수 있으니 TEXT 권장
+    private List<String> preferences;
 
     @Lob
     @Column(columnDefinition = "TEXT")
@@ -53,10 +54,10 @@ public class Reviewer {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public static Reviewer createReviewer(User user, CreateReviewerRequestDto dto){
+    public static Reviewer createReviewer(User user, CreateReviewerRequest dto){
         return Reviewer.builder()
                 .user(user)
-                .expertise(dto.getExpertise())
+                .preferences(dto.getPreferences())
                 .bio(dto.getBio())
                 .tags(dto.getTags())
                 .build();

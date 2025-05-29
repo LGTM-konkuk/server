@@ -11,10 +11,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewUpdateDto {
+public class UpdateReviewRequest {
     @NotNull
     @Size(min = 10, max = 5000) // 예시: 최소 10자, 최대 5000자
     private String reviewContent;
-
-    // 필요한 경우 추가 필드
 }

@@ -1,21 +1,21 @@
 package konkuk.ptal.service;
 
 
-import konkuk.ptal.dto.request.CreateRevieweeDto;
-import konkuk.ptal.dto.request.CreateReviewerRequestDto;
+import konkuk.ptal.dto.request.CreateRevieweeRequest;
+import konkuk.ptal.dto.request.CreateReviewerRequest;
 import konkuk.ptal.entity.Reviewee;
 import konkuk.ptal.entity.Reviewer;
 
 public interface IUserService {
-    Reviewer registerReviewer(CreateReviewerRequestDto dto, Long authenticatedUserId);
+    Reviewer registerReviewer(CreateReviewerRequest dto);
 
     Reviewer getReviewer(Long id);
 
-    Reviewer updateReviewer(Long id, CreateReviewerRequestDto dto, Long authenticatedUserId);
+    Reviewer updateReviewer(Long id, CreateReviewerRequest dto, Long authenticatedUserId);
 
-    Reviewee registerReviewee(CreateRevieweeDto dto, Long authenticatedUserId);
+    Reviewee registerReviewee(CreateRevieweeRequest dto);
 
     Reviewee getReviewee(Long id);
 
-    Reviewee updateReviewee(Long id, CreateRevieweeDto dto, Long authenticatedUserId);
+    Reviewee updateReviewee(Long id, CreateRevieweeRequest dto, Long authenticatedUserId);
 }

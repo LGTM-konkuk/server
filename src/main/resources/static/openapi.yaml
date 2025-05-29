@@ -644,32 +644,6 @@ components:
             createdAt: "2024-05-17T11:00:00Z"
             updatedAt: "2024-05-17T11:00:00Z"
 
-    ListReviewFeedItemsResponse:
-      description: "사용자 맞춤 리뷰 피드 목록 응답. 페이지네이션 정보를 포함합니다."
-      allOf:
-        - $ref: "#/components/schemas/BasePageResponse"
-        - type: object
-          properties:
-            content:
-              type: array
-              items:
-                $ref: "#/components/schemas/ReadReviewResponse"
-              description: "조회된 리뷰 피드 아이템 목록"
-      example:
-        totalPages: 1
-        totalElements: 1
-        page: 0
-        size: 10
-        first: true
-        last: true
-        numberOfElements: 1
-        content:
-          - id: 205
-            # ... (ReadReviewResponse example data)
-            reviewContent: "피드에 노출될 리뷰 내용입니다."
-            createdAt: "2024-05-18T10:00:00Z"
-            updatedAt: "2024-05-18T10:00:00Z"
-
     ListReviewersResponse:
       description: "리뷰어 목록 조회 응답. 페이지네이션 정보를 포함합니다."
       allOf:
@@ -1445,65 +1419,3 @@ paths:
                 $ref: "#/components/schemas/ApiResponse"
               example:
                 message: "해당 ID의 리뷰를 찾을 수 없습니다."
-
-  /feed:
-    get:
-      tags:
-        - "리뷰 피드 (Review Feed)"
-      summary: "사용자 맞춤 리뷰 피드 조회"
-      description: "현재 인증된 사용자를 위한 개인화된 리뷰 피드(예: 내가 참여한 리뷰, 완료된 리뷰 등)를 조회합니다. 페이지네이션을 통해 결과를 제공합니다."
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: page
-          in: query
-          required: false
-          description: "페이지 번호 (0부터 시작)"
-          schema:
-            type: integer
-            default: 0
-            example: 0
-        - name: size
-          in: query
-          required: false
-          description: "한 페이지당 항목 수"
-          schema:
-            type: integer
-            default: 10
-            example: 10
-      responses:
-        "200":
-          description: "리뷰 피드 조회 성공"
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/ApiResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/ListReviewFeedItemsResponse"
-              example:
-                message: "리뷰 피드 조회 성공"
-                data:
-                  totalPages: 1
-                  totalElements: 1
-                  page: 0
-                  size: 10
-                  first: true
-                  last: true
-                  numberOfElements: 1
-                  content:
-                    - id: 205
-                      # ... (ReadReviewResponse 내용) ...
-                      reviewContent: "피드에 노출될 리뷰 내용입니다."
-                      createdAt: "2024-05-18T10:00:00Z"
-                      updatedAt: "2024-05-18T10:00:00Z"
-        "401":
-          description: "인증되지 않은 사용자"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiResponse"
-              example:
-                message: "피드를 조회할 권한이 없습니다."

@@ -12,23 +12,19 @@ import java.util.Optional; // Optional 임포트 추가
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ResponseRevieweeDto {
+public class CreateRevieweeResponse {
     private Long id;
-    private String displayName;
     private List<String> preferences;
     private LocalDateTime createdAt; // DTO 필드
     private LocalDateTime updatedAt; // DTO 필드
 
-    public static ResponseRevieweeDto from(Reviewee reviewee) {
-        if (reviewee == null) {
-            return null;
-        }
-        return ResponseRevieweeDto.builder()
+    public static CreateRevieweeResponse from(Reviewee reviewee) {
+        BaseAuditResponse baseAuditResponse = BaseAuditResponse.from(reviewee.getCreatedAt());
+        return CreateRevieweeResponse.builder()
                 .id(reviewee.getId())
-                .displayName(reviewee.getDisplayName())
                 .preferences(Optional.ofNullable(reviewee.getPreferences()).orElse(List.of())) // null 체크 추가
-                .createdAt(reviewee.getCreatedAt()) // 추가된 필드
-                .updatedAt(reviewee.getUpdatedAt()) // 추가된 필드
+                .createdAt(baseAuditResponse.getCreatedAt()) // 추가된 필드
+                .updatedAt(baseAuditResponse.getUpdatedAt()) // 추가된 필드
                 .build();
     }
 }

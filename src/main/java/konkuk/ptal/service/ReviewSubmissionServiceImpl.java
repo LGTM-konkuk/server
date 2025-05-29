@@ -3,5 +3,5 @@ package konkuk.ptal.service;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReviewFeedService implements IReviewFeedService {
+public class ReviewSubmissionServiceImpl implements IReviewSubmissionService {
 }
