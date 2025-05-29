@@ -14,7 +14,8 @@ public enum ResponseCode {
     REVIEWER_REGISTER_SUCCESS("리뷰어 등록 성공"),
     REVIEWEE_REGISTER_SUCCESS("리뷰이 등록 성공"),
     REVIEW_CREATED("리뷰 생성 성공"),
-    REVIEW_UPDATED("리뷰 업데이트 성공");
+    REVIEW_UPDATED("리뷰 업데이트 성공"),
+    TOKEN_REFRESH_SUCCESS("토큰 리프레시 성공");
 
     private final String message;
 

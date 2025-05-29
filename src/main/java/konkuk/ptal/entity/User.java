@@ -39,6 +39,8 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @Column(name = "refresh_token") // Refresh Token 저장 컬럼 추가
+    private String refreshToken;
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -56,6 +58,13 @@ public class User {
                 .passwordHash(passwordHash)
                 .role(Role.USER)
                 .build();
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+    public void clearRefreshToken() {
+        this.refreshToken = null;
     }
 
     public void updateRole(Role newRole) {
