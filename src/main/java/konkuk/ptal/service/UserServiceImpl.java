@@ -8,6 +8,7 @@ import konkuk.ptal.entity.Reviewee;
 import konkuk.ptal.entity.Reviewer;
 import konkuk.ptal.entity.User;
 import konkuk.ptal.exception.BadRequestException;
+import konkuk.ptal.exception.DuplicatedEmailException;
 import konkuk.ptal.repository.RevieweeRepository;
 import konkuk.ptal.repository.ReviewerRepository;
 import konkuk.ptal.repository.UserRepository;
@@ -29,7 +30,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Reviewer registerReviewer(CreateReviewerRequest dto) {
         if(userRepository.findByEmail(dto.getEmail()).isPresent()){
-            throw new BadRequestException(ErrorCode.DUPLICATED_EMAIL);
+            throw new DuplicatedEmailException(ErrorCode.DUPLICATED_EMAIL);
         }
         String hashedPassword = passwordEncoder.encode(dto.getPassword());
         User user = User.createUser(dto.getEmail(), dto.getName(), hashedPassword);
@@ -69,7 +70,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Reviewee registerReviewee(CreateRevieweeRequest dto) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new BadRequestException(ErrorCode.DUPLICATED_EMAIL);
+            throw new DuplicatedEmailException(ErrorCode.DUPLICATED_EMAIL);
         }
         String hashedPassword = passwordEncoder.encode(dto.getPassword());
         User user = User.createUser(dto.getEmail(), dto.getName(), hashedPassword);

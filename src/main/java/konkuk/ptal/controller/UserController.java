@@ -2,26 +2,21 @@ package konkuk.ptal.controller;
 
 import jakarta.validation.Valid;
 import konkuk.ptal.dto.api.ApiResponse;
-import konkuk.ptal.dto.api.ErrorCode;
 import konkuk.ptal.dto.api.ResponseCode;
-// TODO: Define these DTOs
-// import konkuk.ptal.dto.request.UserUpdateRequestDto;
-// import konkuk.ptal.dto.response.UserResponseDto;
 import konkuk.ptal.dto.request.CreateRevieweeRequest;
 import konkuk.ptal.dto.request.CreateReviewerRequest;
 import konkuk.ptal.dto.response.CreateRevieweeResponse;
 import konkuk.ptal.dto.response.CreateReviewerResponse;
 import konkuk.ptal.entity.Reviewee;
 import konkuk.ptal.entity.Reviewer;
-import konkuk.ptal.entity.User; // Assuming you might return User or a UserResponseDto
-import konkuk.ptal.exception.BadRequestException;
-import konkuk.ptal.service.IUserService; // Assuming IUserService has general user methods
+import konkuk.ptal.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1") // Base path for user-specific operations
@@ -33,32 +28,24 @@ public class UserController {
     @PostMapping("/auth/signup/reviewee")
     public ResponseEntity<ApiResponse<CreateRevieweeResponse>> registerReviewee(
             @Valid @RequestBody CreateRevieweeRequest requestDto) {
-        try {
-            Reviewee reviewee = userService.registerReviewee(requestDto);
-            CreateRevieweeResponse responseDto = CreateRevieweeResponse.from(reviewee);
 
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.success(ResponseCode.REVIEWEE_REGISTER_SUCCESS.getMessage(), responseDto));
-        } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.fail(ErrorCode.DUPLICATED_EMAIL.getMessage(), null));
-        }
+        Reviewee reviewee = userService.registerReviewee(requestDto);
+        CreateRevieweeResponse responseDto = CreateRevieweeResponse.from(reviewee);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(ResponseCode.REVIEWEE_REGISTER_SUCCESS.getMessage(), responseDto));
     }
 
 
     @PostMapping("/auth/signup/reviewer")
     public ResponseEntity<ApiResponse<CreateReviewerResponse>> registerReviewer(
             @Valid @RequestBody CreateReviewerRequest requestDto) {
-        try {
-            Reviewer reviewer = userService.registerReviewer(requestDto);
-            CreateReviewerResponse responseDto = CreateReviewerResponse.from(reviewer);
 
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.success(ResponseCode.REVIEWER_REGISTER_SUCCESS.getMessage(), responseDto));
-        } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.fail(ErrorCode.DUPLICATED_EMAIL.getMessage(), null));
-        }
+        Reviewer reviewer = userService.registerReviewer(requestDto);
+        CreateReviewerResponse responseDto = CreateReviewerResponse.from(reviewer);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(ResponseCode.REVIEWER_REGISTER_SUCCESS.getMessage(), responseDto));
     }
 
     // 아래 메서드들 openAPI에 누락돼있으나 필요해보임.

@@ -26,6 +26,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(ApiResponse.fail(errorMessage, null));
     }
+
+    @ExceptionHandler(DuplicatedEmailException.class)
+    public ResponseEntity<ApiResponse<?>> handleDuplicatedEmailException(DuplicatedEmailException ex) {
+        return buildResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiResponse<?>> handleBadRequestException(BadRequestException ex) {
         return buildResponse(ex, HttpStatus.BAD_REQUEST);
@@ -35,6 +41,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handleUnauthorizedException(UnauthorizedException ex) {
         return buildResponse(ex, HttpStatus.UNAUTHORIZED);
     }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         return buildResponse(ex, HttpStatus.BAD_REQUEST);
