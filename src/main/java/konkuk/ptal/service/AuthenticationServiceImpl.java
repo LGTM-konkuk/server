@@ -3,12 +3,9 @@ package konkuk.ptal.service;
 import konkuk.ptal.config.JwtTokenProvider;
 import konkuk.ptal.domain.TokenInfo;
 import konkuk.ptal.dto.api.ErrorCode;
-import konkuk.ptal.dto.request.CreateRevieweeRequest;
-import konkuk.ptal.dto.request.CreateReviewerRequest;
 import konkuk.ptal.dto.request.UserLoginRequest;
 import konkuk.ptal.dto.response.AuthTokenResponse;
 import konkuk.ptal.entity.User;
-import konkuk.ptal.exception.BadRequestException;
 import konkuk.ptal.exception.UnauthorizedException;
 import konkuk.ptal.repository.UserRepository;
 import konkuk.ptal.util.PasswordEncoder;
@@ -22,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class AuthServiceImpl implements IAuthService{
+public class AuthenticationServiceImpl implements IAuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;

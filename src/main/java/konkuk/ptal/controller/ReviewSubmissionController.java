@@ -1,6 +1,6 @@
 package konkuk.ptal.controller;
 
-import konkuk.ptal.service.IReviewRequestService; // TODO: Create this service interface
+import konkuk.ptal.service.IReviewSubmissionService; // TODO: Create this service interface
 import lombok.RequiredArgsConstructor;
         import org.springframework.web.bind.annotation.*;
 
@@ -9,6 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReviewSubmissionController {
 
-    private final IReviewRequestService reviewRequestService; // TODO: Define and implement
+    private final IReviewSubmissionService reviewRequestService; // TODO: Define and implement
 
 }

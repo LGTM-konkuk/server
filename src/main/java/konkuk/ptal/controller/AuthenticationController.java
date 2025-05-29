@@ -6,9 +6,8 @@ import konkuk.ptal.dto.api.ErrorCode;
 import konkuk.ptal.dto.api.ResponseCode;
 import konkuk.ptal.dto.request.UserLoginRequest;
 import konkuk.ptal.dto.response.AuthTokenResponse;
-import konkuk.ptal.exception.BadRequestException;
 import konkuk.ptal.exception.UnauthorizedException;
-import konkuk.ptal.service.IAuthService;
+import konkuk.ptal.service.IAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 public class AuthenticationController {
 
-    private final IAuthService authService;
+    private final IAuthenticationService authService;
 
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<AuthTokenResponse>> login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
