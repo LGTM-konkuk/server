@@ -10,7 +10,7 @@ public enum ResponseCode {
     LOGIN_SUCCESS("로그인 성공"),
     LOGOUT_SUCCESS("로그아웃 성공"),
     DATA_RETRIEVED("데이터 조회 성공"),
-
+    DATA_UPDATE_SUCCESS("데이터 수정 성공"),
     REVIEWER_REGISTER_SUCCESS("리뷰어 등록 성공"),
     REVIEWEE_REGISTER_SUCCESS("리뷰이 등록 성공"),
     REVIEW_CREATED("리뷰 생성 성공"),

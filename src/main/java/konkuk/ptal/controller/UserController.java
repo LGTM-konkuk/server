@@ -5,10 +5,13 @@ import konkuk.ptal.dto.api.ApiResponse;
 import konkuk.ptal.dto.api.ResponseCode;
 import konkuk.ptal.dto.request.CreateRevieweeRequest;
 import konkuk.ptal.dto.request.CreateReviewerRequest;
+import konkuk.ptal.dto.request.UpdateUserRequest;
 import konkuk.ptal.dto.response.CreateRevieweeResponse;
 import konkuk.ptal.dto.response.CreateReviewerResponse;
+import konkuk.ptal.dto.response.ReadUserResponse;
 import konkuk.ptal.entity.Reviewee;
 import konkuk.ptal.entity.Reviewer;
+import konkuk.ptal.entity.User;
 import konkuk.ptal.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -86,6 +89,26 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), responseDto));
+    }
+
+    @GetMapping("/users/me")
+    public ResponseEntity<ApiResponse<ReadUserResponse>> getUser(@AuthenticationPrincipal Long userId) {
+        User user = userService.getUser(userId);
+        ReadUserResponse responseDto = ReadUserResponse.from(user);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), responseDto));
+    }
+
+    @PatchMapping("/users/me")
+    public ResponseEntity<ApiResponse<ReadUserResponse>> editUser(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody UpdateUserRequest request) {
+        User user = userService.updateUser(userId, request);
+        ReadUserResponse responseDto = ReadUserResponse.from(user);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(ResponseCode.DATA_UPDATE_SUCCESS.getMessage(), responseDto));
     }
 
 // 추가로 리뷰어목록도 누락돼있는거같은데 자세하게 함 봐야할듯..

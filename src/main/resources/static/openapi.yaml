@@ -938,7 +938,7 @@ paths:
                 $ref: "#/components/schemas/ApiResponse"
               example:
                 message: "인증 토큰이 없거나 만료되었습니다."
-    put:
+    patch:
       tags:
         - 사용자 (User)
       summary: "내 정보 수정"
