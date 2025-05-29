@@ -16,12 +16,14 @@ import java.util.stream.Collectors;
 public class UserPrincipal implements UserDetails {
     private static final long serialVersionUID = 1L;
 
+    private Long userId;  // userId 필드 추가
     private String email;  // memberId → email
     private String password;
     private List<String> roles;  // Set<String> → List<String> (roles는 실제 String 값으로 변환)
 
     public static UserPrincipal create(User user) {
         return new UserPrincipal(
+                user.getId(),  // userId 추가
                 user.getEmail(),  // 이메일로 변경
                 user.getPasswordHash(),  // 비밀번호는 passwordHash로 변경
                 List.of(user.getRole().name())  // Role enum을 String으로 변환하여 리스트에 담기
