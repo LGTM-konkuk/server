@@ -26,12 +26,14 @@ public class UserServiceImpl implements IUserService {
     private final RevieweeRepository revieweeRepository;
 
     @Transactional
+    @Override
     public Reviewer registerReviewer(CreateReviewerRequest dto) {
         if(userRepository.findByEmail(dto.getEmail()).isPresent()){
             throw new BadRequestException(ErrorCode.DUPLICATED_EMAIL);
         }
         String hashedPassword = passwordEncoder.encode(dto.getPassword());
         User user = User.createUser(dto.getEmail(), dto.getName(), hashedPassword);
+        user.updateRole(Role.REVIEWER);
         User savedUser = userRepository.save(user);
         Reviewer reviewer = Reviewer.createReviewer(savedUser, dto);
 
@@ -41,12 +43,14 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Transactional(readOnly = true)
+    @Override
     public Reviewer getReviewer(Long id) {
         return reviewerRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
     }
 
     @Transactional
+    @Override
     public Reviewer updateReviewer(Long id, CreateReviewerRequest dto, Long authenticatedUserId) {
         Reviewer reviewer = getReviewer(id);
 
@@ -61,6 +65,7 @@ public class UserServiceImpl implements IUserService {
         return reviewerRepository.save(reviewer);
     }
 
+    @Transactional
     @Override
     public Reviewee registerReviewee(CreateRevieweeRequest dto) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
@@ -68,6 +73,8 @@ public class UserServiceImpl implements IUserService {
         }
         String hashedPassword = passwordEncoder.encode(dto.getPassword());
         User user = User.createUser(dto.getEmail(), dto.getName(), hashedPassword);
+        user.updateRole(Role.REVIEWEE);
+
         User savedUser = userRepository.save(user);
 
         Reviewee reviewee = Reviewee.createReviewee(savedUser, dto);
@@ -77,12 +84,14 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Reviewee getReviewee(Long id) {
         return revieweeRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
     }
 
     @Override
+    @Transactional
     public Reviewee updateReviewee(Long id, CreateRevieweeRequest dto, Long authenticatedUserId) {
         Reviewee reviewee = getReviewee(id);
 
