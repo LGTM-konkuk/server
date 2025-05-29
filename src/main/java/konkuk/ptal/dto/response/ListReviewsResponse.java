@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ListReviewsResponse extends BasePageResponse{
+public class ListReviewsResponse extends BasePageResponse {
     private List<ReadReviewResponse> content;
 
 

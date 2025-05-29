@@ -1,7 +1,6 @@
 package konkuk.ptal.exception;
 
 import konkuk.ptal.dto.api.ErrorCode;
-import konkuk.ptal.dto.api.ResponseCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

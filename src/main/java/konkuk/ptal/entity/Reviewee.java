@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name="reviewees")
+@Table(name = "reviewees")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -46,7 +46,7 @@ public class Reviewee {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public static Reviewee createReviewee(User user, CreateRevieweeRequest dto){
+    public static Reviewee createReviewee(User user, CreateRevieweeRequest dto) {
         return Reviewee.builder()
                 .user(user)
                 .preferences(dto.getPreferences())

@@ -21,17 +21,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.List;
 
 @WebMvcTest(UserController.class)
 @Import(TestSecurityConfig.class)
@@ -60,7 +59,7 @@ class UserControllerTest {
                 .name("Test User")
                 .passwordHash("hashedPassword")
                 .build();
-        
+
         // UserPrincipal 모킹
         testUserPrincipal = new UserPrincipal(
                 testUserId,
@@ -73,23 +72,23 @@ class UserControllerTest {
     private String createUpdateUserJson(String name, String email, String password) throws JsonProcessingException {
         StringBuilder json = new StringBuilder("{");
         boolean first = true;
-        
+
         if (name != null) {
             json.append("\"name\":\"").append(name).append("\"");
             first = false;
         }
-        
+
         if (email != null) {
             if (!first) json.append(",");
             json.append("\"email\":\"").append(email).append("\"");
             first = false;
         }
-        
+
         if (password != null) {
             if (!first) json.append(",");
             json.append("\"password\":\"").append(password).append("\"");
         }
-        
+
         json.append("}");
         return json.toString();
     }

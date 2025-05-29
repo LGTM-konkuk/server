@@ -2,7 +2,10 @@ package konkuk.ptal.util;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import java.util.*;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Converter
 public class StringListConverter implements AttributeConverter<List<String>, String> {

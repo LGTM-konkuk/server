@@ -1,6 +1,5 @@
 package konkuk.ptal.service;
 
-import konkuk.ptal.dto.api.ErrorCode;
 import konkuk.ptal.dto.request.UpdateUserRequest;
 import konkuk.ptal.entity.User;
 import konkuk.ptal.exception.BadRequestException;
@@ -70,7 +69,7 @@ class UserServiceImplTest {
         assertThat(result.getId()).isEqualTo(testUserId);
         assertThat(result.getEmail()).isEqualTo("test@example.com");
         assertThat(result.getName()).isEqualTo("Test User");
-        
+
         verify(userRepository).findById(testUserId);
     }
 
@@ -83,7 +82,7 @@ class UserServiceImplTest {
         // when & then
         assertThatThrownBy(() -> userService.getUser(testUserId))
                 .isInstanceOf(BadRequestException.class);
-        
+
         verify(userRepository).findById(testUserId);
     }
 
@@ -207,7 +206,7 @@ class UserServiceImplTest {
         // when & then
         assertThatThrownBy(() -> userService.updateUser(testUserId, updateRequest))
                 .isInstanceOf(BadRequestException.class);
-        
+
         verify(userRepository).findById(testUserId);
         verify(userRepository, never()).save(any(User.class));
         verify(passwordEncoder, never()).encode(anyString());
@@ -226,7 +225,7 @@ class UserServiceImplTest {
         // when & then
         assertThatThrownBy(() -> userService.updateUser(null, updateRequest))
                 .isInstanceOf(BadRequestException.class);
-        
+
         verify(userRepository).findById(null);
         verify(userRepository, never()).save(any(User.class));
     }
@@ -240,7 +239,7 @@ class UserServiceImplTest {
         // when & then
         assertThatThrownBy(() -> userService.getUser(null))
                 .isInstanceOf(BadRequestException.class);
-        
+
         verify(userRepository).findById(null);
     }
 
@@ -260,7 +259,7 @@ class UserServiceImplTest {
         // when & then
         assertThatThrownBy(() -> userService.updateUser(nonExistentUserId, updateRequest))
                 .isInstanceOf(BadRequestException.class);
-        
+
         verify(userRepository).findById(nonExistentUserId);
         verify(userRepository, never()).save(any(User.class));
     }
@@ -275,7 +274,7 @@ class UserServiceImplTest {
         // when & then
         assertThatThrownBy(() -> userService.getUser(nonExistentUserId))
                 .isInstanceOf(BadRequestException.class);
-        
+
         verify(userRepository).findById(nonExistentUserId);
     }
 
@@ -294,7 +293,7 @@ class UserServiceImplTest {
         // when & then
         assertThatThrownBy(() -> userService.updateUser(testUserId, updateRequest))
                 .isInstanceOf(RuntimeException.class);
-        
+
         verify(userRepository).findById(testUserId);
         verify(userRepository).save(testUser);
     }
@@ -314,7 +313,7 @@ class UserServiceImplTest {
         // when & then
         assertThatThrownBy(() -> userService.updateUser(testUserId, updateRequest))
                 .isInstanceOf(RuntimeException.class);
-        
+
         verify(userRepository).findById(testUserId);
         verify(passwordEncoder).encode("newPassword");
         verify(userRepository, never()).save(any(User.class));
