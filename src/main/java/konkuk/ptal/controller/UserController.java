@@ -1,6 +1,7 @@
 package konkuk.ptal.controller;
 
 import jakarta.validation.Valid;
+import konkuk.ptal.domain.UserPrincipal;
 import konkuk.ptal.dto.api.ApiResponse;
 import konkuk.ptal.dto.api.ResponseCode;
 import konkuk.ptal.dto.request.CreateRevieweeRequest;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final IUserService userService; // Or a dedicated IUserService for general user ops
+    private final IUserService userService;
 
     @PostMapping("/auth/signup/reviewee")
     public ResponseEntity<ApiResponse<CreateRevieweeResponse>> registerReviewee(
@@ -36,7 +37,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(ResponseCode.REVIEWEE_REGISTER_SUCCESS.getMessage(), responseDto));
     }
-
 
     @PostMapping("/auth/signup/reviewer")
     public ResponseEntity<ApiResponse<CreateReviewerResponse>> registerReviewer(
@@ -62,7 +62,8 @@ public class UserController {
     public ResponseEntity<ApiResponse<CreateRevieweeResponse>> updateReviewee(
             @PathVariable Long id,
             @Valid @RequestBody CreateRevieweeRequest requestDto,
-            @AuthenticationPrincipal Long userId) {
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
         Reviewee updatedReviewee = userService.updateReviewee(id, requestDto, userId);
         CreateRevieweeResponse responseDto = CreateRevieweeResponse.from(updatedReviewee);
         return ResponseEntity
@@ -83,7 +84,8 @@ public class UserController {
     public ResponseEntity<ApiResponse<CreateReviewerResponse>> updateReviewer(
             @PathVariable Long id,
             @Valid @RequestBody CreateReviewerRequest requestDto,
-            @AuthenticationPrincipal Long userId) {
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
         Reviewer updatedReviewer = userService.updateReviewer(id, requestDto, userId);
         CreateReviewerResponse responseDto = CreateReviewerResponse.from(updatedReviewer);
         return ResponseEntity
@@ -92,7 +94,8 @@ public class UserController {
     }
 
     @GetMapping("/users/me")
-    public ResponseEntity<ApiResponse<ReadUserResponse>> getUser(@AuthenticationPrincipal Long userId) {
+    public ResponseEntity<ApiResponse<ReadUserResponse>> getUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
         User user = userService.getUser(userId);
         ReadUserResponse responseDto = ReadUserResponse.from(user);
         return ResponseEntity
@@ -102,8 +105,9 @@ public class UserController {
 
     @PatchMapping("/users/me")
     public ResponseEntity<ApiResponse<ReadUserResponse>> editUser(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody UpdateUserRequest request) {
+        Long userId = userPrincipal.getUserId();
         User user = userService.updateUser(userId, request);
         ReadUserResponse responseDto = ReadUserResponse.from(user);
         return ResponseEntity
