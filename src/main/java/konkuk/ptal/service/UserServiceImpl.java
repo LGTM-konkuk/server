@@ -11,6 +11,7 @@ import konkuk.ptal.exception.BadRequestException;
 import konkuk.ptal.repository.RevieweeRepository;
 import konkuk.ptal.repository.ReviewerRepository;
 import konkuk.ptal.repository.UserRepository;
+import konkuk.ptal.util.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,12 +21,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ReviewerRepository reviewerRepository;
     private final RevieweeRepository revieweeRepository;
 
     @Transactional
     public Reviewer registerReviewer(CreateReviewerRequest dto) {
-        return null;
+        if(userRepository.findByEmail(dto.getEmail()).isPresent()){
+            throw new BadRequestException(ErrorCode.DUPLICATED_EMAIL);
+        }
+        String hashedPassword = passwordEncoder.encode(dto.getPassword());
+        User user = User.createUser(dto.getEmail(), dto.getName(), hashedPassword);
+        User savedUser = userRepository.save(user);
+        Reviewer reviewer = Reviewer.createReviewer(savedUser, dto);
+
+        Reviewer savedReviewer = reviewerRepository.save(reviewer);
+
+        return savedReviewer;
     }
 
     @Transactional(readOnly = true)
@@ -51,7 +63,17 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public Reviewee registerReviewee(CreateRevieweeRequest dto) {
-        return null;
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new BadRequestException(ErrorCode.DUPLICATED_EMAIL);
+        }
+        String hashedPassword = passwordEncoder.encode(dto.getPassword());
+        User user = User.createUser(dto.getEmail(), dto.getName(), hashedPassword);
+        User savedUser = userRepository.save(user);
+
+        Reviewee reviewee = Reviewee.createReviewee(savedUser, dto);
+        Reviewee savedReviewee = revieweeRepository.save(reviewee);
+
+        return savedReviewee;
     }
 
     @Override
