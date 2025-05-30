@@ -4,9 +4,7 @@ import jakarta.validation.Valid;
 import konkuk.ptal.domain.UserPrincipal;
 import konkuk.ptal.dto.api.ApiResponse;
 import konkuk.ptal.dto.api.ResponseCode;
-import konkuk.ptal.dto.request.CreateRevieweeRequest;
-import konkuk.ptal.dto.request.CreateReviewerRequest;
-import konkuk.ptal.dto.request.UpdateUserRequest;
+import konkuk.ptal.dto.request.*;
 import konkuk.ptal.dto.response.CreateRevieweeResponse;
 import konkuk.ptal.dto.response.CreateReviewerResponse;
 import konkuk.ptal.dto.response.ReadUserResponse;
@@ -61,7 +59,7 @@ public class UserController {
     @PutMapping("/reviewee/{id}")
     public ResponseEntity<ApiResponse<CreateRevieweeResponse>> updateReviewee(
             @PathVariable Long id,
-            @Valid @RequestBody CreateRevieweeRequest requestDto,
+            @Valid @RequestBody UpdateRevieweeRequest requestDto,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         Long userId = userPrincipal.getUserId();
         Reviewee updatedReviewee = userService.updateReviewee(id, requestDto, userId);
@@ -83,7 +81,7 @@ public class UserController {
     @PutMapping("/reviewer/{id}")
     public ResponseEntity<ApiResponse<CreateReviewerResponse>> updateReviewer(
             @PathVariable Long id,
-            @Valid @RequestBody CreateReviewerRequest requestDto,
+            @Valid @RequestBody UpdateReviewerRequest requestDto,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         Long userId = userPrincipal.getUserId();
         Reviewer updatedReviewer = userService.updateReviewer(id, requestDto, userId);

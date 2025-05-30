@@ -2,9 +2,7 @@ package konkuk.ptal.service;
 
 import konkuk.ptal.domain.enums.Role;
 import konkuk.ptal.dto.api.ErrorCode;
-import konkuk.ptal.dto.request.CreateRevieweeRequest;
-import konkuk.ptal.dto.request.CreateReviewerRequest;
-import konkuk.ptal.dto.request.UpdateUserRequest;
+import konkuk.ptal.dto.request.*;
 import konkuk.ptal.entity.Reviewee;
 import konkuk.ptal.entity.Reviewer;
 import konkuk.ptal.entity.User;
@@ -53,7 +51,7 @@ public class UserServiceImpl implements IUserService {
 
     @Transactional
     @Override
-    public Reviewer updateReviewer(Long id, CreateReviewerRequest dto, Long authenticatedUserId) {
+    public Reviewer updateReviewer(Long id, UpdateReviewerRequest dto, Long authenticatedUserId) {
         Reviewer reviewer = getReviewer(id);
 
         // 리뷰어 본인만 수정 가능
@@ -94,7 +92,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
-    public Reviewee updateReviewee(Long id, CreateRevieweeRequest dto, Long authenticatedUserId) {
+    public Reviewee updateReviewee(Long id, UpdateRevieweeRequest dto, Long authenticatedUserId) {
         Reviewee reviewee = getReviewee(id);
 
         // 리뷰어 본인만 수정 가능

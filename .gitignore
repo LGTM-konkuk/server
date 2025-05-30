@@ -38,3 +38,6 @@ out/
 
 ### OSX
 .DS_Store
+
+### Postman_collection.json
+postman_collection.json

@@ -35,7 +35,7 @@ public class AuthenticationController {
                     .body(ApiResponse.success(ResponseCode.LOGIN_SUCCESS.getMessage(), token));
         } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.fail(ErrorCode.USER_NOT_FOUND.getMessage() + "또는" + ErrorCode.PASSWORD_NOT_EQUAL.getMessage(), null));
+                    .body(ApiResponse.fail(ErrorCode.USER_NOT_FOUND.getMessage() + "또는 " + ErrorCode.PASSWORD_NOT_EQUAL.getMessage(), null));
         }
     }
 
