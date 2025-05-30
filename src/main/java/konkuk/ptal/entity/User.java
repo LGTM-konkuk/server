@@ -5,8 +5,6 @@ import konkuk.ptal.domain.enums.Role;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -41,6 +39,7 @@ public class User {
 
     @Column(name = "refresh_token") // Refresh Token 저장 컬럼 추가
     private String refreshToken;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -51,6 +50,7 @@ public class User {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
     public static User createUser(String email, String name, String passwordHash) {
         return User.builder()
                 .email(email)
@@ -63,6 +63,7 @@ public class User {
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
+
     public void clearRefreshToken() {
         this.refreshToken = null;
     }

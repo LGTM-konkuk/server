@@ -1,9 +1,11 @@
 package konkuk.ptal.dto.response;
+
 import konkuk.ptal.entity.ReviewRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
+
 import java.util.List;
 import java.util.stream.Collectors;
 

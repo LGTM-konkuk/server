@@ -54,7 +54,7 @@ public class Reviewer {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public static Reviewer createReviewer(User user, CreateReviewerRequest dto){
+    public static Reviewer createReviewer(User user, CreateReviewerRequest dto) {
         return Reviewer.builder()
                 .user(user)
                 .preferences(dto.getPreferences())

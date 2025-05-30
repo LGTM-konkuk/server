@@ -1,7 +1,6 @@
 package konkuk.ptal.exception;
 
 import konkuk.ptal.dto.api.ErrorCode;
-import konkuk.ptal.dto.api.ResponseCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -17,5 +16,10 @@ public class BaseException extends RuntimeException {
 
     public ErrorCode getErrorCode() {
         return this.errorCode;
+    }
+
+    @Override
+    public String getMessage() {
+        return this.errorCode.getMessage();
     }
 }

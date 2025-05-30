@@ -4,10 +4,12 @@ import konkuk.ptal.domain.enums.Role;
 import konkuk.ptal.dto.api.ErrorCode;
 import konkuk.ptal.dto.request.CreateRevieweeRequest;
 import konkuk.ptal.dto.request.CreateReviewerRequest;
+import konkuk.ptal.dto.request.UpdateUserRequest;
 import konkuk.ptal.entity.Reviewee;
 import konkuk.ptal.entity.Reviewer;
 import konkuk.ptal.entity.User;
 import konkuk.ptal.exception.BadRequestException;
+import konkuk.ptal.exception.DuplicatedEmailException;
 import konkuk.ptal.repository.RevieweeRepository;
 import konkuk.ptal.repository.ReviewerRepository;
 import konkuk.ptal.repository.UserRepository;
@@ -28,8 +30,8 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     @Override
     public Reviewer registerReviewer(CreateReviewerRequest dto) {
-        if(userRepository.findByEmail(dto.getEmail()).isPresent()){
-            throw new BadRequestException(ErrorCode.DUPLICATED_EMAIL);
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new DuplicatedEmailException(ErrorCode.DUPLICATED_EMAIL);
         }
         String hashedPassword = passwordEncoder.encode(dto.getPassword());
         User user = User.createUser(dto.getEmail(), dto.getName(), hashedPassword);
@@ -69,7 +71,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Reviewee registerReviewee(CreateRevieweeRequest dto) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new BadRequestException(ErrorCode.DUPLICATED_EMAIL);
+            throw new DuplicatedEmailException(ErrorCode.DUPLICATED_EMAIL);
         }
         String hashedPassword = passwordEncoder.encode(dto.getPassword());
         User user = User.createUser(dto.getEmail(), dto.getName(), hashedPassword);
@@ -102,5 +104,25 @@ public class UserServiceImpl implements IUserService {
         reviewee.setPreferences(dto.getPreferences());
 
         return revieweeRepository.save(reviewee);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User getUser(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    @Override
+    @Transactional
+    public User updateUser(Long id, UpdateUserRequest dto) {
+        User user = getUser(id);
+        dto.getEmail().ifPresent(user::setEmail);
+        dto.getName().ifPresent(user::setName);
+        dto.getPassword().ifPresent(newPw -> {
+            String hashedPassword = passwordEncoder.encode(newPw);
+            user.setPasswordHash(hashedPassword);
+        });
+        return userRepository.save(user);
     }
 }

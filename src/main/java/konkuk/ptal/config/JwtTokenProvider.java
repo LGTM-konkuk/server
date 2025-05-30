@@ -3,8 +3,8 @@ package konkuk.ptal.config;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import konkuk.ptal.domain.UserPrincipal;
 import konkuk.ptal.domain.TokenInfo;
+import konkuk.ptal.domain.UserPrincipal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,7 +16,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.security.Key;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,6 +41,10 @@ public class JwtTokenProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+        // UserPrincipal에서 userId 추출
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Long userId = userPrincipal.getUserId();
+
         long now = (new Date()).getTime();
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + 7 * 24 * 60 * 60 * 1000);
@@ -45,6 +52,7 @@ public class JwtTokenProvider {
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
+                .claim("userId", userId)  // userId 클레임 추가
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -52,6 +60,7 @@ public class JwtTokenProvider {
         // Refresh Token 생성
         String refreshToken = Jwts.builder()
                 .setSubject(authentication.getName())
+                .claim("userId", userId)  // Refresh Token에도 userId 포함
                 .setExpiration(new Date(now + 7 * 24 * 60 * 60 * 1000))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -78,8 +87,11 @@ public class JwtTokenProvider {
                         .map(SimpleGrantedAuthority::new)
                         .toList();
 
+        // 클레임에서 userId 추출
+        Long userId = claims.get("userId", Long.class);
+
         // UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails principal = new UserPrincipal(claims.getSubject(), "", new ArrayList<>());
+        UserDetails principal = new UserPrincipal(userId, claims.getSubject(), "", new ArrayList<>());
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 

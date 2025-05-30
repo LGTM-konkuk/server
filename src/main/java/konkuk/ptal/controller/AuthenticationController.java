@@ -29,39 +29,39 @@ public class AuthenticationController {
 
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<AuthTokenResponse>> login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
-        try{
+        try {
             AuthTokenResponse token = authService.login(userLoginRequest);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(ApiResponse.success(ResponseCode.LOGIN_SUCCESS.getMessage(), token));
-        } catch (UnauthorizedException e){
-          return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                  .body(ApiResponse.fail(ErrorCode.USER_NOT_FOUND.getMessage() + "또는" + ErrorCode.PASSWORD_NOT_EQUAL.getMessage(), null));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.fail(ErrorCode.USER_NOT_FOUND.getMessage() + "또는" + ErrorCode.PASSWORD_NOT_EQUAL.getMessage(), null));
         }
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<AuthTokenResponse>> refresh(
             @Valid @RequestBody RefreshTokenRequest request) {
-        try{
+        try {
             AuthTokenResponse token = authService.refreshAccessToken(request);
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(ApiResponse.success(ResponseCode.TOKEN_REFRESH_SUCCESS.getMessage(), token));
-        } catch (UnauthorizedException e){
+        } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.fail(ErrorCode.INVALID_JWT.getMessage(), null));
         }
     }
 
     @PostMapping("/signout")
-    public ResponseEntity<ApiResponse<Void>> logout (
+    public ResponseEntity<ApiResponse<Void>> logout(
             @AuthenticationPrincipal UserDetails userDetails
-            ) {
-        try{
+    ) {
+        try {
             authService.logout(userDetails.getUsername());
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(ApiResponse.success(ResponseCode.LOGOUT_SUCCESS.getMessage(),null));
-        }catch (UnauthorizedException e){
+                    .body(ApiResponse.success(ResponseCode.LOGOUT_SUCCESS.getMessage(), null));
+        } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.fail(ErrorCode.USER_NOT_FOUND.getMessage(), null));
         }

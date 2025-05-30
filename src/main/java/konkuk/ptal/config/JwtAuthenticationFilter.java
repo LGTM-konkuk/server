@@ -25,7 +25,9 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
     // SecurityConfig에서 정의한 SWAGGER_PATHS를 여기서도 사용
     private static final String[] DEFAULT_PERMIT_PATHS = {
-            "/api/v1/auth/**",
+            "/api/v1/auth/signup/reviewer",
+            "/api/v1/auth/signup/reviewee",
+            "/api/v1/auth/signin",
             "/h2-console/**"
             // 다른 기본 허용 경로가 있다면 추가
     };

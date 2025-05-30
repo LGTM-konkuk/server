@@ -1,6 +1,8 @@
 package konkuk.ptal.dto.response;
 
-import konkuk.ptal.entity.*;
+import konkuk.ptal.entity.Review;
+import konkuk.ptal.entity.Reviewee;
+import konkuk.ptal.entity.Reviewer;
 import lombok.Builder;
 import lombok.Data;
 

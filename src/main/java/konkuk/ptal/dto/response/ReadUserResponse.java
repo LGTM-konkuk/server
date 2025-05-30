@@ -1,7 +1,6 @@
 package konkuk.ptal.dto.response;
 
 import konkuk.ptal.domain.enums.Role;
-import konkuk.ptal.entity.Reviewer;
 import konkuk.ptal.entity.User;
 import lombok.Builder;
 import lombok.Data;

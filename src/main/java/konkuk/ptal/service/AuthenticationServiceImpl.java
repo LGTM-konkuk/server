@@ -10,7 +10,6 @@ import konkuk.ptal.dto.response.AuthTokenResponse;
 import konkuk.ptal.entity.User;
 import konkuk.ptal.exception.UnauthorizedException;
 import konkuk.ptal.repository.UserRepository;
-import konkuk.ptal.util.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,7 +17,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +28,9 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService customUserDetailsService;
+
     public AuthTokenResponse login(UserLoginRequest userLoginRequest) {
-        try{
+        try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             userLoginRequest.getEmail(),
@@ -52,7 +51,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                     tokenInfo.getAccessToken(),
                     tokenInfo.getRefreshToken()
             );
-        }catch (BadCredentialsException e){
+        } catch (BadCredentialsException e) {
             throw new UnauthorizedException(ErrorCode.PASSWORD_NOT_EQUAL);
         }
 
