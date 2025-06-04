@@ -5,6 +5,8 @@ import konkuk.ptal.dto.request.CreateReviewSessionRequest;
 import konkuk.ptal.entity.ReviewComment;
 import konkuk.ptal.entity.ReviewSession;
 
+import java.util.List;
+
 public interface IReviewService {
 
     /**
@@ -42,7 +44,7 @@ public interface IReviewService {
      * @param codeFileId 댓글을 조회할 코드 파일의 고유 식별자입니다.
      *                   세션 레벨 댓글을 조회하려면 null일 수 있습니다.
      */
-    ReviewComment getReviewComments(Long sessionId, Long codeFileId);
+    List<ReviewComment> getReviewComments(Long sessionId, Long codeFileId);
 
     /**
      * 기존 댓글을 업데이트합니다.

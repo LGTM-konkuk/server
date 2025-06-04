@@ -36,7 +36,7 @@ public class ReviewComment {
     @Column(nullable = false)
     private ReviewCommentType commentType;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "parent_comment_id")
     private ReviewComment parentComment;
 

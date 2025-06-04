@@ -91,7 +91,7 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     @Transactional(readOnly = true)
-    public ReviewComment getReviewComments(Long sessionId, Long codeFileId) {
+    public List<ReviewComment> getReviewComments(Long sessionId, Long codeFileId) {
         reviewSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
