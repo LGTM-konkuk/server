@@ -56,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(SWAGGER_PATHS).permitAll() // Swagger 경로 허용
                         .requestMatchers("/api/v1/reviewer/**").authenticated()
                         .requestMatchers("/api/v1/reviewee/**").authenticated()
+                        .requestMatchers("/api/v1/reviews/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
