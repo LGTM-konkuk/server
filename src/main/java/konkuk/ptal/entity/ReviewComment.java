@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Comment {
+public class ReviewComment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +35,7 @@ public class Comment {
 
     @OneToOne
     @JoinColumn(name = "parent_comment_id")
-    private Comment parentComment;
+    private ReviewComment parentComment;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
