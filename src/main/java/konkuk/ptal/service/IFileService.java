@@ -8,7 +8,7 @@ public interface IFileService {
      * 코드 파일을 깃허브로부터 다운로드 받아서 저장합니다.
      * @param githubAddress 깃허브 주소
      */
-    String saveCode(String githubAddress);
+    String saveCode(String githubAddress, String branchName);
 
     /**
      * 특정 코드파일을 조회하기 위해 사용합니다.
