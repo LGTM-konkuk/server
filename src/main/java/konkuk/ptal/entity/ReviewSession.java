@@ -2,6 +2,7 @@ package konkuk.ptal.entity;
 
 import jakarta.persistence.*;
 import konkuk.ptal.domain.enums.ReviewRequestStatus;
+import konkuk.ptal.dto.request.CreateReviewSessionRequest;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -62,5 +63,18 @@ public class ReviewSession {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+
+    }
+
+    public static ReviewSession createReviewSession(String absolutePath, ReviewRequestStatus status, Reviewer reviewer, Reviewee reviewee, CreateReviewSessionRequest dto){
+        return ReviewSession.builder()
+                .title(dto.getTitle())
+                .description(dto.getDescription())
+                .reviewee(reviewee)
+                .reviewer(reviewer)
+                .githubLink(dto.getGithubLink())
+                .absolutePath(absolutePath)
+                .status(status)
+                .build();
     }
 }

@@ -2,6 +2,7 @@ package konkuk.ptal.entity;
 
 import jakarta.persistence.*;
 import konkuk.ptal.domain.enums.ReviewCommentType;
+import konkuk.ptal.dto.request.CreateReviewCommentRequest;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,8 @@ public class ReviewComment {
     private CodeFile codeFile;
 
     private int lineNumber;
+
+    private String content;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -56,5 +59,17 @@ public class ReviewComment {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public static ReviewComment createReviewComment(ReviewSession reviewSession, ReviewComment parentComment, CodeFile codeFile, User user, ReviewCommentType commentType, CreateReviewCommentRequest dto){
+        return ReviewComment.builder()
+                .reviewSession(reviewSession)
+                .codeFile(codeFile)
+                .lineNumber(dto.getLineNumber())
+                .commentType(commentType)
+                .parentComment(parentComment)
+                .user(user)
+                .content(dto.getContent())
+                .build();
     }
 }

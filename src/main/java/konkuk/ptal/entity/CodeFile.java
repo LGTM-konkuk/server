@@ -1,6 +1,8 @@
 package konkuk.ptal.entity;
 
 import jakarta.persistence.*;
+import konkuk.ptal.domain.enums.ReviewRequestStatus;
+import konkuk.ptal.dto.request.CreateReviewSessionRequest;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -35,5 +37,20 @@ public class CodeFile {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+    }
+
+    public static CodeFile createCodeFile(ReviewSession reviewSession, String relativePath){
+        return CodeFile.builder()
+                .sessionId(reviewSession)
+                .relativePath(relativePath)
+                .fileType(getFileExtension(relativePath))
+                .build();
+    }
+    private static String getFileExtension(String filePath) {
+        int dotIndex = filePath.lastIndexOf('.');
+        if (dotIndex > 0 && dotIndex < filePath.length() - 1) {
+            return filePath.substring(dotIndex + 1);
+        }
+        return "unknown";
     }
 }
