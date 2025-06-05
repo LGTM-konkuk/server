@@ -5,8 +5,12 @@ import konkuk.ptal.domain.enums.ReviewCommentType;
 import konkuk.ptal.domain.enums.ReviewSubmissionStatus;
 import konkuk.ptal.domain.enums.ReviewSubmissionType;
 import konkuk.ptal.dto.request.CreateReviewCommentRequest;
+import konkuk.ptal.dto.request.CreateReviewRequest;
 import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
+import konkuk.ptal.dto.request.UpdateReviewRequest;
 import konkuk.ptal.dto.response.ListReviewSubmissionResponse;
+import konkuk.ptal.dto.response.ListReviewsResponse;
+import konkuk.ptal.dto.response.ReadReviewResponse;
 import konkuk.ptal.dto.response.ReadReviewSubmissionResponse;
 import konkuk.ptal.entity.*;
 import konkuk.ptal.exception.BadRequestException;
@@ -34,6 +38,7 @@ public class ReviewServiceImpl implements IReviewService {
     private final UserRepository userRepository;
     private final RevieweeRepository revieweeRepository;
     private final ReviewerRepository reviewerRepository;
+    private final ReviewRepository reviewRepository;
     private final IFileService fileService;
 
     @Override
@@ -176,5 +181,87 @@ public class ReviewServiceImpl implements IReviewService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    @Transactional
+    public Review createReview(Long submissionId, CreateReviewRequest request, UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
+
+        ReviewSubmission reviewSubmission = reviewSubmissionRepository
+                .findByIdAndReviewer_User_Id(submissionId, userId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+
+        if (reviewSubmission.getStatus() != ReviewSubmissionStatus.PENDING) {
+            throw new BadRequestException(REVIEW_UNAVAILABLE);
+        }
+
+        if (reviewRepository.findByReviewSubmissionId(reviewSubmission.getId()).isPresent()) {
+            throw new BadRequestException(REVIEW_ALREADY_EXIST);
+        }
+
+        Review newReview = Review.createReview(reviewSubmission, request);
+        Review savedReview = reviewRepository.save(newReview);
+
+        reviewSubmission.setStatus(ReviewSubmissionStatus.REVIEWED);
+        reviewSubmissionRepository.save(reviewSubmission);
+
+        return savedReview;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Review getReview(Long reviewId, UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
+
+        Review review = reviewRepository
+                .findByIdAndReviewSubmission_Reviewee_User_IdOrIdAndReviewSubmission_Reviewer_User_Id(
+                        reviewId, userId,
+                        reviewId, userId
+                )
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+
+        return review;
+    }
+
+    @Override
+    @Transactional
+    public Review updateReview(Long reviewId, UpdateReviewRequest request, UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
+
+        Review review = reviewRepository
+                .findByIdAndReviewSubmission_Reviewer_User_Id(reviewId, userId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+
+        review.updateConclusion(request.getReviewContent());
+
+        return reviewRepository.save(review);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Review> getReviews(Long submissionId, Long reviewerId, Long revieweeId, int page, int size, UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Review> reviewPage;
+
+        // 조회 조건에 따라 동적 쿼리 (또는 Querydsl 사용 고려)
+        if (submissionId != null) {
+            reviewPage = reviewRepository.findByReviewSubmissionIdAndReviewSubmission_Reviewee_User_IdOrReviewSubmission_Reviewer_User_Id(
+                    submissionId, userId, submissionId, userId, pageable
+            );
+        } else if (reviewerId != null && reviewerId.equals(userId)) {
+            reviewPage = reviewRepository.findByReviewSubmission_Reviewer_User_Id(reviewerId, pageable);
+        } else if (revieweeId != null && revieweeId.equals(userId)) {
+            reviewPage = reviewRepository.findByReviewSubmission_Reviewee_User_Id(revieweeId, pageable);
+        } else {
+            reviewPage = reviewRepository.findByReviewSubmission_Reviewee_User_IdOrReviewSubmission_Reviewer_User_Id(
+                    userId, userId, pageable
+            );
+        }
+        if (reviewPage.isEmpty()) {
+            return Page.empty(pageable);
+        }
+        return reviewPage;
     }
 }

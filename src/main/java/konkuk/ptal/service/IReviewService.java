@@ -3,10 +3,12 @@ package konkuk.ptal.service;
 import konkuk.ptal.domain.UserPrincipal;
 import konkuk.ptal.domain.enums.ReviewSubmissionType;
 import konkuk.ptal.dto.request.CreateReviewCommentRequest;
-import konkuk.ptal.dto.request.CreateReviewSessionRequest;
+import konkuk.ptal.dto.request.CreateReviewRequest;
 import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
-import konkuk.ptal.dto.response.ListReviewSubmissionResponse;
-import konkuk.ptal.dto.response.ReadReviewSubmissionResponse;
+import konkuk.ptal.dto.request.UpdateReviewRequest;
+import konkuk.ptal.dto.response.ListReviewsResponse;
+import konkuk.ptal.dto.response.ReadReviewResponse;
+import konkuk.ptal.entity.Review;
 import konkuk.ptal.entity.ReviewComment;
 import konkuk.ptal.entity.ReviewSubmission;
 import konkuk.ptal.exception.BadRequestException;
@@ -88,5 +90,17 @@ public interface IReviewService {
      * @return 댓글이 성공적으로 삭제(소프트 삭제)되었으면 `true`, 그렇지 않으면 `false`를 반환합니다.
      */
     boolean deleteReviewComment(String commentId);
+
+    // 새로운 리뷰 작성
+    Review createReview(Long submissionId, CreateReviewRequest request, UserPrincipal userPrincipal);
+
+    // 리뷰 상세 조회
+    Review getReview(Long reviewId, UserPrincipal userPrincipal);
+
+    // 리뷰 수정
+    Review updateReview(Long reviewId, UpdateReviewRequest request, UserPrincipal userPrincipal);
+
+    // 리뷰 목록 조회
+    Page<Review> getReviews(Long submissionId, Long reviewerId, Long revieweeId, int page, int size, UserPrincipal userPrincipal);
 
 }

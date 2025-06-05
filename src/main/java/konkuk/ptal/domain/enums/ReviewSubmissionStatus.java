@@ -4,5 +4,6 @@ public enum ReviewSubmissionStatus {
     PENDING,
     APPROVED,
     REJECTED,
-    CANCELED // Added CANCELED
+    CANCELED,
+    REVIEWED
 }

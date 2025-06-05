@@ -19,7 +19,7 @@ public class ReviewSubmission {
     @Id
     @Column(name = "review_submission_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewee_id", nullable = false)
@@ -44,10 +44,10 @@ public class ReviewSubmission {
     private ReviewSubmissionStatus status;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    LocalDateTime createdAt;
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
