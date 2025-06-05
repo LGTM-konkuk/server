@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 @Data
 @Builder
 public class ReadCommentResponse {
-    Long id;
+    String id;
     Long sessionId;
     String content;
     String filepath;
     AuthorInfo author;
-    Long parentCommentId;
+    String parentCommentId;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 
