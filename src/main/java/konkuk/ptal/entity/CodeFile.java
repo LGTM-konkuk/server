@@ -1,8 +1,6 @@
 package konkuk.ptal.entity;
 
 import jakarta.persistence.*;
-import konkuk.ptal.domain.enums.ReviewRequestStatus;
-import konkuk.ptal.dto.request.CreateReviewSessionRequest;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -23,7 +21,7 @@ public class CodeFile {
 
     @ManyToOne
     @JoinColumn(name = "review_session_id",nullable = false)
-    private ReviewSession sessionId;
+    private ReviewSubmission sessionId;
 
     @Column(nullable = false)
     private String relativePath;
@@ -39,9 +37,9 @@ public class CodeFile {
         createdAt = LocalDateTime.now();
     }
 
-    public static CodeFile createCodeFile(ReviewSession reviewSession, String relativePath){
+    public static CodeFile createCodeFile(ReviewSubmission reviewSubmission, String relativePath){
         return CodeFile.builder()
-                .sessionId(reviewSession)
+                .sessionId(reviewSubmission)
                 .relativePath(relativePath)
                 .fileType(getFileExtension(relativePath))
                 .build();

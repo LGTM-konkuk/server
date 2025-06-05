@@ -17,12 +17,12 @@ import java.time.LocalDateTime;
 public class ReviewComment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @ManyToOne
     @JoinColumn(name="review_session_id", nullable=false)
-    private ReviewSession reviewSession;
+    private ReviewSubmission reviewSubmission;
 
     @ManyToOne
     @JoinColumn(name = "codefile_id")
@@ -61,9 +61,9 @@ public class ReviewComment {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public static ReviewComment createReviewComment(ReviewSession reviewSession, ReviewComment parentComment, CodeFile codeFile, User user, ReviewCommentType commentType, CreateReviewCommentRequest dto){
+    public static ReviewComment createReviewComment(ReviewSubmission reviewSubmission, ReviewComment parentComment, CodeFile codeFile, User user, ReviewCommentType commentType, CreateReviewCommentRequest dto){
         return ReviewComment.builder()
-                .reviewSession(reviewSession)
+                .reviewSubmission(reviewSubmission)
                 .codeFile(codeFile)
                 .lineNumber(dto.getLineNumber())
                 .commentType(commentType)

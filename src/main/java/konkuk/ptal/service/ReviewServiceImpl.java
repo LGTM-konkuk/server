@@ -30,26 +30,26 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     @Transactional
-    public ReviewSession createReviewSession(CreateReviewSessionRequest request) {
+    public ReviewSubmission createReviewSession(CreateReviewSessionRequest request) {
         Reviewee reviewee = revieweeRepository.findById(request.getRevieweeId())
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
         Reviewer reviewer = reviewerRepository.findById(request.getReviewerId())
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
         String absolutePath = fileService.saveCode(request.getGithubLink(), request.getBranchName());
-        ReviewSession reviewSession = ReviewSession.createReviewSession(absolutePath, ReviewRequestStatus.PENDING, reviewer, reviewee, request);
-        reviewSession = reviewSessionRepository.save(reviewSession);
+        ReviewSubmission reviewSubmission = ReviewSubmission.createReviewSession(absolutePath, ReviewRequestStatus.PENDING, reviewer, reviewee, request);
+        reviewSubmission = reviewSessionRepository.save(reviewSubmission);
 
         List<String> relativePaths = fileService.getCodeFileList(absolutePath);
         for (String relativePath : relativePaths) {
-            CodeFile codeFile = CodeFile.createCodeFile(reviewSession, relativePath);
+            CodeFile codeFile = CodeFile.createCodeFile(reviewSubmission, relativePath);
             codeFileRepository.save(codeFile);
         }
-        return reviewSession;
+        return reviewSubmission;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ReviewSession getReviewSession(Long sessionId) {
+    public ReviewSubmission getReviewSession(Long sessionId) {
         return reviewSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
     }
@@ -57,7 +57,7 @@ public class ReviewServiceImpl implements IReviewService {
     @Override
     @Transactional
     public ReviewComment createReviewComment(Long sessionId, CreateReviewCommentRequest request) {
-        ReviewSession reviewSession = reviewSessionRepository.findById(sessionId)
+        ReviewSubmission reviewSubmission = reviewSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
         User user = userRepository.findById(request.getUserId())
@@ -80,11 +80,11 @@ public class ReviewServiceImpl implements IReviewService {
         if (request.getParentCommentId() != null) {
             parentComment = reviewCommentRepository.findById(request.getParentCommentId())
                     .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-            if (parentComment.getReviewSession().getId() != sessionId) {
+            if (parentComment.getReviewSubmission().getId() != sessionId) {
                 throw new BadRequestException(PARENT_COMMENT_NOT_BELONG_TO_SESSION);
             }
         }
-        ReviewComment comment = ReviewComment.createReviewComment(reviewSession,parentComment,codeFile,user,commentType,request);
+        ReviewComment comment = ReviewComment.createReviewComment(reviewSubmission,parentComment,codeFile,user,commentType,request);
         return reviewCommentRepository.save(comment);
     }
 

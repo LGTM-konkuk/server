@@ -26,7 +26,7 @@ public class ReadCommentResponse {
     public static ReadCommentResponse from(ReviewComment comment) {
         ReadCommentResponseBuilder builder = ReadCommentResponse.builder()
                 .id(comment.getId())
-                .sessionId(comment.getReviewSession().getId())
+                .sessionId(comment.getReviewSubmission().getId())
                 .content(comment.getContent())
                 .author(AuthorInfo.builder()
                         .id(comment.getUser().getId())

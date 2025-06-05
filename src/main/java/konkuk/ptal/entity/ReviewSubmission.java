@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReviewSession {
+public class ReviewSubmission {
 
     @Id
     @Column(name = "review_session_id")
@@ -66,8 +66,8 @@ public class ReviewSession {
 
     }
 
-    public static ReviewSession createReviewSession(String absolutePath, ReviewRequestStatus status, Reviewer reviewer, Reviewee reviewee, CreateReviewSessionRequest dto){
-        return ReviewSession.builder()
+    public static ReviewSubmission createReviewSession(String absolutePath, ReviewRequestStatus status, Reviewer reviewer, Reviewee reviewee, CreateReviewSessionRequest dto){
+        return ReviewSubmission.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .reviewee(reviewee)

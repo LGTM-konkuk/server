@@ -3,7 +3,7 @@ package konkuk.ptal.service;
 import konkuk.ptal.dto.request.CreateReviewCommentRequest;
 import konkuk.ptal.dto.request.CreateReviewSessionRequest;
 import konkuk.ptal.entity.ReviewComment;
-import konkuk.ptal.entity.ReviewSession;
+import konkuk.ptal.entity.ReviewSubmission;
 
 import java.util.List;
 
@@ -13,17 +13,17 @@ public interface IReviewService {
      * 새로운 코드 리뷰 세션을 생성합니다.
      *
      * @param request 리뷰 세션 생성을 위한 상세 정보를 담고 있는 요청 객체
-     * @return 새로 생성된 {@link ReviewSession} 객체입니다.
+     * @return 새로 생성된 {@link ReviewSubmission} 객체입니다.
      */
-    ReviewSession createReviewSession(CreateReviewSessionRequest request);
+    ReviewSubmission createReviewSession(CreateReviewSessionRequest request);
 
     /**
      * 특정 코드 리뷰 세션의 상세 정보를 조회합니다.
      *
      * @param sessionId 리뷰 세션의 고유 식별자입니다.
-     * @return 기본 세션 정보와 해당 세션 내의 모든 파일 목록을 포함하는 {@link ReviewSession} 객체입니다.
+     * @return 기본 세션 정보와 해당 세션 내의 모든 파일 목록을 포함하는 {@link ReviewSubmission} 객체입니다.
      */
-    ReviewSession getReviewSession(Long sessionId);
+    ReviewSubmission getReviewSession(Long sessionId);
 
     /**
      * 특정 리뷰 세션 내에 새로운 댓글을 생성합니다.
