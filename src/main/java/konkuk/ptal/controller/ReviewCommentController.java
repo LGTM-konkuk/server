@@ -1,14 +1,13 @@
 package konkuk.ptal.controller;
 
-import konkuk.ptal.domain.UserPrincipal;
 import konkuk.ptal.dto.api.ApiResponse;
 import konkuk.ptal.dto.request.CreateReviewCommentRequest;
+import konkuk.ptal.dto.request.UpdateReviewCommentRequest;
 import konkuk.ptal.dto.response.ReadCommentResponse;
 import konkuk.ptal.entity.ReviewComment;
 import konkuk.ptal.service.IReviewService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,70 +19,69 @@ public class ReviewCommentController {
 
     private final IReviewService reviewService;
 
-    @GetMapping("/reviews/{sessionId}/comments")
-    public ResponseEntity<ApiResponse<List<ReadCommentResponse>>> getReviewComments(@PathVariable Long sessionId){
+    @GetMapping("/review-submissions/{submissionId}/comments")
+    public ResponseEntity<ApiResponse<List<ReadCommentResponse>>> getReviewComments(@PathVariable Long submissionId){
         // TODO : 댓글에 대해 접근 권한이 있는지 보는 코드
 
-        List<ReviewComment> reviewComment = reviewService.getReviewComments(sessionId, null);
+        List<ReviewComment> reviewComment = reviewService.getReviewComments(submissionId, null);
         return ResponseEntity.ok(ApiResponse.success("댓글 조회 성공", ReadCommentResponse.from(reviewComment)));
     }
 
-    @GetMapping("/reviews/{sessionId}/comments/{fileId}")
-    public ResponseEntity<ApiResponse<List<ReadCommentResponse>>> getReviewComments(
-            @PathVariable Long sessionId,
-            @PathVariable Long fileId
-    ){
-        // TODO : 댓글에 대해 접근 권한이 있는지 보는 코드
+//    @GetMapping("/reviews/{sessionId}/comments/{fileId}")
+//    public ResponseEntity<ApiResponse<List<ReadCommentResponse>>> getReviewComments(
+//            @PathVariable Long sessionId,
+//            @PathVariable Long fileId
+//    ){
+//        // TODO : 댓글에 대해 접근 권한이 있는지 보는 코드
+//
+//        List<ReviewComment> reviewComment = reviewService.getReviewComments(sessionId, fileId);
+//        return ResponseEntity.ok(ApiResponse.success("댓글 조회 성공", ReadCommentResponse.from(reviewComment)));
+//    }
 
-        List<ReviewComment> reviewComment = reviewService.getReviewComments(sessionId, fileId);
-        return ResponseEntity.ok(ApiResponse.success("댓글 조회 성공", ReadCommentResponse.from(reviewComment)));
-    }
-
-    @PostMapping("/reviews/{sessionId}/comments")
+    @PostMapping("/review-submissions/{submissionId}/comments")
     public ResponseEntity<ApiResponse<ReadCommentResponse>> createReviewComment(
-            @PathVariable Long sessionId,
+            @PathVariable Long submissionId,
             @RequestBody CreateReviewCommentRequest request
     ){
-        // TODO : 댓글에 대해 접근 권한이 있는지 보는 코드
-
-        ReviewComment reviewComment = reviewService.createReviewComment(sessionId, request);
-        return ResponseEntity.ok(ApiResponse.success("댓글 작성 성공", ReadCommentResponse.from(reviewComment)));
-    }
-
-    @PostMapping("/reviews/{sessionId}/comments/{commentId}")
-    public ResponseEntity<ApiResponse<ReadCommentResponse>> createReviewCommentWithParent(
-            @PathVariable Long sessionId,
-            @PathVariable Long commentId,
-            @RequestBody CreateReviewCommentRequest request
-    ) {
         // TODO : 댓글에 대해 접근 권한이 있는지 보는 코드
         // TODO : 여기서 parentId를 어떻게 관리할지 보자
+        // TODO : 여기서 fileId를 어떻게 관리할지 보자
 
-        request.setParentCommentId(commentId);
-        ReviewComment reviewComment = reviewService.createReviewComment(sessionId, request);
+        ReviewComment reviewComment = reviewService.createReviewComment(submissionId, request);
         return ResponseEntity.ok(ApiResponse.success("댓글 작성 성공", ReadCommentResponse.from(reviewComment)));
     }
 
-    @PostMapping("/reviews/{sessionId}/comments/{fileId}")
-    public ResponseEntity<ApiResponse<ReadCommentResponse>> createReviewCommentOnFile(
-            @PathVariable Long sessionId,
-            @PathVariable Long fileId,
+    @GetMapping("/review-comments/{commentId}")
+    public ResponseEntity<ApiResponse<ReadCommentResponse>> getReviewComment(@PathVariable String commentId){
+        // TODO : 구현하기
+        return null;
+    }
+
+    @PutMapping("/review-comments/{commentId}")
+    public ResponseEntity<ApiResponse<ReadCommentResponse>> createReviewCommentWithParent(
+            @PathVariable String commentId,
             @RequestBody CreateReviewCommentRequest request
     ) {
         // TODO : 댓글에 대해 접근 권한이 있는지 보는 코드
-        // TODO : 여기서 fileId를 어떻게 관리할지 보자
+        // TODO : Service에서 타입 String으로 바꾸기
 
-        request.setCodeFileId(fileId);
-        ReviewComment reviewComment = reviewService.createReviewComment(sessionId, request);
-        return ResponseEntity.ok(ApiResponse.success("댓글 작성 성공", ReadCommentResponse.from(reviewComment)));
+        ReviewComment reviewComment = reviewService.updateReviewComment(commentId, request);
+        return ResponseEntity.ok(ApiResponse.success("댓글 수정 성공", ReadCommentResponse.from(reviewComment)));
     }
 
     // TODO: Put 관련 메서드 구현
 
-    @DeleteMapping("/reviews/comments/{commentId}")
-    public ResponseEntity<ApiResponse<Void>> deleteReviewComment(@PathVariable Long commentId){
+    @DeleteMapping("/review-comments/{commentId}")
+    public ResponseEntity<ApiResponse<Void>> deleteReviewComment(@PathVariable String commentId){
         reviewService.deleteReviewComment(commentId);
         return ResponseEntity.ok(ApiResponse.success("댓글 삭제 성공", null));
+    }
+
+    @PostMapping("/review-comments/{commentId}/replies")
+    public ResponseEntity<ApiResponse<ReadCommentResponse>> createReplyReviewComment(@PathVariable String commentId, @RequestBody UpdateReviewCommentRequest request){
+
+        // TODO 구현
+        return null;
     }
 
 }
