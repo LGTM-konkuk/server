@@ -5,6 +5,8 @@ import konkuk.ptal.entity.ReviewSubmission;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 
 @Data
 @Builder
@@ -17,6 +19,8 @@ public class ReadReviewSubmissionResponse {
     String requestDetails;
     ReviewSubmissionStatus status;
     ProjectFileSystem fileSystem;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 
     public static ReadReviewSubmissionResponse from(ReviewSubmission reviewSubmission) {
 
@@ -27,6 +31,9 @@ public class ReadReviewSubmissionResponse {
                 .reviewee(ReadRevieweeResponse.from(reviewSubmission.getReviewee()))
                 .gitUrl(reviewSubmission.getGitUrl())
                 .branch(reviewSubmission.getBranch())
+                .createdAt(baseAuditResponse.getCreatedAt())
+                .updatedAt(baseAuditResponse.getUpdatedAt())
+                //.fileSystem()
                 .build();
     }
 }
