@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface ReviewCommentRepository extends JpaRepository<ReviewComment, String> {
-    List<ReviewComment> findByReviewSessionIdAndCodeFileIdAndCommentType(Long sessionId, Long codeFileId, ReviewCommentType reviewCommentType);
+    List<ReviewComment> findByReviewSubmissionIdAndCodeFileIdAndCommentType(Long submissionId, Long codeFileId, ReviewCommentType reviewCommentType);
 
-    List<ReviewComment> findByReviewSessionIdAndCommentTypeAndCodeFileIsNull(Long sessionId, ReviewCommentType reviewCommentType);
+    List<ReviewComment> findByReviewSubmissionIdAndCommentTypeAndCodeFileIsNull(Long submissionId, ReviewCommentType reviewCommentType);
 }

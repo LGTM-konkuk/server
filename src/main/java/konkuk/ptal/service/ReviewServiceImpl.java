@@ -96,9 +96,9 @@ public class ReviewServiceImpl implements IReviewService {
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
         if (codeFileId != null) {
-            return reviewCommentRepository.findByReviewSessionIdAndCodeFileIdAndCommentType(submissionId, codeFileId, ReviewCommentType.CODE_COMMENT);
+            return reviewCommentRepository.findByReviewSubmissionIdAndCodeFileIdAndCommentType(submissionId, codeFileId, ReviewCommentType.CODE_COMMENT);
         } else {
-            return reviewCommentRepository.findByReviewSessionIdAndCommentTypeAndCodeFileIsNull(submissionId, ReviewCommentType.SESSION_COMMENT);
+            return reviewCommentRepository.findByReviewSubmissionIdAndCommentTypeAndCodeFileIsNull(submissionId, ReviewCommentType.SESSION_COMMENT);
         }
     }
 
