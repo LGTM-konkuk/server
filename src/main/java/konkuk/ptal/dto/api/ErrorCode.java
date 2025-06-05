@@ -22,7 +22,8 @@ public enum ErrorCode {
     FILE_LIST_ERROR("파일 리스트를 가져오는 데 에러가 발생했습니다."),
     ENTITY_NOT_FOUND("엔티티를 찾을 수 없습니다."),
     FILE_NOT_BELONG_TO_SESSION("코드 파일이 리뷰세션에 속하지 않습니다."),
-    PARENT_COMMENT_NOT_BELONG_TO_SESSION("부모 댓글이 세션에 속하지 않습니다.");
+    PARENT_COMMENT_NOT_BELONG_TO_SESSION("부모 댓글이 세션에 속하지 않습니다."),
+    SUBMISSION_CANCEL_UNAVAILABLE("이미 진행 중이거나 취소된 리뷰 제출은 취소할 수 없습니다.");
 
 
     private final String message;

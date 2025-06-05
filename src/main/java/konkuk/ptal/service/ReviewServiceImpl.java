@@ -1,26 +1,34 @@
 package konkuk.ptal.service;
 
+import konkuk.ptal.domain.UserPrincipal;
 import konkuk.ptal.domain.enums.ReviewCommentType;
-import konkuk.ptal.domain.enums.ReviewRequestStatus;
+import konkuk.ptal.domain.enums.ReviewSubmissionStatus;
+import konkuk.ptal.domain.enums.ReviewSubmissionType;
 import konkuk.ptal.dto.request.CreateReviewCommentRequest;
-import konkuk.ptal.dto.request.CreateReviewSessionRequest;
+import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
+import konkuk.ptal.dto.response.ListReviewSubmissionResponse;
+import konkuk.ptal.dto.response.ReadReviewSubmissionResponse;
 import konkuk.ptal.entity.*;
 import konkuk.ptal.exception.BadRequestException;
 import konkuk.ptal.exception.EntityNotFoundException;
 import konkuk.ptal.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
+
 
 import static konkuk.ptal.dto.api.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewServiceImpl implements IReviewService {
-    private final ReviewSessionRepository reviewSessionRepository;
+    private final ReviewSubmissionRepository reviewSubmissionRepository;
     private final CodeFileRepository codeFileRepository;
     private final ReviewCommentRepository reviewCommentRepository;
     private final UserRepository userRepository;
@@ -30,34 +38,78 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     @Transactional
-    public ReviewSubmission createReviewSession(CreateReviewSessionRequest request) {
-        Reviewee reviewee = revieweeRepository.findById(request.getRevieweeId())
+    public ReviewSubmission createReviewSubmission(CreateReviewSubmissionRequest request, UserPrincipal userPrincipal) {
+        User user = userRepository.findById(userPrincipal.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+        Reviewee reviewee = revieweeRepository.findByUser_Id(user.getId())
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
         Reviewer reviewer = reviewerRepository.findById(request.getReviewerId())
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-        String absolutePath = fileService.saveCode(request.getGithubLink(), request.getBranchName());
-        ReviewSubmission reviewSubmission = ReviewSubmission.createReviewSession(absolutePath, ReviewRequestStatus.PENDING, reviewer, reviewee, request);
-        reviewSubmission = reviewSessionRepository.save(reviewSubmission);
 
-        List<String> relativePaths = fileService.getCodeFileList(absolutePath);
-        for (String relativePath : relativePaths) {
-            CodeFile codeFile = CodeFile.createCodeFile(reviewSubmission, relativePath);
-            codeFileRepository.save(codeFile);
-        }
+        ReviewSubmission reviewSubmission = ReviewSubmission.createReviewSubmission(ReviewSubmissionStatus.PENDING, reviewer,reviewee, request);
+        reviewSubmission = reviewSubmissionRepository.save(reviewSubmission);
+
         return reviewSubmission;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ReviewSubmission getReviewSession(Long submissionId) {
-        return reviewSessionRepository.findById(submissionId)
+    public ReviewSubmission getReviewSubmission(Long submissionId, UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
+        return reviewSubmissionRepository
+                .findByIdAndReviewee_User_IdOrIdAndReviewer_User_Id(
+                        submissionId, userId,
+                        submissionId, userId
+                )
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+    }
+
+    @Override
+    public Page<ReviewSubmission> getReviewSubmissions(ReviewSubmissionType type, int page, int size, UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ReviewSubmission> reviewSubmissionPage;
+        switch (type) {
+            case SENT:
+                Reviewee revieweeForSent = revieweeRepository.findByUser_Id(userId)
+                        .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+                reviewSubmissionPage = reviewSubmissionRepository.findByReviewee(revieweeForSent, pageable);
+                break;
+            case RECEIVED:
+                Reviewer reviewerForReceived = reviewerRepository.findByUser_Id(userId)
+                        .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+                reviewSubmissionPage = reviewSubmissionRepository.findByReviewer(reviewerForReceived, pageable);
+                break;
+            case ALL:
+            default:
+                reviewSubmissionPage = reviewSubmissionRepository.findByReviewee_User_IdOrReviewer_User_Id(userId, userId, pageable);
+                break;
+        }
+        return reviewSubmissionPage;
+    }
+
+    @Override
+    public ReviewSubmission cancelReviewSubmission(Long submissionId, UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
+
+        ReviewSubmission reviewSubmission = reviewSubmissionRepository
+                .findByIdAndReviewee_User_Id(submissionId, userId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+
+        if (reviewSubmission.getStatus() != ReviewSubmissionStatus.PENDING) {
+            throw new BadRequestException(SUBMISSION_CANCEL_UNAVAILABLE);
+        }
+
+        reviewSubmission.setStatus(ReviewSubmissionStatus.CANCELED);
+        ReviewSubmission updatedSubmission = reviewSubmissionRepository.save(reviewSubmission);
+
+        return updatedSubmission;
     }
 
     @Override
     @Transactional
     public ReviewComment createReviewComment(Long submissionId, CreateReviewCommentRequest request) {
-        ReviewSubmission reviewSubmission = reviewSessionRepository.findById(submissionId)
+        ReviewSubmission reviewSubmission = reviewSubmissionRepository.findById(submissionId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
         User user = userRepository.findById(request.getUserId())
@@ -92,7 +144,7 @@ public class ReviewServiceImpl implements IReviewService {
     @Override
     @Transactional(readOnly = true)
     public List<ReviewComment> getReviewComments(Long submissionId, Long codeFileId) {
-        reviewSessionRepository.findById(submissionId)
+        reviewSubmissionRepository.findById(submissionId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
         if (codeFileId != null) {

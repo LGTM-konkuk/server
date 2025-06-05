@@ -112,8 +112,5 @@ public class UserController {
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(ResponseCode.DATA_UPDATE_SUCCESS.getMessage(), responseDto));
     }
-
-// 추가로 리뷰어목록도 누락돼있는거같은데 자세하게 함 봐야할듯..
-// 문서에 있는 List쪽은 다 누락된거같음
 }
 
