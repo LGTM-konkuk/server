@@ -8,5 +8,5 @@ public class CreateReviewCommentRequest {
     private Long userId;
     private Long codeFileId;
     private Integer lineNumber;
-    private Long parentCommentId;
+    private String parentCommentId;
 }

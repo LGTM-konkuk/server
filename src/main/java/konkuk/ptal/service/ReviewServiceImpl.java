@@ -49,15 +49,15 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     @Transactional(readOnly = true)
-    public ReviewSubmission getReviewSession(Long sessionId) {
-        return reviewSessionRepository.findById(sessionId)
+    public ReviewSubmission getReviewSession(Long submissionId) {
+        return reviewSessionRepository.findById(submissionId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
     }
 
     @Override
     @Transactional
-    public ReviewComment createReviewComment(Long sessionId, CreateReviewCommentRequest request) {
-        ReviewSubmission reviewSubmission = reviewSessionRepository.findById(sessionId)
+    public ReviewComment createReviewComment(Long submissionId, CreateReviewCommentRequest request) {
+        ReviewSubmission reviewSubmission = reviewSessionRepository.findById(submissionId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
         User user = userRepository.findById(request.getUserId())
@@ -69,7 +69,7 @@ public class ReviewServiceImpl implements IReviewService {
         if (request.getCodeFileId() != null && request.getLineNumber() != null) {
             codeFile = codeFileRepository.findById(request.getCodeFileId())
                     .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-            if (codeFile.getSessionId().getId() != sessionId) {
+            if (codeFile.getSessionId().getId() != submissionId) {
                 throw new BadRequestException(FILE_NOT_BELONG_TO_SESSION);
             }
             commentType = ReviewCommentType.CODE_COMMENT;
@@ -80,7 +80,7 @@ public class ReviewServiceImpl implements IReviewService {
         if (request.getParentCommentId() != null) {
             parentComment = reviewCommentRepository.findById(request.getParentCommentId())
                     .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-            if (parentComment.getReviewSubmission().getId() != sessionId) {
+            if (parentComment.getReviewSubmission().getId() != submissionId) {
                 throw new BadRequestException(PARENT_COMMENT_NOT_BELONG_TO_SESSION);
             }
         }
@@ -91,20 +91,20 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ReviewComment> getReviewComments(Long sessionId, Long codeFileId) {
-        reviewSessionRepository.findById(sessionId)
+    public List<ReviewComment> getReviewComments(Long submissionId, Long codeFileId) {
+        reviewSessionRepository.findById(submissionId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
         if (codeFileId != null) {
-            return reviewCommentRepository.findByReviewSessionIdAndCodeFileIdAndCommentType(sessionId, codeFileId, ReviewCommentType.CODE_COMMENT);
+            return reviewCommentRepository.findByReviewSessionIdAndCodeFileIdAndCommentType(submissionId, codeFileId, ReviewCommentType.CODE_COMMENT);
         } else {
-            return reviewCommentRepository.findByReviewSessionIdAndCommentTypeAndCodeFileIsNull(sessionId, ReviewCommentType.SESSION_COMMENT);
+            return reviewCommentRepository.findByReviewSessionIdAndCommentTypeAndCodeFileIsNull(submissionId, ReviewCommentType.SESSION_COMMENT);
         }
     }
 
     @Override
     @Transactional
-    public ReviewComment updateReviewComment(Long commentId, CreateReviewCommentRequest request) {
+    public ReviewComment updateReviewComment(String commentId, CreateReviewCommentRequest request) {
         ReviewComment comment = reviewCommentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
@@ -116,7 +116,7 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     @Transactional
-    public boolean deleteReviewComment(Long commentId) {
+    public boolean deleteReviewComment(String commentId) {
         Optional<ReviewComment> optionalComment = reviewCommentRepository.findById(commentId);
         if (optionalComment.isPresent()) {
             ReviewComment comment = optionalComment.get();
