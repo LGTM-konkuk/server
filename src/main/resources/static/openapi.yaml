@@ -2,7 +2,75 @@ openapi: "3.0.0"
 info:
   title: PTAL API
   version: v1
-  description: "PTAL 플랫폼을 위한 API 명세서입니다."
+  description: |
+    PTAL 플랫폼을 위한 API 명세서입니다.
+
+    ## 📋 API 워크플로우 가이드
+
+    ### 🔄 리뷰 요청 프로세스
+    ```
+    1. 브랜치 조회: GET /git/branches?gitUrl={url}
+    2. 리뷰 요청 생성: POST /review-submissions/new
+    3. 파일 시스템 조회: GET /review-submissions/{id}/filesystem
+    4. 파일 내용 조회: GET /review-submissions/{id}/files/{path}
+    5. 댓글 작성: POST /review-submissions/{id}/comments
+    6. 리뷰 완료: POST /review-submissions/{id}/reviews
+    ```
+
+    ### 💡 핵심 개념 차이점
+
+    **📝 Review vs ReviewComment:**
+    - **Review**: 리뷰어가 전체 리뷰를 완료했을 때 작성하는 최종 결론 (한 번만 작성)
+    - **ReviewComment**: 파일별/라인별로 작성하는 개별 댓글들 (여러 개 작성 가능)
+
+    **🗂️ ReviewSubmission vs Review:**
+    - **ReviewSubmission**: 리뷰이가 생성하는 "리뷰 요청" (PENDING → REVIEWED)
+    - **Review**: 리뷰어가 작성하는 "리뷰 결과" (ReviewSubmission이 REVIEWED 상태일 때 존재)
+
+    **💬 Comment vs Reply:**
+    - **Comment**: 원본 댓글 (파일/라인에 첫 번째로 작성되는 댓글)
+    - **Reply**: 기존 댓글에 대한 답글 (parentCommentId가 있는 댓글)
+
+    ### 🎯 프론트엔드 개발자를 위한 Tips
+
+    **상태 관리:**
+    ```javascript
+    // ReviewSubmission 상태에 따른 UI 처리
+    const getStatusBadge = (status) => {
+      switch(status) {
+        case 'PENDING': return '대기 중 🟡';
+        case 'REVIEWED': return '완료 ✅';
+        case 'CANCELED': return '취소됨 ❌';
+      }
+    };
+    ```
+
+    **파일 트리 렌더링:**
+    ```javascript
+    // ProjectFileSystem을 트리 구조로 렌더링
+    const renderFileTree = (node) => {
+      if (node.type === 'DIRECTORY') {
+        return node.children.map(child => renderFileTree(child));
+      }
+      return <FileItem path={node.path} size={node.size} />;
+    };
+    ```
+
+    ### 🔧 백엔드 개발자를 위한 Tips
+
+    **권한 검사:**
+    ```java
+    // 댓글 수정/삭제 시 본인 확인
+    if (!comment.getAuthor().getId().equals(currentUser.getId())) {
+      throw new ForbiddenException("본인이 작성한 댓글만 수정할 수 있습니다.");
+    }
+    ```
+
+    **파일 시스템 처리:**
+    ```java
+    // 파일 경로 디코딩
+    String decodedPath = URLDecoder.decode(encodedPath, StandardCharsets.UTF_8);
+    ```
 servers:
   - url: http://localhost:8080/api/v1
     description: "로컬 개발 서버 (API V1)"
@@ -352,7 +420,7 @@ components:
     CreateReviewSubmissionRequest:
       type: object
       description: "새로운 리뷰 제출(요청) 생성 시 필요한 정보"
-      required: [reviewerId, gitUrl, requestDetails]
+      required: [reviewerId, gitUrl, requestDetails, branch]
       properties:
         reviewerId:
           type: integer
@@ -362,12 +430,16 @@ components:
           type: string
           format: url
           description: "리뷰받을 프로젝트의 Git 저장소 URL (예: Github, Gitlab 링크)"
+        branch:
+          type: string
+          description: "리뷰 대상 브랜치명 (예: main, develop, feature/user-auth)"
         requestDetails:
           type: string
           description: "리뷰 요청에 대한 상세 설명 (예: 특정 기능, 코드 범위 등)"
       example:
         reviewerId: 12
-        gitUrl: "https://github.com/user/project/pull/1"
+        gitUrl: "https://github.com/user/project.git"
+        branch: "feature/user-auth"
         requestDetails: "회원가입 기능 구현 관련 코드 리뷰 부탁드립니다. UserServiceImpl.java 파일을 봐주세요."
 
     ReadReviewSubmissionResponse:
@@ -391,6 +463,9 @@ components:
               type: string
               format: url
               description: "리뷰 대상 프로젝트의 Git 저장소 URL"
+            branch:
+              type: string
+              description: "리뷰 대상 브랜치명"
             requestDetails:
               type: string
               description: "리뷰 요청 상세 설명"
@@ -398,6 +473,9 @@ components:
               type: string
               enum: [PENDING, CANCELED, REVIEWED]
               description: "리뷰 제출 건의 현재 상태 (PENDING: 대기중, CANCELED: 취소됨, REVIEWED: 리뷰완료)"
+            fileSystem:
+              $ref: "#/components/schemas/ProjectFileSystem"
+              description: "프로젝트 파일 시스템 구조 (디렉토리 및 메타데이터만)"
       example:
         id: 1001
         reviewee:
@@ -421,10 +499,29 @@ components:
           createdAt: "2024-05-01T10:00:00Z"
           updatedAt: "2024-05-01T10:00:00Z"
         gitUrl: "https://github.com/user/project/pull/1"
+        branch: "feature/user-auth"
         requestDetails: "회원가입 기능 구현 관련 코드 리뷰 부탁드립니다."
         status: "PENDING"
         createdAt: "2024-05-15T14:00:00Z"
         updatedAt: "2024-05-15T14:00:00Z"
+        fileSystem:
+          submissionId: 1001
+          branch: "feature/user-auth"
+          rootDirectory:
+            name: "root"
+            path: ""
+            type: "DIRECTORY"
+            size: null
+            lastModified: "2024-05-01T10:00:00Z"
+            children:
+              - name: "src"
+                path: "src"
+                type: "DIRECTORY"
+                size: null
+                lastModified: "2024-05-01T10:00:00Z"
+                children: []
+          totalFiles: 25
+          totalSize: 51200
 
     CreateReviewRequest:
       type: object
@@ -679,6 +776,373 @@ components:
             tags: ["java", "spring", "backend"]
             createdAt: "2024-03-10T11:00:00Z"
             updatedAt: "2024-05-01T17:30:00Z"
+
+    # 파일 시스템 관련 스키마
+    FileNode:
+      type: object
+      description: "파일 시스템의 파일 또는 디렉토리 노드 정보"
+      properties:
+        name:
+          type: string
+          description: "파일 또는 디렉토리 이름"
+        path:
+          type: string
+          description: "루트부터의 전체 경로"
+        type:
+          type: string
+          enum: [FILE, DIRECTORY]
+          description: "파일 또는 디렉토리 구분"
+        size:
+          type: integer
+          format: int64
+          description: "파일 크기 (바이트). 디렉토리인 경우 null"
+        lastModified:
+          type: string
+          format: date-time
+          description: "마지막 수정 일시"
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileNode"
+          description: "하위 파일/디렉토리 목록 (디렉토리인 경우만)"
+      example:
+        name: "src"
+        path: "src"
+        type: "DIRECTORY"
+        size: null
+        lastModified: "2024-05-01T10:00:00Z"
+        children:
+          - name: "main.java"
+            path: "src/main.java"
+            type: "FILE"
+            size: 1024
+            lastModified: "2024-05-01T09:30:00Z"
+            children: null
+
+    ProjectFileSystem:
+      type: object
+      description: |
+        프로젝트의 전체 파일 시스템 구조
+
+        **📁 용도:**
+        - 리뷰어가 처음 리뷰 요청을 클릭했을 때 파일 구조 파악
+        - 파일 내용은 포함하지 않아 빠른 로딩 가능
+        - 트리 형태의 UI 구성을 위한 데이터
+
+        **💡 사용 시나리오:**
+        ```javascript
+        // 1. 파일 시스템 구조 조회
+        const response = await fetch(`/review-submissions/${submissionId}/filesystem`);
+        const fileSystem = response.data;
+
+        // 2. 파일 트리 UI 렌더링
+        renderFileTree(fileSystem.rootDirectory);
+
+        // 3. 특정 파일 클릭 시 내용 조회
+        const fileContent = await fetch(`/review-submissions/${submissionId}/files/${encodedPath}`);
+        ```
+
+        **⚠️ 주의사항:**
+        - 파일 내용(content)은 포함되지 않습니다 → 별도 API로 조회 필요
+        - 대용량 프로젝트의 경우 메모리 효율성을 위해 depth 제한 고려
+      properties:
+        submissionId:
+          type: integer
+          format: int64
+          description: "리뷰 제출 건 ID"
+        branch:
+          type: string
+          description: "대상 브랜치명"
+        rootDirectory:
+          $ref: "#/components/schemas/FileNode"
+          description: "프로젝트 루트 디렉토리"
+        totalFiles:
+          type: integer
+          description: "전체 파일 개수"
+        totalSize:
+          type: integer
+          format: int64
+          description: "전체 프로젝트 크기 (바이트)"
+      example:
+        submissionId: 1001
+        branch: "feature/user-auth"
+        rootDirectory:
+          name: "root"
+          path: ""
+          type: "DIRECTORY"
+          size: null
+          lastModified: "2024-05-01T10:00:00Z"
+          children:
+            - name: "src"
+              path: "src"
+              type: "DIRECTORY"
+              size: null
+              lastModified: "2024-05-01T10:00:00Z"
+              children: []
+        totalFiles: 25
+        totalSize: 51200
+
+    FileContent:
+      type: object
+      description: "특정 파일의 내용"
+      properties:
+        path:
+          type: string
+          description: "파일 경로"
+        content:
+          type: string
+          description: "파일 내용 (텍스트)"
+        encoding:
+          type: string
+          description: "파일 인코딩 (utf-8, binary 등)"
+        size:
+          type: integer
+          format: int64
+          description: "파일 크기 (바이트)"
+        lastModified:
+          type: string
+          format: date-time
+          description: "마지막 수정 일시"
+        lineCount:
+          type: integer
+          description: "총 라인 수 (텍스트 파일인 경우)"
+      example:
+        path: "src/main/java/UserService.java"
+        content: "public class UserService {\n    // Implementation\n}"
+        encoding: "utf-8"
+        size: 1024
+        lastModified: "2024-05-01T09:30:00Z"
+        lineCount: 45
+
+    # 브랜치 관련 스키마
+    GitBranch:
+      type: object
+      description: "Git 브랜치 정보"
+      properties:
+        name:
+          type: string
+          description: "브랜치명"
+        isDefault:
+          type: boolean
+          description: "기본 브랜치 여부"
+        lastCommit:
+          type: string
+          description: "마지막 커밋 해시"
+        lastCommitDate:
+          type: string
+          format: date-time
+          description: "마지막 커밋 일시"
+        lastCommitMessage:
+          type: string
+          description: "마지막 커밋 메시지"
+      example:
+        name: "feature/user-auth"
+        isDefault: false
+        lastCommit: "a1b2c3d4e5f6"
+        lastCommitDate: "2024-05-01T14:30:00Z"
+        lastCommitMessage: "Add user authentication feature"
+
+    ListBranchesResponse:
+      type: object
+      description: "Git 저장소의 브랜치 목록 조회 응답"
+      properties:
+        gitUrl:
+          type: string
+          format: url
+          description: "조회한 Git 저장소 URL"
+        branches:
+          type: array
+          items:
+            $ref: "#/components/schemas/GitBranch"
+          description: "브랜치 목록"
+        defaultBranch:
+          type: string
+          description: "기본 브랜치명"
+      example:
+        gitUrl: "https://github.com/user/project.git"
+        branches:
+          - name: "main"
+            isDefault: true
+            lastCommit: "x1y2z3a4b5c6"
+            lastCommitDate: "2024-05-01T16:00:00Z"
+            lastCommitMessage: "Initial commit"
+          - name: "feature/user-auth"
+            isDefault: false
+            lastCommit: "a1b2c3d4e5f6"
+            lastCommitDate: "2024-05-01T14:30:00Z"
+            lastCommitMessage: "Add user authentication feature"
+        defaultBranch: "main"
+
+    # 리뷰 댓글 관련 스키마
+    CreateReviewCommentRequest:
+      type: object
+      description: |
+        새로운 리뷰 댓글 작성 요청
+
+        **💡 댓글 유형별 필드 조합:**
+
+        | 댓글 유형 | content | filePath | lineNumber | parentCommentId |
+        |----------|---------|----------|------------|-----------------|
+        | 일반 댓글 | ✅ 필수 | ❌ null | ❌ null | ❌ null |
+        | 파일별 댓글 | ✅ 필수 | ✅ 필수 | ❌ null | ❌ null |
+        | 라인별 댓글 | ✅ 필수 | ✅ 필수 | ✅ 필수 | ❌ null |
+        | 답글 | ✅ 필수 | 🔄 상속 | 🔄 상속 | ✅ 필수 |
+
+        **📋 사용 예시:**
+        ```javascript
+        // 1. 일반 댓글 (리뷰 전체에 대한 의견)
+        {
+          "content": "전반적으로 코드 품질이 좋습니다."
+        }
+
+        // 2. 파일별 댓글 (특정 파일에 대한 의견)
+        {
+          "content": "이 파일의 구조를 개선해보세요.",
+          "filePath": "src/main/java/UserService.java"
+        }
+
+        // 3. 라인별 댓글 (GitHub 스타일)
+        {
+          "content": "여기서 null 체크가 필요합니다.",
+          "filePath": "src/main/java/UserService.java",
+          "lineNumber": 25
+        }
+
+        // 4. 답글 (기존 댓글에 대한 응답)
+        {
+          "content": "좋은 지적입니다. 수정하겠습니다.",
+          "parentCommentId": "550e8400-e29b-41d4-a716-446655440000"
+        }
+        ```
+
+        **⚠️ 주의사항:**
+        - 답글의 경우 filePath, lineNumber는 부모 댓글에서 자동 상속됩니다
+        - lineNumber는 항상 filePath와 함께 사용되어야 합니다
+      required: [content]
+      properties:
+        content:
+          type: string
+          description: "댓글 내용"
+          minLength: 1
+          maxLength: 5000
+        filePath:
+          type: string
+          description: |
+            댓글을 작성할 파일 경로 (파일별/라인별 댓글인 경우)
+
+            **예시:** `src/main/java/UserService.java`
+
+            **참고:** 답글인 경우 부모 댓글의 filePath가 자동으로 상속됩니다
+        lineNumber:
+          type: integer
+          description: "댓글이 작성된 라인 번호 (라인별 댓글인 경우)"
+        parentCommentId:
+          type: string
+          format: uuid
+          description: |
+            부모 댓글 ID (답글인 경우)
+
+            **참고:** 답글 작성 시에만 사용됩니다
+
+    UpdateReviewCommentRequest:
+      type: object
+      description: "리뷰 댓글 수정 요청"
+      properties:
+        content:
+          type: string
+          description: "수정할 댓글 내용"
+          minLength: 1
+          maxLength: 5000
+
+    ReadReviewCommentResponse:
+      type: object
+      description: "리뷰 댓글 조회 응답"
+      allOf:
+        - $ref: "#/components/schemas/BaseAuditResponse"
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: "댓글 고유 ID"
+            submissionId:
+              type: integer
+              format: int64
+              description: "리뷰 제출 건 ID"
+            content:
+              type: string
+              description: "댓글 내용"
+            filePath:
+              type: string
+              description: "댓글이 작성된 파일 경로 (파일별 댓글인 경우)"
+            lineNumber:
+              type: integer
+              description: "댓글이 작성된 라인 번호 (라인별 댓글인 경우)"
+            author:
+              $ref: "#/components/schemas/UserMinimalResponse"
+              description: "댓글 작성자 정보"
+            parentCommentId:
+              type: string
+              format: uuid
+              description: "부모 댓글 ID (답글인 경우)"
+            replies:
+              type: array
+              items:
+                $ref: "#/components/schemas/ReadReviewCommentResponse"
+              description: "답글 목록"
+            isEdited:
+              type: boolean
+              description: "수정 여부"
+      example:
+        id: "550e8400-e29b-41d4-a716-446655440000"
+        submissionId: 1001
+        content: "이 부분에서 null 체크가 필요할 것 같습니다."
+        filePath: "src/main/java/UserService.java"
+        lineNumber: 25
+        author:
+          id: 102
+          name: "박리뷰"
+          email: "reviewer@example.com"
+        parentCommentId: null
+        replies: []
+        isEdited: false
+        createdAt: "2024-05-15T14:30:00Z"
+        updatedAt: "2024-05-15T14:30:00Z"
+
+    ListReviewCommentsResponse:
+      type: object
+      description: "리뷰 댓글 목록 조회 응답"
+      allOf:
+        - $ref: "#/components/schemas/BasePageResponse"
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: "#/components/schemas/ReadReviewCommentResponse"
+              description: "댓글 목록"
+      example:
+        totalPages: 1
+        totalElements: 2
+        page: 0
+        size: 10
+        first: true
+        last: true
+        numberOfElements: 2
+        content:
+          - id: "550e8400-e29b-41d4-a716-446655440000"
+            submissionId: 1001
+            content: "이 부분에서 null 체크가 필요할 것 같습니다."
+            filePath: "src/main/java/UserService.java"
+            lineNumber: 25
+            author:
+              id: 102
+              name: "박리뷰"
+            parentCommentId: null
+            replies: []
+            isEdited: false
+            createdAt: "2024-05-15T14:30:00Z"
+            updatedAt: "2024-05-15T14:30:00Z"
 
   securitySchemes:
     bearerAuth:
@@ -1264,7 +1728,8 @@ paths:
               $ref: "#/components/schemas/CreateReviewSubmissionRequest"
             example:
               reviewerId: 12
-              gitUrl: "https://github.com/user/project/pull/1"
+              gitUrl: "https://github.com/user/project.git"
+              branch: "feature/user-auth"
               requestDetails: "회원가입 기능 구현 관련 코드 리뷰 부탁드립니다. UserServiceImpl.java 파일을 봐주세요."
       responses:
         "201":
@@ -1356,7 +1821,6 @@ paths:
           schema:
             type: integer
             default: 10
-            example: 10
       responses:
         "200":
           description: "리뷰 제출 목록 조회 성공"
@@ -1435,6 +1899,7 @@ paths:
           description: "조회할 리뷰 제출 건의 고유 ID"
           schema:
             type: integer
+            format: int64
             example: 1001
       responses:
         "200":
@@ -1492,6 +1957,7 @@ paths:
           description: "취소할 리뷰 제출 건의 고유 ID"
           schema:
             type: integer
+            format: int64
             example: 1001
       responses:
         "200":
@@ -1559,6 +2025,7 @@ paths:
           description: "조회할 리뷰의 고유 ID"
           schema:
             type: integer
+            format: int64
             example: 201
       responses:
         "200":
@@ -1640,6 +2107,7 @@ paths:
           description: "수정할 리뷰의 고유 ID"
           schema:
             type: integer
+            format: int64
             example: 201
       requestBody:
         required: true
@@ -2037,3 +2505,768 @@ paths:
                 $ref: "#/components/schemas/ApiResponse"
               example:
                 message: "인증 토큰이 필요합니다."
+
+  # Git 브랜치 관련 엔드포인트
+  /git/branches:
+    get:
+      tags:
+        - "Git 정보 (Git Information)"
+      summary: "Git 저장소 브랜치 목록 조회"
+      description: |
+        제공된 Git URL에서 사용 가능한 브랜치 목록을 조회합니다.
+
+        **🎯 사용 시나리오:**
+        1. 사용자가 리뷰 요청 폼에서 Git URL을 입력
+        2. 프론트엔드에서 이 API를 호출하여 브랜치 목록 조회
+        3. 사용자에게 브랜치 선택 드롭다운/라디오 버튼 제공
+        4. 선택된 브랜치로 리뷰 요청 생성
+
+        **💡 프론트엔드 개발 가이드:**
+        ```javascript
+        // 1. Git URL 입력 시 브랜치 조회
+        async function fetchBranches(gitUrl) {
+          const response = await fetch(`/git/branches?gitUrl=${encodeURIComponent(gitUrl)}`);
+          const result = await response.json();
+          return result.data.branches;
+        }
+
+        // 2. 기본 브랜치 자동 선택
+        const defaultBranch = result.data.defaultBranch;
+        ```
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: gitUrl
+          in: query
+          required: true
+          description: "조회할 Git 저장소의 URL"
+          schema:
+            type: string
+            format: url
+            example: "https://github.com/user/project.git"
+      responses:
+        "200":
+          description: "브랜치 목록 조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ListBranchesResponse"
+              example:
+                message: "브랜치 목록 조회 성공"
+                data:
+                  gitUrl: "https://github.com/user/project.git"
+                  branches:
+                    - name: "main"
+                      isDefault: true
+                      lastCommit: "x1y2z3a4b5c6"
+                      lastCommitDate: "2024-05-01T16:00:00Z"
+                      lastCommitMessage: "Initial commit"
+                    - name: "feature/user-auth"
+                      isDefault: false
+                      lastCommit: "a1b2c3d4e5f6"
+                      lastCommitDate: "2024-05-01T14:30:00Z"
+                      lastCommitMessage: "Add user authentication feature"
+                  defaultBranch: "main"
+        "400":
+          description: "잘못된 요청 (유효하지 않은 Git URL)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "유효하지 않은 Git 저장소 URL입니다."
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "인증이 필요합니다."
+        "404":
+          description: "접근할 수 없는 저장소"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "저장소에 접근할 수 없습니다."
+
+  # 파일 시스템 관련 엔드포인트
+  /review-submissions/{submissionId}/filesystem:
+    get:
+      tags:
+        - "파일 시스템 (File System)"
+      summary: "리뷰 제출 건의 파일 시스템 구조 조회"
+      description: "특정 리뷰 제출 건에 대한 전체 파일 시스템 구조를 조회합니다. 파일 내용은 포함하지 않고 디렉토리 구조와 메타데이터만 반환합니다."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          description: "파일 시스템을 조회할 리뷰 제출 건의 고유 ID"
+          schema:
+            type: integer
+            format: int64
+            example: 1001
+      responses:
+        "200":
+          description: "파일 시스템 구조 조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ProjectFileSystem"
+              example:
+                message: "파일 시스템 구조 조회 성공"
+                data:
+                  submissionId: 1001
+                  branch: "feature/user-auth"
+                  rootDirectory:
+                    name: "root"
+                    path: ""
+                    type: "DIRECTORY"
+                    size: null
+                    lastModified: "2024-05-01T10:00:00Z"
+                    children:
+                      - name: "src"
+                        path: "src"
+                        type: "DIRECTORY"
+                        size: null
+                        lastModified: "2024-05-01T10:00:00Z"
+                        children: []
+                  totalFiles: 25
+                  totalSize: 51200
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "인증이 필요합니다."
+        "403":
+          description: "접근 권한 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 리뷰 제출 건에 접근할 권한이 없습니다."
+        "404":
+          description: "리뷰 제출 건을 찾을 수 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 ID의 리뷰 제출 건을 찾을 수 없습니다."
+
+  /review-submissions/{submissionId}/files/{filePath}:
+    get:
+      tags:
+        - "파일 시스템 (File System)"
+      summary: "특정 파일 내용 조회"
+      description: |
+        리뷰 제출 건의 특정 파일 내용을 조회합니다.
+
+        **⚠️ 중요사항:**
+        - 파일 경로는 반드시 URL 인코딩이 필요합니다
+        - 슬래시(/)는 %2F로 인코딩해야 합니다
+        - 예시: `src/main/java/UserService.java` → `src%2Fmain%2Fjava%2FUserService.java`
+
+        **📋 프론트엔드 개발 가이드:**
+        ```javascript
+        const filePath = "src/main/java/UserService.java";
+        const encodedPath = encodeURIComponent(filePath);
+        const url = `/review-submissions/1001/files/${encodedPath}`;
+        ```
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          description: "리뷰 제출 건의 고유 ID"
+          schema:
+            type: integer
+            format: int64
+            example: 1001
+        - name: filePath
+          in: path
+          required: true
+          description: |
+            조회할 파일의 전체 경로 (URL 인코딩 필수)
+
+            **예시:**
+            - 원본: `src/main/java/UserService.java`
+            - 인코딩: `src%2Fmain%2Fjava%2FUserService.java`
+
+            **JavaScript 인코딩:**
+            ```javascript
+            encodeURIComponent("src/main/java/UserService.java")
+            ```
+          schema:
+            type: string
+            example: "src%2Fmain%2Fjava%2FUserService.java"
+      responses:
+        "200":
+          description: "파일 내용 조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/FileContent"
+              example:
+                message: "파일 내용 조회 성공"
+                data:
+                  path: "src/main/java/UserService.java"
+                  content: "public class UserService {\n    // Implementation\n}"
+                  encoding: "utf-8"
+                  size: 1024
+                  lastModified: "2024-05-01T09:30:00Z"
+                  lineCount: 45
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "인증이 필요합니다."
+        "403":
+          description: "접근 권한 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 파일에 접근할 권한이 없습니다."
+        "404":
+          description: "파일을 찾을 수 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 경로의 파일을 찾을 수 없습니다."
+
+  # 리뷰 댓글 관련 엔드포인트
+  /review-submissions/{submissionId}/comments:
+    get:
+      tags:
+        - "리뷰 댓글 (Review Comments)"
+      summary: "리뷰 댓글 목록 조회"
+      description: |
+        특정 리뷰 제출 건에 대한 댓글 목록을 조회합니다.
+
+        **💡 댓글 유형:**
+        1. **파일별 댓글**: 특정 파일에 대한 전반적인 의견
+        2. **라인별 댓글**: 특정 파일의 특정 라인에 대한 코멘트 (GitHub 스타일)
+        3. **일반 댓글**: 리뷰 전체에 대한 의견 (파일과 무관)
+
+        **🔍 필터링 가능:**
+        - `filePath`: 특정 파일의 댓글만 조회
+        - `lineNumber`: 특정 라인의 댓글만 조회 (filePath와 함께 사용)
+        - 둘 다 없으면: 모든 댓글 조회
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          description: "댓글을 조회할 리뷰 제출 건의 고유 ID"
+          schema:
+            type: integer
+            format: int64
+            example: 1001
+        - name: filePath
+          in: query
+          required: false
+          description: "특정 파일의 댓글만 조회 (파일 경로)"
+          schema:
+            type: string
+            example: "src/main/java/UserService.java"
+        - name: lineNumber
+          in: query
+          required: false
+          description: "특정 라인의 댓글만 조회 (라인 번호)"
+          schema:
+            type: integer
+            example: 25
+        - name: page
+          in: query
+          required: false
+          description: "페이지 번호 (0부터 시작)"
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          description: "한 페이지당 항목 수"
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: "댓글 목록 조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ListReviewCommentsResponse"
+              example:
+                message: "댓글 목록 조회 성공"
+                data:
+                  totalPages: 1
+                  totalElements: 2
+                  page: 0
+                  size: 10
+                  first: true
+                  last: true
+                  numberOfElements: 2
+                  content:
+                    - id: "550e8400-e29b-41d4-a716-446655440000"
+                      submissionId: 1001
+                      content: "이 부분에서 null 체크가 필요할 것 같습니다."
+                      filePath: "src/main/java/UserService.java"
+                      lineNumber: 25
+                      author:
+                        id: 102
+                        name: "박리뷰"
+                      parentCommentId: null
+                      replies: []
+                      isEdited: false
+                      createdAt: "2024-05-15T14:30:00Z"
+                      updatedAt: "2024-05-15T14:30:00Z"
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "인증이 필요합니다."
+        "403":
+          description: "접근 권한 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 리뷰 제출 건에 접근할 권한이 없습니다."
+        "404":
+          description: "리뷰 제출 건을 찾을 수 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 ID의 리뷰 제출 건을 찾을 수 없습니다."
+    post:
+      tags:
+        - "리뷰 댓글 (Review Comments)"
+      summary: "새 리뷰 댓글 작성"
+      description: "특정 리뷰 제출 건에 새로운 댓글을 작성합니다. 파일의 특정 라인에 댓글을 달거나, 일반적인 리뷰 댓글을 작성할 수 있습니다."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          description: "댓글을 작성할 리뷰 제출 건의 고유 ID"
+          schema:
+            type: integer
+            format: int64
+            example: 1001
+      requestBody:
+        required: true
+        description: "작성할 댓글 정보"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewCommentRequest"
+            example:
+              content: "이 부분에서 null 체크가 필요할 것 같습니다."
+              filePath: "src/main/java/UserService.java"
+              lineNumber: 25
+              parentCommentId: null
+      responses:
+        "201":
+          description: "댓글 작성 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ReadReviewCommentResponse"
+              example:
+                message: "댓글이 성공적으로 작성되었습니다."
+                data:
+                  id: "550e8400-e29b-41d4-a716-446655440000"
+                  submissionId: 1001
+                  content: "이 부분에서 null 체크가 필요할 것 같습니다."
+                  filePath: "src/main/java/UserService.java"
+                  lineNumber: 25
+                  author:
+                    id: 102
+                    name: "박리뷰"
+                    email: "reviewer@example.com"
+                  parentCommentId: null
+                  replies: []
+                  isEdited: false
+                  createdAt: "2024-05-15T14:30:00Z"
+                  updatedAt: "2024-05-15T14:30:00Z"
+        "400":
+          description: "잘못된 요청 (필수 필드 누락 등)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "댓글 내용이 필요합니다."
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "인증이 필요합니다."
+        "403":
+          description: "접근 권한 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 리뷰 제출 건에 댓글을 작성할 권한이 없습니다."
+        "404":
+          description: "리뷰 제출 건을 찾을 수 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 ID의 리뷰 제출 건을 찾을 수 없습니다."
+
+  /review-comments/{commentId}:
+    get:
+      tags:
+        - "리뷰 댓글 (Review Comments)"
+      summary: "특정 댓글 조회"
+      description: "특정 댓글의 상세 정보를 조회합니다. 답글 목록도 포함됩니다."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: "조회할 댓글의 고유 ID"
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        "200":
+          description: "댓글 조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ReadReviewCommentResponse"
+              example:
+                message: "댓글 조회 성공"
+                data:
+                  id: "550e8400-e29b-41d4-a716-446655440000"
+                  submissionId: 1001
+                  content: "이 부분에서 null 체크가 필요할 것 같습니다."
+                  filePath: "src/main/java/UserService.java"
+                  lineNumber: 25
+                  author:
+                    id: 102
+                    name: "박리뷰"
+                    email: "reviewer@example.com"
+                  parentCommentId: null
+                  replies: []
+                  isEdited: false
+                  createdAt: "2024-05-15T14:30:00Z"
+                  updatedAt: "2024-05-15T14:30:00Z"
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "인증이 필요합니다."
+        "403":
+          description: "접근 권한 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 댓글에 접근할 권한이 없습니다."
+        "404":
+          description: "댓글을 찾을 수 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 ID의 댓글을 찾을 수 없습니다."
+    put:
+      tags:
+        - "리뷰 댓글 (Review Comments)"
+      summary: "댓글 수정"
+      description: "작성한 댓글의 내용을 수정합니다. 본인이 작성한 댓글만 수정할 수 있습니다."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: "수정할 댓글의 고유 ID"
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      requestBody:
+        required: true
+        description: "수정할 댓글 내용"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReviewCommentRequest"
+            example:
+              content: "이 부분에서 null 체크와 예외 처리가 필요할 것 같습니다."
+      responses:
+        "200":
+          description: "댓글 수정 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ReadReviewCommentResponse"
+              example:
+                message: "댓글이 성공적으로 수정되었습니다."
+                data:
+                  id: "550e8400-e29b-41d4-a716-446655440000"
+                  submissionId: 1001
+                  content: "이 부분에서 null 체크와 예외 처리가 필요할 것 같습니다."
+                  filePath: "src/main/java/UserService.java"
+                  lineNumber: 25
+                  author:
+                    id: 102
+                    name: "박리뷰"
+                    email: "reviewer@example.com"
+                  parentCommentId: null
+                  replies: []
+                  isEdited: true
+                  createdAt: "2024-05-15T14:30:00Z"
+                  updatedAt: "2024-05-15T15:00:00Z"
+        "400":
+          description: "잘못된 요청 (수정할 내용 누락 등)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "수정할 댓글 내용이 필요합니다."
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "인증이 필요합니다."
+        "403":
+          description: "접근 권한 없음 (본인 댓글이 아닌 경우)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "본인이 작성한 댓글만 수정할 수 있습니다."
+        "404":
+          description: "댓글을 찾을 수 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 ID의 댓글을 찾을 수 없습니다."
+    delete:
+      tags:
+        - "리뷰 댓글 (Review Comments)"
+      summary: "댓글 삭제"
+      description: "작성한 댓글을 삭제합니다. 본인이 작성한 댓글만 삭제할 수 있습니다."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: "삭제할 댓글의 고유 ID"
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        "200":
+          description: "댓글 삭제 성공"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "댓글이 성공적으로 삭제되었습니다."
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "인증이 필요합니다."
+        "403":
+          description: "접근 권한 없음 (본인 댓글이 아닌 경우)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "본인이 작성한 댓글만 삭제할 수 있습니다."
+        "404":
+          description: "댓글을 찾을 수 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 ID의 댓글을 찾을 수 없습니다."
+
+  /review-comments/{commentId}/replies:
+    post:
+      tags:
+        - "리뷰 댓글 (Review Comments)"
+      summary: "댓글에 답글 작성"
+      description: "특정 댓글에 답글을 작성합니다."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: "답글을 작성할 댓글의 고유 ID"
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      requestBody:
+        required: true
+        description: "작성할 답글 내용"
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+                  description: "답글 내용"
+              example:
+                content: "맞습니다. Optional을 사용하는 것도 좋은 방법일 것 같아요."
+      responses:
+        "201":
+          description: "답글 작성 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ReadReviewCommentResponse"
+              example:
+                message: "답글이 성공적으로 작성되었습니다."
+                data:
+                  id: "660e8400-e29b-41d4-a716-446655440001"
+                  submissionId: 1001
+                  content: "맞습니다. Optional을 사용하는 것도 좋은 방법일 것 같아요."
+                  filePath: "src/main/java/UserService.java"
+                  lineNumber: 25
+                  author:
+                    id: 101
+                    name: "김리뷰"
+                    email: "reviewee@example.com"
+                  parentCommentId: "550e8400-e29b-41d4-a716-446655440000"
+                  replies: []
+                  isEdited: false
+                  createdAt: "2024-05-15T15:00:00Z"
+                  updatedAt: "2024-05-15T15:00:00Z"
+        "400":
+          description: "잘못된 요청 (답글 내용 누락 등)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "답글 내용이 필요합니다."
+        "401":
+          description: "인증되지 않은 사용자"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "인증이 필요합니다."
+        "403":
+          description: "접근 권한 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 댓글에 답글을 작성할 권한이 없습니다."
+        "404":
+          description: "댓글을 찾을 수 없음"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                message: "해당 ID의 댓글을 찾을 수 없습니다."
