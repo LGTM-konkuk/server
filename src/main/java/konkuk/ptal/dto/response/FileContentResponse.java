@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class FileContent {
+public class FileContentResponse {
     private String path;
     private String content;
     private String encoding;
@@ -15,8 +15,8 @@ public class FileContent {
     private LocalDateTime lastModified;
     private Integer lineCount;
 
-    public static FileContent from(String path, String content, String encoding, Long size, LocalDateTime lastModified, Integer lineCount) {
-        return FileContent.builder()
+    public static FileContentResponse from(String path, String content, String encoding, Long size, LocalDateTime lastModified, Integer lineCount) {
+        return FileContentResponse.builder()
                 .path(path)
                 .content(content)
                 .encoding(encoding)

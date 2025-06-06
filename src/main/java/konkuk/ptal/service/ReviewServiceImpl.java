@@ -86,7 +86,7 @@ public class ReviewServiceImpl implements IReviewService {
         }
         List<ReadReviewSubmissionResponse> content = reviewSubmissionPage.getContent().stream()
                 .map(submission -> {
-                    ProjectFileSystem fileSystem = fileService.getProjectFileSystem(
+                    ProjectFileSystemResponse fileSystem = fileService.getProjectFileSystem(
                             submission.getGitUrl(),
                             submission.getBranch(),
                             submission.getId()
@@ -296,7 +296,7 @@ public class ReviewServiceImpl implements IReviewService {
         }
         List<ReadReviewResponse> content = reviewPage.getContent().stream()
                 .map(review -> {
-                    ProjectFileSystem fileSystem = fileService.getProjectFileSystem(
+                    ProjectFileSystemResponse fileSystem = fileService.getProjectFileSystem(
                             review.getReviewSubmission().getGitUrl(),
                             review.getReviewSubmission().getBranch(),
                             review.getReviewSubmission().getId()
