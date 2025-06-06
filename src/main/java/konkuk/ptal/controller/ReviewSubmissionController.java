@@ -7,6 +7,7 @@ import konkuk.ptal.dto.api.ApiResponse;
 import konkuk.ptal.dto.api.ResponseCode;
 import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
 import konkuk.ptal.dto.response.FileContentResponse;
+import konkuk.ptal.dto.response.ListBranchesResponse;
 import konkuk.ptal.dto.response.ListReviewSubmissionResponse;
 import konkuk.ptal.dto.response.ProjectFileSystemResponse;
 import konkuk.ptal.dto.response.ReadReviewSubmissionResponse;
@@ -116,6 +117,17 @@ public class ReviewSubmissionController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), fileContentResponse));
+    }
+
+    @GetMapping("/git/branches")
+    public ResponseEntity<ApiResponse<ListBranchesResponse>> getBranches(
+            @RequestParam(name = "gitUrl") String gitUrl,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        
+        ListBranchesResponse responseDtos = fileService.getBranches(gitUrl);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), responseDtos));
     }
 
 }
