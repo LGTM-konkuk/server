@@ -28,7 +28,6 @@ public enum ErrorCode {
     REVIEW_UNAVAILABLE("이미 리뷰가 완료되었거나, 취소된 제출 건에는 리뷰를 작성할 수 없습니다.");
 
 
-
     private final String message;
 
     ErrorCode(String message) {

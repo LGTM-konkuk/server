@@ -12,8 +12,9 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ListReviewSubmissionResponse extends BasePageResponse{
+public class ListReviewSubmissionResponse extends BasePageResponse {
     private List<ReadReviewSubmissionResponse> content;
+
     public ListReviewSubmissionResponse(Page<ReviewSubmission> page, List<ReadReviewSubmissionResponse> content) {
         super(page);
         this.content = content;

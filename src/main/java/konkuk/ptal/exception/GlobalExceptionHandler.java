@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ApiResponse<?>> handleEntityNotFoundException(EntityNotFoundException ex){
+    public ResponseEntity<ApiResponse<?>> handleEntityNotFoundException(EntityNotFoundException ex) {
         return buildResponse(ex, HttpStatus.NOT_FOUND);
     }
 

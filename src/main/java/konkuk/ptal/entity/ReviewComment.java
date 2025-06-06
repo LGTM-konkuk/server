@@ -21,7 +21,7 @@ public class ReviewComment {
     private String id;
 
     @ManyToOne
-    @JoinColumn(name="review_submission_id", nullable=false)
+    @JoinColumn(name = "review_submission_id", nullable = false)
     private ReviewSubmission reviewSubmission;
 
     @ManyToOne
@@ -61,7 +61,7 @@ public class ReviewComment {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public static ReviewComment createReviewComment(ReviewSubmission reviewSubmission, ReviewComment parentComment, CodeFile codeFile, User user, ReviewCommentType commentType, CreateReviewCommentRequest dto){
+    public static ReviewComment createReviewComment(ReviewSubmission reviewSubmission, ReviewComment parentComment, CodeFile codeFile, User user, ReviewCommentType commentType, CreateReviewCommentRequest dto) {
         return ReviewComment.builder()
                 .reviewSubmission(reviewSubmission)
                 .codeFile(codeFile)

@@ -39,6 +39,7 @@ public class Review {
     @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
     String reviewContent;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -50,10 +51,11 @@ public class Review {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void updateConclusion(String reviewContent){
+    public void updateConclusion(String reviewContent) {
         this.reviewContent = reviewContent;
     }
-    public static Review createReview(ReviewSubmission reviewSubmission, CreateReviewRequest dto){
+
+    public static Review createReview(ReviewSubmission reviewSubmission, CreateReviewRequest dto) {
         return Review.builder()
                 .reviewer(reviewSubmission.getReviewer())
                 .reviewee(reviewSubmission.getReviewee())

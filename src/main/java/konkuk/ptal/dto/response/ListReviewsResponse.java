@@ -1,7 +1,6 @@
 package konkuk.ptal.dto.response;
 
 import konkuk.ptal.entity.Review;
-import konkuk.ptal.entity.ReviewSubmission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,7 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ListReviewsResponse extends BasePageResponse{
+public class ListReviewsResponse extends BasePageResponse {
     private List<ReadReviewResponse> content;
 
     public ListReviewsResponse(Page<Review> page, List<ReadReviewResponse> content) {

@@ -28,7 +28,7 @@ public class ReviewSubmissionController {
     public ResponseEntity<ApiResponse<ReadReviewSubmissionResponse>> createReviewSubmission(
             @Valid @RequestBody CreateReviewSubmissionRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        ReviewSubmission reviewSubmission = reviewService.createReviewSubmission(request,userPrincipal);
+        ReviewSubmission reviewSubmission = reviewService.createReviewSubmission(request, userPrincipal);
         ReadReviewSubmissionResponse responseDto = ReadReviewSubmissionResponse.from(reviewSubmission);
         return ResponseEntity
                 .status(HttpStatus.CREATED)

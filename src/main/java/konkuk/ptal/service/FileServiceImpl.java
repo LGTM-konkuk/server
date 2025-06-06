@@ -24,7 +24,7 @@ import static konkuk.ptal.dto.api.ErrorCode.*;
 
 @Service
 @Slf4j
-public class FileServiceImpl implements IFileService{
+public class FileServiceImpl implements IFileService {
 
     @Value("${file.storage.base-path}")
     private String baseStoragePath;
@@ -54,7 +54,7 @@ public class FileServiceImpl implements IFileService{
             }
 
             cloneCommand.call();
-            System.out.println("Repository cloned successfully to: " + targetPath.toAbsolutePath().toString());
+            System.out.println("Repository cloned successfully to: " + targetPath.toAbsolutePath());
             return targetPath.toAbsolutePath().toString();
 
         } catch (GitAPIException e) {

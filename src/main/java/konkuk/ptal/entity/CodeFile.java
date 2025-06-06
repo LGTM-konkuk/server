@@ -20,7 +20,7 @@ public class CodeFile {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "review_submission_id",nullable = false)
+    @JoinColumn(name = "review_submission_id", nullable = false)
     private ReviewSubmission submissionId;
 
     @Column(nullable = false)
@@ -37,13 +37,14 @@ public class CodeFile {
         createdAt = LocalDateTime.now();
     }
 
-    public static CodeFile createCodeFile(ReviewSubmission reviewSubmission, String relativePath){
+    public static CodeFile createCodeFile(ReviewSubmission reviewSubmission, String relativePath) {
         return CodeFile.builder()
                 .submissionId(reviewSubmission)
                 .relativePath(relativePath)
                 .fileType(getFileExtension(relativePath))
                 .build();
     }
+
     private static String getFileExtension(String filePath) {
         int dotIndex = filePath.lastIndexOf('.');
         if (dotIndex > 0 && dotIndex < filePath.length() - 1) {

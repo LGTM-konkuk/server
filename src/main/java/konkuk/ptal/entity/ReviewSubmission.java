@@ -61,7 +61,7 @@ public class ReviewSubmission {
 
     }
 
-    public static ReviewSubmission createReviewSubmission(ReviewSubmissionStatus status, Reviewer reviewer, Reviewee reviewee, CreateReviewSubmissionRequest dto){
+    public static ReviewSubmission createReviewSubmission(ReviewSubmissionStatus status, Reviewer reviewer, Reviewee reviewee, CreateReviewSubmissionRequest dto) {
         return ReviewSubmission.builder()
                 .requestDetails(dto.getRequestDetails())
                 .reviewee(reviewee)

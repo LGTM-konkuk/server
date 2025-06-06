@@ -4,15 +4,7 @@ import konkuk.ptal.domain.UserPrincipal;
 import konkuk.ptal.domain.enums.ReviewCommentType;
 import konkuk.ptal.domain.enums.ReviewSubmissionStatus;
 import konkuk.ptal.domain.enums.ReviewSubmissionType;
-import konkuk.ptal.dto.request.CreateReviewCommentRequest;
-import konkuk.ptal.dto.request.CreateReviewRequest;
-import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
-import konkuk.ptal.dto.request.UpdateReviewRequest;
-import konkuk.ptal.dto.request.UpdateReviewCommentRequest;
-import konkuk.ptal.dto.response.ListReviewSubmissionResponse;
-import konkuk.ptal.dto.response.ListReviewsResponse;
-import konkuk.ptal.dto.response.ReadReviewResponse;
-import konkuk.ptal.dto.response.ReadReviewSubmissionResponse;
+import konkuk.ptal.dto.request.*;
 import konkuk.ptal.dto.response.ReadCommentResponse;
 import konkuk.ptal.dto.response.ReadCommentsOfReviewResponse;
 import konkuk.ptal.entity.*;
@@ -27,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -55,7 +46,7 @@ public class ReviewServiceImpl implements IReviewService {
         Reviewer reviewer = reviewerRepository.findById(request.getReviewerId())
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
-        ReviewSubmission reviewSubmission = ReviewSubmission.createReviewSubmission(ReviewSubmissionStatus.PENDING, reviewer,reviewee, request);
+        ReviewSubmission reviewSubmission = ReviewSubmission.createReviewSubmission(ReviewSubmissionStatus.PENDING, reviewer, reviewee, request);
         reviewSubmission = reviewSubmissionRepository.save(reviewSubmission);
 
         return reviewSubmission;
@@ -140,12 +131,12 @@ public class ReviewServiceImpl implements IReviewService {
         ReviewComment parentComment = null;
         if (request.getParentCommentId() != null && !request.getParentCommentId().trim().isEmpty()) {
             parentComment = findReviewCommentById(request.getParentCommentId());
-            
+
             // 부모 댓글이 같은 세션에 속하는지 확인
             if (!submissionId.equals(parentComment.getReviewSubmission().getId())) {
                 throw new BadRequestException(PARENT_COMMENT_NOT_BELONG_TO_SESSION);
             }
-            
+
             // 답글의 경우 부모 댓글의 파일과 라인 정보를 상속
             if (parentComment.getCodeFile() != null) {
                 codeFile = parentComment.getCodeFile();
@@ -154,14 +145,14 @@ public class ReviewServiceImpl implements IReviewService {
         }
 
         ReviewComment comment = ReviewComment.createReviewComment(
-            reviewSubmission, 
-            parentComment, 
-            codeFile, 
-            user, 
-            commentType, 
-            request
+                reviewSubmission,
+                parentComment,
+                codeFile,
+                user,
+                commentType,
+                request
         );
-        
+
         return reviewCommentRepository.save(comment);
     }
 
@@ -359,18 +350,18 @@ public class ReviewServiceImpl implements IReviewService {
         } else {
             // 세션 레벨 댓글과 그 답글들 조회
             List<ReviewComment> sessionComments = reviewCommentRepository.findByReviewSubmissionIdAndCommentTypeAndCodeFileIsNull(submissionId, ReviewCommentType.SESSION_COMMENT);
-            
+
             // 세션 댓글들의 모든 답글들을 조회
             List<String> sessionCommentIds = sessionComments.stream()
                     .map(ReviewComment::getId)
                     .collect(Collectors.toList());
-            
+
             return reviewCommentRepository.findByReviewSubmissionId(submissionId).stream()
-                    .filter(comment -> 
-                        // 세션 댓글이거나
-                        (comment.getCommentType() == ReviewCommentType.SESSION_COMMENT && comment.getCodeFile() == null) ||
-                        // 세션 댓글의 답글인 경우
-                        isReplyToSessionComment(comment, sessionCommentIds))
+                    .filter(comment ->
+                            // 세션 댓글이거나
+                            (comment.getCommentType() == ReviewCommentType.SESSION_COMMENT && comment.getCodeFile() == null) ||
+                                    // 세션 댓글의 답글인 경우
+                                    isReplyToSessionComment(comment, sessionCommentIds))
                     .collect(Collectors.toList());
         }
     }
@@ -395,7 +386,7 @@ public class ReviewServiceImpl implements IReviewService {
     private ReadCommentResponse buildCommentHierarchy(ReviewComment comment, List<ReviewComment> allComments) {
         // 현재 댓글의 직접적인 답글들을 찾기
         List<ReviewComment> directReplies = allComments.stream()
-                .filter(reply -> reply.getParentComment() != null && 
+                .filter(reply -> reply.getParentComment() != null &&
                         reply.getParentComment().getId().equals(comment.getId()))
                 .collect(Collectors.toList());
 
@@ -407,7 +398,7 @@ public class ReviewServiceImpl implements IReviewService {
         // ReadCommentResponse 생성
         ReadCommentResponse response = ReadCommentResponse.from(comment);
         response.setReplies(replyResponses);
-        
+
         return response;
     }
 }

@@ -16,7 +16,9 @@ public interface ReviewSubmissionRepository extends JpaRepository<ReviewSubmissi
             Long submissionId1, Long revieweeUserId,
             Long submissionId2, Long reviewerUserId
     );
+
     Optional<ReviewSubmission> findByIdAndReviewee_User_Id(Long submissionId, Long revieweeUserId);
+
     Page<ReviewSubmission> findByReviewee(Reviewee reviewee, Pageable pageable);
 
     Page<ReviewSubmission> findByReviewer(Reviewer reviewer, Pageable pageable);

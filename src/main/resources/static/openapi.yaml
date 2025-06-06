@@ -179,7 +179,7 @@ components:
         email: "reviewee@example.com"
         password: "password123"
         name: "김리뷰"
-        preferences: ["Java", "Spring Boot"]
+        preferences: [ "Java", "Spring Boot" ]
 
     CreateRevieweeResponse:
       type: object
@@ -199,7 +199,7 @@ components:
               description: "리뷰이의 관심 기술 분야 목록"
       example:
         id: 1
-        preferences: ["Java", "Spring Boot"]
+        preferences: [ "Java", "Spring Boot" ]
         createdAt: "2024-05-01T10:00:00Z"
         updatedAt: "2024-05-01T10:00:00Z"
 
@@ -239,9 +239,9 @@ components:
         email: "reviewer@example.com"
         password: "password456"
         name: "박리뷰"
-        preferences: ["Python", "Django"]
+        preferences: [ "Python", "Django" ]
         bio: "10년차 백엔드 개발자입니다."
-        tags: ["backend", "python", "api"]
+        tags: [ "backend", "python", "api" ]
 
     CreateReviewerResponse:
       type: object
@@ -269,9 +269,9 @@ components:
               description: "리뷰어 관련 태그 목록"
       example:
         id: 2
-        preferences: ["Python", "Django"]
+        preferences: [ "Python", "Django" ]
         bio: "10년차 백엔드 개발자입니다."
-        tags: ["backend", "python", "api"]
+        tags: [ "backend", "python", "api" ]
         createdAt: "2024-05-01T10:00:00Z"
         updatedAt: "2024-05-01T10:00:00Z"
 
@@ -295,7 +295,7 @@ components:
               description: "사용자 이름"
             role:
               type: string
-              enum: [USER, REVIEWER, REVIEWEE, ADMIN]
+              enum: [ USER, REVIEWER, REVIEWEE, ADMIN ]
               description: "사용자 권한 역할 (일반사용자, 리뷰어, 리뷰이, 관리자)"
       example:
         id: 101
@@ -325,7 +325,7 @@ components:
             type: string
           description: "새로 변경할 관심 기술 분야 목록"
       example:
-        preferences: ["JavaScript", "React"]
+        preferences: [ "JavaScript", "React" ]
 
     UpdateReviewerRequest:
       type: object
@@ -345,9 +345,9 @@ components:
             type: string
           description: "새로 변경할 태그 목록"
       example:
-        preferences: ["JavaScript", "Vue.js"]
+        preferences: [ "JavaScript", "Vue.js" ]
         bio: "프론트엔드 개발에 관심 많습니다."
-        tags: ["frontend", "vue"]
+        tags: [ "frontend", "vue" ]
 
     ReadRevieweeResponse:
       type: object
@@ -370,7 +370,7 @@ components:
               description: "리뷰이의 기본 사용자 정보"
       example:
         id: 1
-        preferences: ["Java", "Spring Boot"]
+        preferences: [ "Java", "Spring Boot" ]
         user:
           id: 101
           name: "김리뷰"
@@ -407,9 +407,9 @@ components:
               description: "리뷰어의 기본 사용자 정보"
       example:
         id: 2
-        preferences: ["Python", "Django"]
+        preferences: [ "Python", "Django" ]
         bio: "10년차 백엔드 개발자입니다."
-        tags: ["backend", "python", "api"]
+        tags: [ "backend", "python", "api" ]
         user:
           id: 102
           name: "박리뷰"
@@ -420,7 +420,7 @@ components:
     CreateReviewSubmissionRequest:
       type: object
       description: "새로운 리뷰 제출(요청) 생성 시 필요한 정보"
-      required: [reviewerId, gitUrl, requestDetails, branch]
+      required: [ reviewerId, gitUrl, requestDetails, branch ]
       properties:
         reviewerId:
           type: integer
@@ -471,7 +471,7 @@ components:
               description: "리뷰 요청 상세 설명"
             status:
               type: string
-              enum: [PENDING, CANCELED, REVIEWED]
+              enum: [ PENDING, CANCELED, REVIEWED ]
               description: "리뷰 제출 건의 현재 상태 (PENDING: 대기중, CANCELED: 취소됨, REVIEWED: 리뷰완료)"
             fileSystem:
               $ref: "#/components/schemas/ProjectFileSystem"
@@ -480,7 +480,7 @@ components:
         id: 1001
         reviewee:
           id: 1
-          preferences: ["Java", "Spring Boot"]
+          preferences: [ "Java", "Spring Boot" ]
           user:
             id: 101
             name: "김리뷰"
@@ -489,9 +489,9 @@ components:
           updatedAt: "2024-05-01T10:00:00Z"
         reviewer:
           id: 2
-          preferences: ["Python", "Django"]
+          preferences: [ "Python", "Django" ]
           bio: "10년차 백엔드 개발자입니다."
-          tags: ["backend", "python", "api"]
+          tags: [ "backend", "python", "api" ]
           user:
             id: 102
             name: "박리뷰"
@@ -519,14 +519,14 @@ components:
                 type: "DIRECTORY"
                 size: null
                 lastModified: "2024-05-01T10:00:00Z"
-                children: []
+                children: [ ]
           totalFiles: 25
           totalSize: 51200
 
     CreateReviewRequest:
       type: object
       description: "리뷰어가 리뷰를 작성하여 제출할 때 필요한 정보"
-      required: [reviewSubmissionId, reviewContent]
+      required: [ reviewSubmissionId, reviewContent ]
       properties:
         reviewSubmissionId:
           type: integer
@@ -563,7 +563,7 @@ components:
         id: 1001
         reviewee:
           id: 1
-          preferences: ["Java", "Spring Boot"]
+          preferences: [ "Java", "Spring Boot" ]
           user:
             id: 101
             name: "김리뷰"
@@ -572,9 +572,9 @@ components:
           updatedAt: "2024-05-01T10:00:00Z"
         reviewer:
           id: 2
-          preferences: ["Python", "Django"]
+          preferences: [ "Python", "Django" ]
           bio: "10년차 백엔드 개발자입니다."
-          tags: ["backend", "python", "api"]
+          tags: [ "backend", "python", "api" ]
           user:
             id: 102
             name: "박리뷰"
@@ -645,7 +645,7 @@ components:
           - id: 1001
             reviewee:
               id: 1
-              preferences: ["Java", "Spring Boot"]
+              preferences: [ "Java", "Spring Boot" ]
               user:
                 id: 101
                 name: "김리뷰"
@@ -654,9 +654,9 @@ components:
               updatedAt: "2024-05-01T10:00:00Z"
             reviewer:
               id: 2
-              preferences: ["Python", "Django"]
+              preferences: [ "Python", "Django" ]
               bio: "10년차 백엔드 개발자입니다."
-              tags: ["backend", "python", "api"]
+              tags: [ "backend", "python", "api" ]
               user:
                 id: 102
                 name: "박리뷰"
@@ -697,7 +697,7 @@ components:
           - id: 1001
             reviewee:
               id: 1
-              preferences: ["Java", "Spring Boot"]
+              preferences: [ "Java", "Spring Boot" ]
               user:
                 id: 101
                 name: "김리뷰"
@@ -706,9 +706,9 @@ components:
               updatedAt: "2024-05-01T10:00:00Z"
             reviewer:
               id: 2
-              preferences: ["Python", "Django"]
+              preferences: [ "Python", "Django" ]
               bio: "10년차 백엔드 개발자입니다."
-              tags: ["backend", "python", "api"]
+              tags: [ "backend", "python", "api" ]
               user:
                 id: 102
                 name: "박리뷰"
@@ -724,7 +724,7 @@ components:
           - id: 1002
             reviewee:
               id: 4
-              preferences: ["Python", "Flask"]
+              preferences: [ "Python", "Flask" ]
               user:
                 id: 104
                 name: "이리뷰이"
@@ -733,9 +733,9 @@ components:
               updatedAt: "2024-05-03T10:00:00Z"
             reviewer:
               id: 3
-              preferences: ["JavaScript", "React"]
+              preferences: [ "JavaScript", "React" ]
               bio: "5년차 프론트엔드 개발자입니다."
-              tags: ["frontend", "javascript", "react"]
+              tags: [ "frontend", "javascript", "react" ]
               user:
                 id: 103
                 name: "최리뷰"
@@ -771,9 +771,9 @@ components:
         content:
           - id: 12
             user: { id: 102, name: "박전문", email: "reviewer1@example.com" }
-            preferences: ["Java", "Spring Boot"]
+            preferences: [ "Java", "Spring Boot" ]
             bio: "Java, Spring 전문가입니다."
-            tags: ["java", "spring", "backend"]
+            tags: [ "java", "spring", "backend" ]
             createdAt: "2024-03-10T11:00:00Z"
             updatedAt: "2024-05-01T17:30:00Z"
 
@@ -790,7 +790,7 @@ components:
           description: "루트부터의 전체 경로"
         type:
           type: string
-          enum: [FILE, DIRECTORY]
+          enum: [ FILE, DIRECTORY ]
           description: "파일 또는 디렉토리 구분"
         size:
           type: integer
@@ -878,7 +878,7 @@ components:
               type: "DIRECTORY"
               size: null
               lastModified: "2024-05-01T10:00:00Z"
-              children: []
+              children: [ ]
         totalFiles: 25
         totalSize: 51200
 
@@ -1018,7 +1018,7 @@ components:
         **⚠️ 주의사항:**
         - 답글의 경우 filePath, lineNumber는 부모 댓글에서 자동 상속됩니다
         - lineNumber는 항상 filePath와 함께 사용되어야 합니다
-      required: [content]
+      required: [ content ]
       properties:
         content:
           type: string
@@ -1101,7 +1101,7 @@ components:
           name: "박리뷰"
           email: "reviewer@example.com"
         parentCommentId: null
-        replies: []
+        replies: [ ]
         createdAt: "2024-05-15T14:30:00Z"
         updatedAt: "2024-05-15T14:30:00Z"
 
@@ -1129,7 +1129,7 @@ components:
               id: 102
               name: "박리뷰"
             parentCommentId: null
-            replies: []
+            replies: [ ]
             createdAt: "2024-05-15T14:30:00Z"
             updatedAt: "2024-05-15T14:30:00Z"
 
@@ -1141,7 +1141,7 @@ components:
       description: "JWT를 이용한 Bearer 토큰 인증 방식입니다. API 요청 시 `Authorization` 헤더에 `Bearer {JWT_TOKEN}` 형식으로 토큰을 포함해야 합니다."
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /auth/signup/reviewee:
@@ -1161,7 +1161,7 @@ paths:
               email: "reviewee@example.com"
               password: "password123"
               name: "김리뷰"
-              preferences: ["Java", "Spring Boot"]
+              preferences: [ "Java", "Spring Boot" ]
       responses:
         "201":
           description: "리뷰이 회원가입 및 프로필 생성 성공"
@@ -1178,7 +1178,7 @@ paths:
                 message: "리뷰이 가입 및 프로필 생성이 완료되었습니다."
                 data:
                   id: 1
-                  preferences: ["Java", "Spring Boot"]
+                  preferences: [ "Java", "Spring Boot" ]
                   createdAt: "2024-05-01T10:00:00Z"
                   updatedAt: "2024-05-01T10:00:00Z"
         "400":
@@ -1207,9 +1207,9 @@ paths:
               email: "reviewer@example.com"
               password: "password456"
               name: "박리뷰"
-              preferences: ["Python", "Django"]
+              preferences: [ "Python", "Django" ]
               bio: "10년차 백엔드 개발자입니다."
-              tags: ["backend", "python", "api"]
+              tags: [ "backend", "python", "api" ]
       responses:
         "201":
           description: "리뷰어 회원가입 및 프로필 생성 성공"
@@ -1226,9 +1226,9 @@ paths:
                 message: "리뷰어 가입 및 프로필 생성이 완료되었습니다."
                 data:
                   id: 2
-                  preferences: ["Python", "Django"]
+                  preferences: [ "Python", "Django" ]
                   bio: "10년차 백엔드 개발자입니다."
-                  tags: ["backend", "python", "api"]
+                  tags: [ "backend", "python", "api" ]
                   createdAt: "2024-05-01T10:00:00Z"
                   updatedAt: "2024-05-01T10:00:00Z"
         "400":
@@ -1246,7 +1246,7 @@ paths:
         - 인증 (Authentication)
       summary: "사용자 로그인"
       description: "등록된 사용자가 이메일과 비밀번호를 사용하여 시스템에 로그인하고, 성공 시 JWT 인증 토큰 (액세스 토큰, 리프레시 토큰)을 발급받습니다."
-      security: []
+      security: [ ]
       requestBody:
         required: true
         description: "로그인에 필요한 사용자 이메일과 비밀번호"
@@ -1344,7 +1344,7 @@ paths:
       summary: "사용자 로그아웃"
       description: "현재 인증된 사용자의 세션을 종료합니다. 서버는 필요시 (예: 리프레시 토큰) 관련 인증 토큰을 무효화할 수 있습니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: "로그아웃 성공"
@@ -1370,7 +1370,7 @@ paths:
       summary: "내 정보 조회"
       description: "현재 인증된(로그인한) 사용자 본인의 상세 정보를 조회합니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: "사용자 정보 조회 성공"
@@ -1406,7 +1406,7 @@ paths:
       summary: "내 정보 수정"
       description: "현재 인증된 사용자 본인의 정보를 수정합니다. 주로 이름 변경 등에 사용됩니다. (리뷰이/리뷰어 프로필의 상세 정보는 각 프로필 수정 API를 사용하세요.)"
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         description: "수정할 사용자 정보 (예: 이름)"
@@ -1461,7 +1461,7 @@ paths:
       summary: "리뷰이 프로필 조회"
       description: "지정된 ID에 해당하는 리뷰이 프로필의 상세 정보를 조회합니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: id
           in: path
@@ -1487,7 +1487,7 @@ paths:
                 message: "데이터 조회 성공"
                 data:
                   id: 1
-                  preferences: ["Java", "Spring Boot"]
+                  preferences: [ "Java", "Spring Boot" ]
                   createdAt: "2024-05-01T10:00:00Z"
                   updatedAt: "2024-05-01T10:00:00Z"
         "400":
@@ -1512,7 +1512,7 @@ paths:
       summary: "리뷰이 프로필 수정"
       description: "지정된 ID에 해당하는 리뷰이 프로필의 정보를 수정합니다. 본인의 프로필만 수정할 수 있습니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: id
           in: path
@@ -1530,7 +1530,7 @@ paths:
             schema:
               $ref: "#/components/schemas/UpdateRevieweeRequest"
             example:
-              preferences: ["JavaScript", "React"]
+              preferences: [ "JavaScript", "React" ]
       responses:
         "200":
           description: "리뷰이 프로필 수정 성공"
@@ -1547,7 +1547,7 @@ paths:
                 message: "OK"
                 data:
                   id: 1
-                  preferences: ["JavaScript", "React"]
+                  preferences: [ "JavaScript", "React" ]
                   createdAt: "2024-05-01T10:00:00Z"
                   updatedAt: "2024-05-15T14:30:00Z"
         "400":
@@ -1581,7 +1581,7 @@ paths:
       summary: "리뷰어 프로필 조회"
       description: "지정된 ID에 해당하는 리뷰어 프로필의 상세 정보를 조회합니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: id
           in: path
@@ -1607,9 +1607,9 @@ paths:
                 message: "데이터 조회 성공"
                 data:
                   id: 2
-                  preferences: ["Python", "Django"]
+                  preferences: [ "Python", "Django" ]
                   bio: "10년차 백엔드 개발자입니다."
-                  tags: ["backend", "python", "api"]
+                  tags: [ "backend", "python", "api" ]
                   createdAt: "2024-05-01T10:00:00Z"
                   updatedAt: "2024-05-01T10:00:00Z"
         "400":
@@ -1634,7 +1634,7 @@ paths:
       summary: "리뷰어 프로필 수정"
       description: "지정된 ID에 해당하는 리뷰어 프로필의 정보를 수정합니다. 본인의 프로필만 수정할 수 있습니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: id
           in: path
@@ -1652,9 +1652,9 @@ paths:
             schema:
               $ref: "#/components/schemas/UpdateReviewerRequest"
             example:
-              preferences: ["JavaScript", "Vue.js"]
+              preferences: [ "JavaScript", "Vue.js" ]
               bio: "프론트엔드 개발에 관심 많습니다."
-              tags: ["frontend", "vue"]
+              tags: [ "frontend", "vue" ]
       responses:
         "200":
           description: "리뷰어 프로필 수정 성공"
@@ -1671,9 +1671,9 @@ paths:
                 message: "데이터 조회 성공"
                 data:
                   id: 2
-                  preferences: ["JavaScript", "Vue.js"]
+                  preferences: [ "JavaScript", "Vue.js" ]
                   bio: "프론트엔드 개발에 관심 많습니다."
-                  tags: ["frontend", "vue"]
+                  tags: [ "frontend", "vue" ]
                   createdAt: "2024-05-01T10:00:00Z"
                   updatedAt: "2024-05-15T16:20:00Z"
         "400":
@@ -1707,7 +1707,7 @@ paths:
       summary: "새 리뷰 제출(요청) 생성"
       description: "리뷰이가 특정 리뷰어에게 코드 리뷰를 요청하는 새로운 제출 건을 생성합니다. 리뷰받을 Git 저장소 URL과 상세 요청 내용을 포함해야 합니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         description: "새로운 리뷰 제출에 필요한 정보"
@@ -1738,7 +1738,7 @@ paths:
                   id: 1001
                   reviewee:
                     id: 1
-                    preferences: ["Java", "Spring Boot"]
+                    preferences: [ "Java", "Spring Boot" ]
                     user:
                       id: 101
                       name: "김리뷰"
@@ -1747,9 +1747,9 @@ paths:
                     updatedAt: "2024-05-01T10:00:00Z"
                   reviewer:
                     id: 2
-                    preferences: ["Python", "Django"]
+                    preferences: [ "Python", "Django" ]
                     bio: "10년차 백엔드 개발자입니다."
-                    tags: ["backend", "python", "api"]
+                    tags: [ "backend", "python", "api" ]
                     user:
                       id: 102
                       name: "박리뷰"
@@ -1785,7 +1785,7 @@ paths:
       summary: "리뷰 제출(요청) 목록 조회"
       description: "리뷰 제출(요청) 목록을 조회합니다. 인증된 사용자를 기준으로 '자신이 보낸 요청', '자신이 받은 요청'(리뷰어의 경우), 또는 '모든 관련된 요청' 등으로 필터링할 수 있으며, 페이지네이션을 통해 결과를 제공합니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: type
           in: query
@@ -1793,7 +1793,7 @@ paths:
           description: "조회할 제출 목록의 타입. `sent`: 내가 보낸 요청, `received`: 내가 받은 요청 (리뷰어만 해당), `all`: 나와 관련된 모든 요청. 기본값은 `all` 또는 사용자의 역할에 따라 적절히 설정될 수 있습니다."
           schema:
             type: string
-            enum: [sent, received, all]
+            enum: [ sent, received, all ]
             example: "sent"
         - name: page
           in: query
@@ -1836,7 +1836,7 @@ paths:
                     - id: 1001
                       reviewee:
                         id: 1
-                        preferences: ["Java", "Spring Boot"]
+                        preferences: [ "Java", "Spring Boot" ]
                         user:
                           id: 101
                           name: "김리뷰"
@@ -1845,9 +1845,9 @@ paths:
                         updatedAt: "2024-05-01T10:00:00Z"
                       reviewer:
                         id: 2
-                        preferences: ["Python", "Django"]
+                        preferences: [ "Python", "Django" ]
                         bio: "10년차 백엔드 개발자입니다."
-                        tags: ["backend", "python", "api"]
+                        tags: [ "backend", "python", "api" ]
                         user:
                           id: 102
                           name: "박리뷰"
@@ -1880,7 +1880,7 @@ paths:
       summary: "특정 리뷰 제출(요청) 상세 조회"
       description: "지정된 ID에 해당하는 리뷰 제출(요청) 건의 상세 정보를 조회합니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: submissionId
           in: path
@@ -1938,7 +1938,7 @@ paths:
       summary: "리뷰 제출(요청) 취소"
       description: "리뷰이가 자신이 생성한 특정 리뷰 제출(요청) 건을 취소합니다. 이미 리뷰가 진행 중이거나 완료된 경우에는 취소가 불가능할 수 있습니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: submissionId
           in: path
@@ -2006,7 +2006,7 @@ paths:
       summary: "특정 리뷰 상세 조회"
       description: "지정된 ID에 해당하는 단일 리뷰의 상세 정보를 조회합니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: reviewId
           in: path
@@ -2034,7 +2034,7 @@ paths:
                   id: 1001
                   reviewee:
                     id: 1
-                    preferences: ["Java", "Spring Boot"]
+                    preferences: [ "Java", "Spring Boot" ]
                     user:
                       id: 101
                       name: "김리뷰"
@@ -2043,9 +2043,9 @@ paths:
                     updatedAt: "2024-05-01T10:00:00Z"
                   reviewer:
                     id: 2
-                    preferences: ["Python", "Django"]
+                    preferences: [ "Python", "Django" ]
                     bio: "10년차 백엔드 개발자입니다."
-                    tags: ["backend", "python", "api"]
+                    tags: [ "backend", "python", "api" ]
                     user:
                       id: 102
                       name: "박리뷰"
@@ -2088,7 +2088,7 @@ paths:
       summary: "리뷰 수정"
       description: "리뷰를 작성한 원본 리뷰어가 특정 리뷰의 내용을 수정합니다. 수정 기한이 있거나, 특정 조건 하에서만 수정이 가능할 수 있습니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: reviewId
           in: path
@@ -2125,7 +2125,7 @@ paths:
                   id: 1001
                   reviewee:
                     id: 1
-                    preferences: ["Java", "Spring Boot"]
+                    preferences: [ "Java", "Spring Boot" ]
                     user:
                       id: 101
                       name: "김리뷰"
@@ -2134,9 +2134,9 @@ paths:
                     updatedAt: "2024-05-01T10:00:00Z"
                   reviewer:
                     id: 2
-                    preferences: ["Python", "Django"]
+                    preferences: [ "Python", "Django" ]
                     bio: "10년차 백엔드 개발자입니다."
-                    tags: ["backend", "python", "api"]
+                    tags: [ "backend", "python", "api" ]
                     user:
                       id: 102
                       name: "박리뷰"
@@ -2189,7 +2189,7 @@ paths:
       summary: "특정 제출 건에 대한 새 리뷰 작성"
       description: "리뷰어가 특정 리뷰 제출(요청) 건에 대해 리뷰를 작성하여 제출합니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: submissionId
           in: path
@@ -2227,7 +2227,7 @@ paths:
                   id: 1001
                   reviewee:
                     id: 1
-                    preferences: ["Java", "Spring Boot"]
+                    preferences: [ "Java", "Spring Boot" ]
                     user:
                       id: 101
                       name: "김리뷰"
@@ -2236,9 +2236,9 @@ paths:
                     updatedAt: "2024-05-01T10:00:00Z"
                   reviewer:
                     id: 2
-                    preferences: ["Python", "Django"]
+                    preferences: [ "Python", "Django" ]
                     bio: "10년차 백엔드 개발자입니다."
-                    tags: ["backend", "python", "api"]
+                    tags: [ "backend", "python", "api" ]
                     user:
                       id: 102
                       name: "박리뷰"
@@ -2291,7 +2291,7 @@ paths:
       summary: "리뷰 목록 조회"
       description: "다양한 조건에 따라 리뷰 목록을 조회합니다. 페이지네이션을 지원합니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: submissionId
           in: query
@@ -2354,7 +2354,7 @@ paths:
                     - id: 1001
                       reviewee:
                         id: 1
-                        preferences: ["Java", "Spring Boot"]
+                        preferences: [ "Java", "Spring Boot" ]
                         user:
                           id: 101
                           name: "김리뷰"
@@ -2363,9 +2363,9 @@ paths:
                         updatedAt: "2024-05-01T10:00:00Z"
                       reviewer:
                         id: 2
-                        preferences: ["Python", "Django"]
+                        preferences: [ "Python", "Django" ]
                         bio: "10년차 백엔드 개발자입니다."
-                        tags: ["backend", "python", "api"]
+                        tags: [ "backend", "python", "api" ]
                         user:
                           id: 102
                           name: "박리뷰"
@@ -2381,7 +2381,7 @@ paths:
                     - id: 1002
                       reviewee:
                         id: 4
-                        preferences: ["Python", "Flask"]
+                        preferences: [ "Python", "Flask" ]
                         user:
                           id: 104
                           name: "이리뷰이"
@@ -2390,9 +2390,9 @@ paths:
                         updatedAt: "2024-05-03T10:00:00Z"
                       reviewer:
                         id: 3
-                        preferences: ["JavaScript", "React"]
+                        preferences: [ "JavaScript", "React" ]
                         bio: "5년차 프론트엔드 개발자입니다."
-                        tags: ["frontend", "javascript", "react"]
+                        tags: [ "frontend", "javascript", "react" ]
                         user:
                           id: 103
                           name: "최리뷰"
@@ -2421,7 +2421,7 @@ paths:
       summary: "리뷰어 목록 조회"
       description: "등록된 리뷰어들의 프로필 목록을 조회합니다. 전문 분야, 태그 등으로 필터링할 수 있으며 페이지네이션을 지원합니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: preferences
           in: query
@@ -2481,9 +2481,9 @@ paths:
                           name: "박전문",
                           email: "reviewer1@example.com",
                         }
-                      preferences: ["Java", "Spring Boot"]
+                      preferences: [ "Java", "Spring Boot" ]
                       bio: "Java, Spring 전문가입니다."
-                      tags: ["java", "spring", "backend"]
+                      tags: [ "java", "spring", "backend" ]
                       createdAt: "2024-03-10T11:00:00Z"
                       updatedAt: "2024-05-01T17:30:00Z"
         "401":
@@ -2523,7 +2523,7 @@ paths:
         const defaultBranch = result.data.defaultBranch;
         ```
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: gitUrl
           in: query
@@ -2594,7 +2594,7 @@ paths:
       summary: "리뷰 제출 건의 파일 시스템 구조 조회"
       description: "특정 리뷰 제출 건에 대한 전체 파일 시스템 구조를 조회합니다. 파일 내용은 포함하지 않고 디렉토리 구조와 메타데이터만 반환합니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: submissionId
           in: path
@@ -2633,7 +2633,7 @@ paths:
                         type: "DIRECTORY"
                         size: null
                         lastModified: "2024-05-01T10:00:00Z"
-                        children: []
+                        children: [ ]
                   totalFiles: 25
                   totalSize: 51200
         "401":
@@ -2681,7 +2681,7 @@ paths:
         const url = `/review-submissions/1001/files/${encodedPath}`;
         ```
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: submissionId
           in: path
@@ -2773,7 +2773,7 @@ paths:
         - `lineNumber`: 특정 라인의 댓글만 조회 (filePath와 함께 사용)
         - 둘 다 없으면: 모든 댓글 조회
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: submissionId
           in: path
@@ -2823,7 +2823,7 @@ paths:
                         id: 102
                         name: "박리뷰"
                       parentCommentId: null
-                      replies: []
+                      replies: [ ]
                       createdAt: "2024-05-15T14:30:00Z"
                       updatedAt: "2024-05-15T14:30:00Z"
         "401":
@@ -2856,7 +2856,7 @@ paths:
       summary: "새 리뷰 댓글 작성"
       description: "특정 리뷰 제출 건에 새로운 댓글을 작성합니다. 파일의 특정 라인에 댓글을 달거나, 일반적인 리뷰 댓글을 작성할 수 있습니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: submissionId
           in: path
@@ -2903,7 +2903,7 @@ paths:
                     name: "박리뷰"
                     email: "reviewer@example.com"
                   parentCommentId: null
-                  replies: []
+                  replies: [ ]
                   createdAt: "2024-05-15T14:30:00Z"
                   updatedAt: "2024-05-15T14:30:00Z"
         "400":
@@ -2946,7 +2946,7 @@ paths:
       summary: "특정 댓글 조회"
       description: "특정 댓글의 상세 정보를 조회합니다. 답글 목록도 포함됩니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: commentId
           in: path
@@ -2981,7 +2981,7 @@ paths:
                     name: "박리뷰"
                     email: "reviewer@example.com"
                   parentCommentId: null
-                  replies: []
+                  replies: [ ]
                   createdAt: "2024-05-15T14:30:00Z"
                   updatedAt: "2024-05-15T14:30:00Z"
         "401":
@@ -3014,7 +3014,7 @@ paths:
       summary: "댓글 수정"
       description: "작성한 댓글의 내용을 수정합니다. 본인이 작성한 댓글만 수정할 수 있습니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: commentId
           in: path
@@ -3058,7 +3058,7 @@ paths:
                     name: "박리뷰"
                     email: "reviewer@example.com"
                   parentCommentId: null
-                  replies: []
+                  replies: [ ]
                   createdAt: "2024-05-15T14:30:00Z"
                   updatedAt: "2024-05-15T15:00:00Z"
         "400":
@@ -3099,7 +3099,7 @@ paths:
       summary: "댓글 삭제"
       description: "작성한 댓글을 삭제합니다. 본인이 작성한 댓글만 삭제할 수 있습니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: commentId
           in: path
@@ -3150,7 +3150,7 @@ paths:
       summary: "댓글에 답글 작성"
       description: "특정 댓글에 답글을 작성합니다."
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: commentId
           in: path
@@ -3167,7 +3167,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [content]
+              required: [ content ]
               properties:
                 content:
                   type: string
@@ -3199,7 +3199,7 @@ paths:
                     name: "김리뷰"
                     email: "reviewee@example.com"
                   parentCommentId: "550e8400-e29b-41d4-a716-446655440000"
-                  replies: []
+                  replies: [ ]
                   createdAt: "2024-05-15T15:00:00Z"
                   updatedAt: "2024-05-15T15:00:00Z"
         "400":

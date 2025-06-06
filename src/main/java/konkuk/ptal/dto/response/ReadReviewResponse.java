@@ -2,8 +2,6 @@ package konkuk.ptal.dto.response;
 
 import konkuk.ptal.domain.enums.ReviewSubmissionStatus;
 import konkuk.ptal.entity.Review;
-import konkuk.ptal.entity.ReviewSubmission;
-import konkuk.ptal.repository.ReviewRepository;
 import lombok.Builder;
 import lombok.Data;
 
@@ -24,7 +22,7 @@ public class ReadReviewResponse {
     LocalDateTime updatedAt;
     String reviewContent;
 
-    public static ReadReviewResponse from(Review review){
+    public static ReadReviewResponse from(Review review) {
         return ReadReviewResponse.builder()
                 .reviewContent(review.getReviewContent())
                 .reviewer(ReadReviewerResponse.from(review.getReviewSubmission().getReviewer()))
