@@ -6,6 +6,7 @@ import konkuk.ptal.domain.enums.ReviewSubmissionType;
 import konkuk.ptal.dto.api.ApiResponse;
 import konkuk.ptal.dto.api.ResponseCode;
 import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
+import konkuk.ptal.dto.response.FileContent;
 import konkuk.ptal.dto.response.ListReviewSubmissionResponse;
 import konkuk.ptal.dto.response.ProjectFileSystem;
 import konkuk.ptal.dto.response.ReadReviewSubmissionResponse;
@@ -75,7 +76,47 @@ public class ReviewSubmissionController {
                 .body(ApiResponse.success(ResponseCode.REVIEW_SUBMISSION_CANCELED.getMessage(), responseDto));
     }
 
+    @GetMapping("/{submissionId}/filesystem")
+    public ResponseEntity<ApiResponse<ProjectFileSystem>> getProjectFileSystem(
+            @PathVariable("submissionId") Long submissionId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
+        ReviewSubmission reviewSubmission = reviewService.getReviewSubmission(submissionId, userPrincipal);
+
+        ProjectFileSystem fileSystem = fileService.getProjectFileSystem(
+                reviewSubmission.getGitUrl(),
+                reviewSubmission.getBranch(),
+                reviewSubmission.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), fileSystem));
+    }
+
+    @GetMapping("/{submissionId}/files/{filePath}")
+    public ResponseEntity<ApiResponse<FileContent>> getReviewSubmissionSpecificFile(
+            @PathVariable("submissionId") Long submissionId,
+            @PathVariable("filePath") String filePath,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        ReviewSubmission reviewSubmission = reviewService.getReviewSubmission(submissionId, userPrincipal);
+
+        String decodedFilePath;
+        try {
+            decodedFilePath = java.net.URLDecoder.decode(filePath, java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            decodedFilePath = filePath;
+        }
+
+        FileContent fileContent = fileService.getFileContent(
+                reviewSubmission.getGitUrl(),
+                reviewSubmission.getBranch(),
+                decodedFilePath);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), fileContent));
+    }
 
 }
 
