@@ -1,9 +1,17 @@
 package konkuk.ptal.service;
 
+import konkuk.ptal.domain.UserPrincipal;
+import konkuk.ptal.domain.enums.ReviewSubmissionType;
 import konkuk.ptal.dto.request.CreateReviewCommentRequest;
 import konkuk.ptal.dto.request.CreateReviewSessionRequest;
+import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
+import konkuk.ptal.dto.response.ListReviewSubmissionResponse;
+import konkuk.ptal.dto.response.ReadReviewSubmissionResponse;
 import konkuk.ptal.entity.ReviewComment;
 import konkuk.ptal.entity.ReviewSubmission;
+import konkuk.ptal.exception.BadRequestException;
+import konkuk.ptal.exception.EntityNotFoundException;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -15,7 +23,7 @@ public interface IReviewService {
      * @param request 리뷰 세션 생성을 위한 상세 정보를 담고 있는 요청 객체
      * @return 새로 생성된 {@link ReviewSubmission} 객체입니다.
      */
-    ReviewSubmission createReviewSession(CreateReviewSessionRequest request);
+    ReviewSubmission createReviewSubmission(CreateReviewSubmissionRequest request, UserPrincipal userPrincipal);
 
     /**
      * 특정 코드 리뷰 세션의 상세 정보를 조회합니다.
@@ -23,7 +31,28 @@ public interface IReviewService {
      * @param submissionId 리뷰 세션의 고유 식별자입니다.
      * @return 기본 세션 정보와 해당 세션 내의 모든 파일 목록을 포함하는 {@link ReviewSubmission} 객체입니다.
      */
-    ReviewSubmission getReviewSession(Long submissionId);
+    ReviewSubmission getReviewSubmission(Long submissionId, UserPrincipal userPrincipal);
+
+    /**
+     * 리뷰 제출(요청) 목록을 조회합니다.
+     * @param type 조회할 제출 목록의 타입 (sent, received, all)
+     * @param page 페이지 번호 (0부터 시작)
+     * @param size 한 페이지당 항목 수
+     * @param userPrincipal 현재 인증된 사용자 정보
+     * @return 필터링 및 페이지네이션된 리뷰 제출 목록 DTO
+     */
+    Page<ReviewSubmission> getReviewSubmissions(ReviewSubmissionType type, int page, int size, UserPrincipal userPrincipal);
+
+    /**
+     * 특정 리뷰 제출(요청)을 취소합니다.
+     * @param submissionId 취소할 리뷰 제출의 ID
+     * @param userPrincipal 현재 인증된 사용자 정보
+     * @return 취소된 리뷰 제출의 상세 정보 DTO
+     * @throws EntityNotFoundException 해당 submissionId를 찾을 수 없거나 접근 권한이 없을 때
+     * @throws BadRequestException 이미 취소되었거나 리뷰가 시작된 제출을 취소하려 할 때
+     */
+    ReviewSubmission cancelReviewSubmission(Long submissionId, UserPrincipal userPrincipal);
+
 
     /**
      * 특정 리뷰 세션 내에 새로운 댓글을 생성합니다.
@@ -59,4 +88,5 @@ public interface IReviewService {
      * @return 댓글이 성공적으로 삭제(소프트 삭제)되었으면 `true`, 그렇지 않으면 `false`를 반환합니다.
      */
     boolean deleteReviewComment(String commentId);
+
 }

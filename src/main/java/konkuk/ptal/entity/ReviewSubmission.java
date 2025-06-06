@@ -1,14 +1,14 @@
 package konkuk.ptal.entity;
 
 import jakarta.persistence.*;
-import konkuk.ptal.domain.enums.ReviewRequestStatus;
-import konkuk.ptal.dto.request.CreateReviewSessionRequest;
+import konkuk.ptal.domain.enums.ReviewSubmissionStatus;
+import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "review_sessions")
+@Table(name = "review_submissions")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,17 +17,9 @@ import java.time.LocalDateTime;
 public class ReviewSubmission {
 
     @Id
-    @Column(name = "review_session_id")
+    @Column(name = "review_submission_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    @Lob
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String title;
-
-    @Lob
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewee_id", nullable = false)
@@ -38,15 +30,18 @@ public class ReviewSubmission {
     private Reviewer reviewer;
 
     @Column(nullable = false)
-    private String githubLink;
+    private String gitUrl;
+
+    @Column(nullable = false)
+    private String branch;
 
     @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String absolutePath;
+    private String requestDetails;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ReviewRequestStatus status;
+    private ReviewSubmissionStatus status;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -66,14 +61,12 @@ public class ReviewSubmission {
 
     }
 
-    public static ReviewSubmission createReviewSession(String absolutePath, ReviewRequestStatus status, Reviewer reviewer, Reviewee reviewee, CreateReviewSessionRequest dto){
+    public static ReviewSubmission createReviewSubmission(ReviewSubmissionStatus status, Reviewer reviewer, Reviewee reviewee, CreateReviewSubmissionRequest dto){
         return ReviewSubmission.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
+                .requestDetails(dto.getRequestDetails())
                 .reviewee(reviewee)
                 .reviewer(reviewer)
-                .githubLink(dto.getGithubLink())
-                .absolutePath(absolutePath)
+                .gitUrl(dto.getGitUrl())
                 .status(status)
                 .build();
     }
