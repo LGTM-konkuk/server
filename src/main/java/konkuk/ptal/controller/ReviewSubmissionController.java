@@ -42,10 +42,10 @@ public class ReviewSubmissionController {
             @RequestParam(name = "size", required = false, defaultValue = "10") int size,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         Page<ReviewSubmission> submissions = reviewService.getReviewSubmissions(type, page, size, userPrincipal);
-        ListReviewSubmissionResponse responsedtos = ListReviewSubmissionResponse.from(submissions);
+        ListReviewSubmissionResponse responseDtos = ListReviewSubmissionResponse.from(submissions);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), responsedtos));
+                .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), responseDtos));
     }
 
     @GetMapping("/{submissionId}")
