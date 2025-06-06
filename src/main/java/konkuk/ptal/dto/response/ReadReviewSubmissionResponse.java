@@ -18,11 +18,11 @@ public class ReadReviewSubmissionResponse {
     String branch;
     String requestDetails;
     ReviewSubmissionStatus status;
-    ProjectFileSystem fileSystem;
+    ProjectFileSystemResponse fileSystem;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 
-    public static ReadReviewSubmissionResponse from(ReviewSubmission reviewSubmission, ProjectFileSystem fileSystem) {
+    public static ReadReviewSubmissionResponse from(ReviewSubmission reviewSubmission, ProjectFileSystemResponse fileSystem) {
 
         BaseAuditResponse baseAuditResponse = BaseAuditResponse.from(reviewSubmission.getCreatedAt());
         return ReadReviewSubmissionResponse.builder()

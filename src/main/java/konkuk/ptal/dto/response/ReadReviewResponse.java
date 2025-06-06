@@ -17,12 +17,12 @@ public class ReadReviewResponse {
     String branch;
     String requestDetails;
     ReviewSubmissionStatus status;
-    ProjectFileSystem fileSystem;
+    ProjectFileSystemResponse fileSystem;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String reviewContent;
 
-    public static ReadReviewResponse from(Review review, ProjectFileSystem fileSystem) {
+    public static ReadReviewResponse from(Review review, ProjectFileSystemResponse fileSystem) {
         return ReadReviewResponse.builder()
                 .reviewContent(review.getReviewContent())
                 .reviewer(ReadReviewerResponse.from(review.getReviewSubmission().getReviewer()))

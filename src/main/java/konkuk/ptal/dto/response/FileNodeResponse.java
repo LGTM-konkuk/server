@@ -15,16 +15,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FileNode {
+public class FileNodeResponse {
     private String name;
     private String path;
     private FileNodeType type;
     private Long size; // 디렉토리인 경우 null
     private LocalDateTime lastModified;
-    private List<FileNode> children; // 파일인 경우 null
+    private List<FileNodeResponse> children; // 파일인 경우 null
 
-    public static FileNode from(String entryName, String entryPath, FileNodeType fileNodeType, Long fileSize, LocalDateTime lastModified, List<FileNode> children) {
-        return FileNode.builder()
+    public static FileNodeResponse from(String entryName, String entryPath, FileNodeType fileNodeType, Long fileSize, LocalDateTime lastModified, List<FileNodeResponse> children) {
+        return FileNodeResponse.builder()
                 .name(entryName)
                 .path(entryPath)
                 .type(fileNodeType)
