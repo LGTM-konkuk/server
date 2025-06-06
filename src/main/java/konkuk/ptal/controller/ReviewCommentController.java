@@ -26,7 +26,7 @@ public class ReviewCommentController {
     public ResponseEntity<ApiResponse<ReadCommentsOfReviewResponse>> getReviewComments(
             @PathVariable Long submissionId,
             @AuthenticationPrincipal UserPrincipal userPrincipal){
-        authorizationService.validateReviewSubmissionAccess(submissionId, userPrincipal.getUserId());
+        authorizationService.validateReviewSubmissionAccess(submissionId, userPrincipal);
 
         ReadCommentsOfReviewResponse response = reviewService.getReviewComments(submissionId, null);
         return ResponseEntity.ok(ApiResponse.success("댓글 조회 성공", response));
@@ -38,9 +38,9 @@ public class ReviewCommentController {
             @RequestBody CreateReviewCommentRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal
     ){
-        authorizationService.validateReviewSubmissionAccess(submissionId, userPrincipal.getUserId());
+        authorizationService.validateReviewSubmissionAccess(submissionId, userPrincipal);
 
-        ReviewComment reviewComment = reviewService.createReviewComment(submissionId, request, userPrincipal.getUserId());
+        ReviewComment reviewComment = reviewService.createReviewComment(submissionId, request, userPrincipal);
         return ResponseEntity.ok(ApiResponse.success("댓글 작성 성공", ReadCommentResponse.from(reviewComment)));
     }
 
@@ -48,7 +48,7 @@ public class ReviewCommentController {
     public ResponseEntity<ApiResponse<ReadCommentResponse>> getReviewComment(
             @PathVariable String commentId,
             @AuthenticationPrincipal UserPrincipal userPrincipal){
-        authorizationService.validateReviewCommentAccess(commentId, userPrincipal.getUserId());
+        authorizationService.validateReviewCommentAccess(commentId, userPrincipal);
         
         ReviewComment reviewComment = reviewService.getReviewComment(commentId);
         return ResponseEntity.ok(ApiResponse.success("댓글 조회 성공", ReadCommentResponse.from(reviewComment)));
@@ -60,7 +60,7 @@ public class ReviewCommentController {
             @RequestBody UpdateReviewCommentRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
-        authorizationService.validateReviewCommentModifyAccess(commentId, userPrincipal.getUserId());
+        authorizationService.validateReviewCommentModifyAccess(commentId, userPrincipal);
         
         ReviewComment reviewComment = reviewService.updateReviewComment(commentId, request);
         return ResponseEntity.ok(ApiResponse.success("댓글 수정 성공", ReadCommentResponse.from(reviewComment)));
@@ -70,7 +70,7 @@ public class ReviewCommentController {
     public ResponseEntity<ApiResponse<Void>> deleteReviewComment(
             @PathVariable String commentId,
             @AuthenticationPrincipal UserPrincipal userPrincipal){
-        authorizationService.validateReviewCommentModifyAccess(commentId, userPrincipal.getUserId());
+        authorizationService.validateReviewCommentModifyAccess(commentId, userPrincipal);
         
         reviewService.deleteReviewComment(commentId);
         return ResponseEntity.ok(ApiResponse.success("댓글 삭제 성공", null));
@@ -81,7 +81,7 @@ public class ReviewCommentController {
             @PathVariable String commentId, 
             @RequestBody CreateReviewCommentRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal){
-        authorizationService.validateReviewCommentAccess(commentId, userPrincipal.getUserId());
+        authorizationService.validateReviewCommentAccess(commentId, userPrincipal);
         
         ReviewComment parentComment = reviewService.getReviewComment(commentId);
         Long submissionId = parentComment.getReviewSubmission().getId();
@@ -90,7 +90,7 @@ public class ReviewCommentController {
         replyRequest.setContent(request.getContent());
         replyRequest.setParentCommentId(commentId);
         
-        ReviewComment replyComment = reviewService.createReviewComment(submissionId, replyRequest, userPrincipal.getUserId());
+        ReviewComment replyComment = reviewService.createReviewComment(submissionId, replyRequest, userPrincipal);
         return ResponseEntity.ok(ApiResponse.success("답글 작성 성공", ReadCommentResponse.from(replyComment)));
     }
 }

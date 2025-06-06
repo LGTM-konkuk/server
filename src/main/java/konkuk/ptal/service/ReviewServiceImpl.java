@@ -117,11 +117,11 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     @Transactional
-    public ReviewComment createReviewComment(Long submissionId, CreateReviewCommentRequest request, Long userId) {
+    public ReviewComment createReviewComment(Long submissionId, CreateReviewCommentRequest request, UserPrincipal userPrincipal) {
         ReviewSubmission reviewSubmission = findReviewSubmissionById(submissionId);
 
         // 인증된 사용자 정보를 가져옴
-        User user = findUserById(userId);
+        User user = findUserById(userPrincipal.getUserId());
 
         CodeFile codeFile = null;
         ReviewCommentType commentType;

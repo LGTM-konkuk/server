@@ -66,7 +66,7 @@ public interface IReviewService {
      * @param request   댓글 내용, 선택적으로 파일 정보(미기재 시 리뷰 세션 댓글 타입)을 포함합니다.
      * @param userId 댓글을 작성하는 사용자의 ID입니다.
      */
-    ReviewComment createReviewComment(Long submissionId, CreateReviewCommentRequest request, Long userId);
+    ReviewComment createReviewComment(Long submissionId, CreateReviewCommentRequest request, UserPrincipal userPrincipal);
 
     /**
      * 특정 리뷰 세션의 댓글을 조회하며, 선택적으로 코드 파일별로 필터링할 수 있습니다.

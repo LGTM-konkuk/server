@@ -1,5 +1,6 @@
 package konkuk.ptal.service;
 
+import konkuk.ptal.domain.UserPrincipal;
 import konkuk.ptal.dto.api.ErrorCode;
 import konkuk.ptal.entity.ReviewComment;
 import konkuk.ptal.entity.ReviewSubmission;
@@ -14,8 +15,9 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
     private final IReviewService reviewService;
     
     @Override
-    public void validateReviewSubmissionAccess(Long submissionId, Long userId) {
-        ReviewSubmission reviewSubmission = reviewService.getReviewSession(submissionId);
+    public void validateReviewSubmissionAccess(Long submissionId, UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
+        ReviewSubmission reviewSubmission = reviewService.getReviewSubmission(submissionId, userPrincipal);
         
         // 해당 ReviewSubmission의 reviewee나 reviewer인지 확인
         boolean isReviewee = reviewSubmission.getReviewee().getUser().getId().equals(userId);
@@ -27,19 +29,20 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
     }
     
     @Override
-    public void validateReviewCommentAccess(String commentId, Long userId) {
+    public void validateReviewCommentAccess(String commentId, UserPrincipal userPrincipal) {
         ReviewComment reviewComment = reviewService.getReviewComment(commentId);
         Long submissionId = reviewComment.getReviewSubmission().getId();
-        validateReviewSubmissionAccess(submissionId, userId);
+        validateReviewSubmissionAccess(submissionId, userPrincipal);
     }
     
     @Override
-    public void validateReviewCommentModifyAccess(String commentId, Long userId) {
+    public void validateReviewCommentModifyAccess(String commentId, UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
         ReviewComment reviewComment = reviewService.getReviewComment(commentId);
         
         // 1. 먼저 해당 리뷰에 접근 권한이 있는지 확인
         Long submissionId = reviewComment.getReviewSubmission().getId();
-        validateReviewSubmissionAccess(submissionId, userId);
+        validateReviewSubmissionAccess(submissionId, userPrincipal);
         
         // 2. 댓글 작성자 본인인지 확인 (추가적인 권한 검사)
         boolean isCommentAuthor = reviewComment.getUser().getId().equals(userId);
