@@ -3,12 +3,12 @@ package konkuk.ptal.service;
 import konkuk.ptal.domain.enums.FileNodeType;
 import konkuk.ptal.dto.response.*;
 import konkuk.ptal.entity.CodeFile;
-import konkuk.ptal.exception.EntityNotFoundException;
-import org.eclipse.jgit.api.Git;
 import konkuk.ptal.entity.ReviewSubmission;
+import konkuk.ptal.exception.EntityNotFoundException;
 import konkuk.ptal.repository.CodeFileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LsRemoteCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -49,6 +49,7 @@ public class FileServiceImpl implements IFileService {
     @Value("${file.storage.base-path}")
     private String LOCAL_REPO_BASE_DIR_PREFIX;
     private final Map<String, Path> localRepoCache = new ConcurrentHashMap<>();
+
     @Override
     public ListBranchesResponse getBranches(String gitUrl) {
         File localRepoDir;
@@ -156,7 +157,6 @@ public class FileServiceImpl implements IFileService {
     }
 
 
-
     @Override
     public FileContent getFileContent(String gitUrl, String branch, String filePath) {
         File localRepoDir;
@@ -188,7 +188,7 @@ public class FileServiceImpl implements IFileService {
 
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     loader.copyTo(out);
-                    String content = out.toString(StandardCharsets.UTF_8.name());
+                    String content = out.toString(StandardCharsets.UTF_8);
 
                     LocalDateTime lastModified = LocalDateTime.ofInstant(
                             Instant.ofEpochSecond(commit.getCommitTime()), ZoneId.systemDefault());
@@ -327,7 +327,7 @@ public class FileServiceImpl implements IFileService {
                     try (RevWalk subRevWalk = new RevWalk(repository)) {
                         RevTree subTree = subRevWalk.parseTree(objectId);
                         FileNode dirNode = walkTree(git, repository, subTree, entryPath);
-                        dirNode = dirNode.from(entryName, entryPath, FileNodeType.DIRECTORY, null, null, dirNode.getChildren());
+                        dirNode = FileNode.from(entryName, entryPath, FileNodeType.DIRECTORY, null, null, dirNode.getChildren());
                         children.add(dirNode);
                     } catch (MissingObjectException e) {
                         log.warn("Missing tree object for path {}: {}", entryPath, e.getMessage());

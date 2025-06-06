@@ -15,7 +15,7 @@ public class FileContent {
     private LocalDateTime lastModified;
     private Integer lineCount;
 
-    public static FileContent from(String path, String content, String encoding, Long size, LocalDateTime lastModified, Integer lineCount){
+    public static FileContent from(String path, String content, String encoding, Long size, LocalDateTime lastModified, Integer lineCount) {
         return FileContent.builder()
                 .path(path)
                 .content(content)

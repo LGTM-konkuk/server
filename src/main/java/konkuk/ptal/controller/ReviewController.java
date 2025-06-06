@@ -14,7 +14,6 @@ import konkuk.ptal.entity.ReviewSubmission;
 import konkuk.ptal.service.IFileService;
 import konkuk.ptal.service.IReviewService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

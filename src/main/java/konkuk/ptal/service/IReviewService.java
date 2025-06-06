@@ -2,21 +2,15 @@ package konkuk.ptal.service;
 
 import konkuk.ptal.domain.UserPrincipal;
 import konkuk.ptal.domain.enums.ReviewSubmissionType;
-import konkuk.ptal.dto.request.CreateReviewCommentRequest;
-import konkuk.ptal.dto.request.CreateReviewRequest;
-import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
-import konkuk.ptal.dto.request.UpdateReviewRequest;
-import konkuk.ptal.dto.request.UpdateReviewCommentRequest;
+import konkuk.ptal.dto.request.*;
 import konkuk.ptal.dto.response.ListReviewSubmissionResponse;
 import konkuk.ptal.dto.response.ListReviewsResponse;
-import konkuk.ptal.dto.response.ReadReviewResponse;
 import konkuk.ptal.dto.response.ReadCommentsOfReviewResponse;
 import konkuk.ptal.entity.Review;
 import konkuk.ptal.entity.ReviewComment;
 import konkuk.ptal.entity.ReviewSubmission;
 import konkuk.ptal.exception.BadRequestException;
 import konkuk.ptal.exception.EntityNotFoundException;
-import org.springframework.data.domain.Page;
 
 public interface IReviewService {
 

@@ -12,7 +12,7 @@ public class ProjectFileSystem {
     Long totalFiles;
     Long totalSize;
 
-    public static ProjectFileSystem from(Long submissionId, String branch, FileNode rootDirectory, Long totalFiles, Long totalSize){
+    public static ProjectFileSystem from(Long submissionId, String branch, FileNode rootDirectory, Long totalFiles, Long totalSize) {
         return ProjectFileSystem.builder()
                 .submissionId(submissionId)
                 .branch(branch)

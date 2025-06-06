@@ -12,7 +12,7 @@ public class ListBranchesResponse {
     private List<GitBranch> branches;
     private String defaultBranch;
 
-    public static ListBranchesResponse from(String gitUrl, List<GitBranch> branches, String defaultBranch){
+    public static ListBranchesResponse from(String gitUrl, List<GitBranch> branches, String defaultBranch) {
         return ListBranchesResponse.builder()
                 .gitUrl(gitUrl)
                 .branches(branches)
