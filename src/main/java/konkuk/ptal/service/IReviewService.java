@@ -7,6 +7,7 @@ import konkuk.ptal.dto.request.CreateReviewRequest;
 import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
 import konkuk.ptal.dto.request.UpdateReviewRequest;
 import konkuk.ptal.dto.request.UpdateReviewCommentRequest;
+import konkuk.ptal.dto.response.ListReviewSubmissionResponse;
 import konkuk.ptal.dto.response.ListReviewsResponse;
 import konkuk.ptal.dto.response.ReadReviewResponse;
 import konkuk.ptal.dto.response.ReadCommentsOfReviewResponse;
@@ -45,7 +46,7 @@ public interface IReviewService {
      * @param userPrincipal 현재 인증된 사용자 정보
      * @return 필터링 및 페이지네이션된 리뷰 제출 목록 DTO
      */
-    Page<ReviewSubmission> getReviewSubmissions(ReviewSubmissionType type, int page, int size, UserPrincipal userPrincipal);
+    ListReviewSubmissionResponse getReviewSubmissions(ReviewSubmissionType type, int page, int size, UserPrincipal userPrincipal);
 
     /**
      * 특정 리뷰 제출(요청)을 취소합니다.
@@ -111,5 +112,5 @@ public interface IReviewService {
     Review updateReview(Long reviewId, UpdateReviewRequest request, UserPrincipal userPrincipal);
 
     // 리뷰 목록 조회
-    Page<Review> getReviews(Long submissionId, Long reviewerId, Long revieweeId, int page, int size, UserPrincipal userPrincipal);
+    ListReviewsResponse getReviews(Long submissionId, Long reviewerId, Long revieweeId, int page, int size, UserPrincipal userPrincipal);
 }

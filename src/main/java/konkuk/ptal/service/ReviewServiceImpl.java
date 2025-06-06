@@ -9,12 +9,7 @@ import konkuk.ptal.dto.request.CreateReviewRequest;
 import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
 import konkuk.ptal.dto.request.UpdateReviewRequest;
 import konkuk.ptal.dto.request.UpdateReviewCommentRequest;
-import konkuk.ptal.dto.response.ListReviewSubmissionResponse;
-import konkuk.ptal.dto.response.ListReviewsResponse;
-import konkuk.ptal.dto.response.ReadReviewResponse;
-import konkuk.ptal.dto.response.ReadReviewSubmissionResponse;
-import konkuk.ptal.dto.response.ReadCommentResponse;
-import konkuk.ptal.dto.response.ReadCommentsOfReviewResponse;
+import konkuk.ptal.dto.response.*;
 import konkuk.ptal.entity.*;
 import konkuk.ptal.exception.BadRequestException;
 import konkuk.ptal.exception.EntityNotFoundException;
@@ -74,7 +69,7 @@ public class ReviewServiceImpl implements IReviewService {
     }
 
     @Override
-    public Page<ReviewSubmission> getReviewSubmissions(ReviewSubmissionType type, int page, int size, UserPrincipal userPrincipal) {
+    public ListReviewSubmissionResponse getReviewSubmissions(ReviewSubmissionType type, int page, int size, UserPrincipal userPrincipal) {
         Long userId = userPrincipal.getUserId();
         Pageable pageable = PageRequest.of(page, size);
         Page<ReviewSubmission> reviewSubmissionPage;
@@ -94,7 +89,18 @@ public class ReviewServiceImpl implements IReviewService {
                 reviewSubmissionPage = reviewSubmissionRepository.findByReviewee_User_IdOrReviewer_User_Id(userId, userId, pageable);
                 break;
         }
-        return reviewSubmissionPage;
+        List<ReadReviewSubmissionResponse> content = reviewSubmissionPage.getContent().stream()
+                .map(submission -> {
+                    ProjectFileSystem fileSystem = fileService.getProjectFileSystem(
+                            submission.getGitUrl(),
+                            submission.getBranch(),
+                            submission.getId()
+                    );
+                    return ReadReviewSubmissionResponse.from(submission, fileSystem);
+                })
+                .collect(Collectors.toList());
+
+        return new ListReviewSubmissionResponse(reviewSubmissionPage, content);
     }
 
     @Override
@@ -274,7 +280,7 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Review> getReviews(Long submissionId, Long reviewerId, Long revieweeId, int page, int size, UserPrincipal userPrincipal) {
+    public ListReviewsResponse getReviews(Long submissionId, Long reviewerId, Long revieweeId, int page, int size, UserPrincipal userPrincipal) {
         Long userId = userPrincipal.getUserId();
         Pageable pageable = PageRequest.of(page, size);
         Page<Review> reviewPage;
@@ -293,13 +299,20 @@ public class ReviewServiceImpl implements IReviewService {
                     userId, userId, pageable
             );
         }
-        if (reviewPage.isEmpty()) {
-            return Page.empty(pageable);
-        }
-        return reviewPage;
+        List<ReadReviewResponse> content = reviewPage.getContent().stream()
+                .map(review -> {
+                    ProjectFileSystem fileSystem = fileService.getProjectFileSystem(
+                            review.getReviewSubmission().getGitUrl(),
+                            review.getReviewSubmission().getBranch(),
+                            review.getReviewSubmission().getId()
+                    );
+                    return ReadReviewResponse.from(review, fileSystem);
+                })
+                .collect(Collectors.toList());
+
+        return new ListReviewsResponse(reviewPage, content);
     }
 
-    // Private helper methods for reducing code duplication
 
     /**
      * ReviewSubmission을 ID로 조회하는 헬퍼 메서드

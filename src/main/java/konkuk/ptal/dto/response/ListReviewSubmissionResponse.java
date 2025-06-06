@@ -19,12 +19,4 @@ public class ListReviewSubmissionResponse extends BasePageResponse{
         this.content = content;
     }
 
-    public static ListReviewSubmissionResponse from(Page<ReviewSubmission> reviewSubmissionPage) {
-
-        List<ReadReviewSubmissionResponse> content = reviewSubmissionPage.getContent().stream()
-                .map(ReadReviewSubmissionResponse::from)
-                .collect(Collectors.toList());
-
-        return new ListReviewSubmissionResponse(reviewSubmissionPage, content);
-    }
 }

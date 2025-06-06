@@ -21,13 +21,4 @@ public class ListReviewsResponse extends BasePageResponse{
         this.content = content;
     }
 
-    public static ListReviewsResponse from(Page<Review> reviewPage) {
-
-        List<ReadReviewResponse> content = reviewPage.getContent().stream()
-                .map(ReadReviewResponse::from)
-                .collect(Collectors.toList());
-
-        return new ListReviewsResponse(reviewPage, content);
-    }
-
 }
