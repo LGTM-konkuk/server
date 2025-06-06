@@ -27,17 +27,6 @@ public class ReviewCommentController {
         return ResponseEntity.ok(ApiResponse.success("댓글 조회 성공", ReadCommentResponse.from(reviewComment)));
     }
 
-//    @GetMapping("/reviews/{sessionId}/comments/{fileId}")
-//    public ResponseEntity<ApiResponse<List<ReadCommentResponse>>> getReviewComments(
-//            @PathVariable Long sessionId,
-//            @PathVariable Long fileId
-//    ){
-//        // TODO : 댓글에 대해 접근 권한이 있는지 보는 코드
-//
-//        List<ReviewComment> reviewComment = reviewService.getReviewComments(sessionId, fileId);
-//        return ResponseEntity.ok(ApiResponse.success("댓글 조회 성공", ReadCommentResponse.from(reviewComment)));
-//    }
-
     @PostMapping("/review-submissions/{submissionId}/comments")
     public ResponseEntity<ApiResponse<ReadCommentResponse>> createReviewComment(
             @PathVariable Long submissionId,

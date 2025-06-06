@@ -15,23 +15,23 @@ import java.util.stream.Collectors;
 @Builder
 public class ReadCommentResponse {
     String id;
-    Long sessionId;
+    Long submissionId;
     String content;
     String filepath;
     AuthorInfo author;
     String parentCommentId;
+    List<ReadCommentResponse> replies;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 
     public static ReadCommentResponse from(ReviewComment comment) {
         ReadCommentResponseBuilder builder = ReadCommentResponse.builder()
                 .id(comment.getId())
-                .sessionId(comment.getReviewSubmission().getId())
+                .submissionId(comment.getReviewSubmission().getId())
                 .content(comment.getContent())
                 .author(AuthorInfo.builder()
                         .id(comment.getUser().getId())
                         .name(comment.getUser().getName())
-                        .email(comment.getUser().getEmail())
                         .build())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt());

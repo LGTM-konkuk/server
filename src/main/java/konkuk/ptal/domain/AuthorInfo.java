@@ -8,5 +8,4 @@ import lombok.Data;
 public class AuthorInfo {
     long id;
     String name;
-    String email;
 }
