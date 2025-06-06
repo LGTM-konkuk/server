@@ -4,6 +4,7 @@ import konkuk.ptal.domain.enums.ReviewCommentType;
 import konkuk.ptal.domain.enums.ReviewRequestStatus;
 import konkuk.ptal.dto.request.CreateReviewCommentRequest;
 import konkuk.ptal.dto.request.CreateReviewSessionRequest;
+import konkuk.ptal.dto.request.UpdateReviewCommentRequest;
 import konkuk.ptal.dto.response.ReadCommentResponse;
 import konkuk.ptal.dto.response.ReadCommentsOfReviewResponse;
 import konkuk.ptal.entity.*;
@@ -64,31 +65,51 @@ public class ReviewServiceImpl implements IReviewService {
         ReviewSubmission reviewSubmission = reviewSessionRepository.findById(submissionId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+        // TODO: 현재 인증된 사용자 정보를 가져와야 함 (현재는 임시로 reviewSubmission의 작성자 사용)
+        // 실제 구현에서는 SecurityContext에서 현재 사용자를 가져와야 함
+        User user = reviewSubmission.getReviewee().getUser(); // 임시로 리뷰이를 사용
 
         CodeFile codeFile = null;
         ReviewCommentType commentType;
 
-        if (request.getCodeFileId() != null && request.getLineNumber() != null) {
-            codeFile = codeFileRepository.findById(request.getCodeFileId())
+        // filePath와 lineNumber 기반으로 댓글 유형 결정
+        if (request.getFilePath() != null && !request.getFilePath().trim().isEmpty()) {
+            // 파일 경로로 CodeFile 찾기
+            codeFile = codeFileRepository.findBySessionIdAndRelativePath(reviewSubmission, request.getFilePath())
                     .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-            if (codeFile.getSessionId().getId() != submissionId) {
-                throw new BadRequestException(FILE_NOT_BELONG_TO_SESSION);
-            }
             commentType = ReviewCommentType.CODE_COMMENT;
         } else {
+            // 파일 경로가 없으면 세션 댓글
             commentType = ReviewCommentType.SESSION_COMMENT;
         }
+
+        // 부모 댓글 처리
         ReviewComment parentComment = null;
-        if (request.getParentCommentId() != null) {
+        if (request.getParentCommentId() != null && !request.getParentCommentId().trim().isEmpty()) {
             parentComment = reviewCommentRepository.findById(request.getParentCommentId())
                     .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-            if (parentComment.getReviewSubmission().getId() != submissionId) {
+            
+            // 부모 댓글이 같은 세션에 속하는지 확인
+            if (!submissionId.equals(parentComment.getReviewSubmission().getId())) {
                 throw new BadRequestException(PARENT_COMMENT_NOT_BELONG_TO_SESSION);
             }
+            
+            // 답글의 경우 부모 댓글의 파일과 라인 정보를 상속
+            if (parentComment.getCodeFile() != null) {
+                codeFile = parentComment.getCodeFile();
+                commentType = ReviewCommentType.CODE_COMMENT;
+            }
         }
-        ReviewComment comment = ReviewComment.createReviewComment(reviewSubmission,parentComment,codeFile,user,commentType,request);
+
+        ReviewComment comment = ReviewComment.createReviewComment(
+            reviewSubmission, 
+            parentComment, 
+            codeFile, 
+            user, 
+            commentType, 
+            request
+        );
+        
         return reviewCommentRepository.save(comment);
     }
 
@@ -175,7 +196,7 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     @Transactional
-    public ReviewComment updateReviewComment(String commentId, CreateReviewCommentRequest request) {
+    public ReviewComment updateReviewComment(String commentId, UpdateReviewCommentRequest request) {
         ReviewComment comment = reviewCommentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 

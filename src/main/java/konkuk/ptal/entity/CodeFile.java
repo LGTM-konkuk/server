@@ -20,8 +20,8 @@ public class CodeFile {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "review_session_id",nullable = false)
-    private ReviewSubmission sessionId;
+    @JoinColumn(name = "review_submission_id",nullable = false)
+    private ReviewSubmission submissionId;
 
     @Column(nullable = false)
     private String relativePath;
@@ -39,7 +39,7 @@ public class CodeFile {
 
     public static CodeFile createCodeFile(ReviewSubmission reviewSubmission, String relativePath){
         return CodeFile.builder()
-                .sessionId(reviewSubmission)
+                .submissionId(reviewSubmission)
                 .relativePath(relativePath)
                 .fileType(getFileExtension(relativePath))
                 .build();

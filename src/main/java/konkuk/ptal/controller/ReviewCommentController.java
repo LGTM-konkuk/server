@@ -11,8 +11,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1")
@@ -34,8 +32,6 @@ public class ReviewCommentController {
             @RequestBody CreateReviewCommentRequest request
     ){
         // TODO : 댓글에 대해 접근 권한이 있는지 보는 코드
-        // TODO : 여기서 parentId를 어떻게 관리할지 보자
-        // TODO : 여기서 fileId를 어떻게 관리할지 보자
 
         ReviewComment reviewComment = reviewService.createReviewComment(submissionId, request);
         return ResponseEntity.ok(ApiResponse.success("댓글 작성 성공", ReadCommentResponse.from(reviewComment)));
@@ -48,9 +44,9 @@ public class ReviewCommentController {
     }
 
     @PutMapping("/review-comments/{commentId}")
-    public ResponseEntity<ApiResponse<ReadCommentResponse>> createReviewCommentWithParent(
+    public ResponseEntity<ApiResponse<ReadCommentResponse>> updateReviewComment(
             @PathVariable String commentId,
-            @RequestBody CreateReviewCommentRequest request
+            @RequestBody UpdateReviewCommentRequest request
     ) {
         // TODO : 댓글에 대해 접근 권한이 있는지 보는 코드
         // TODO : Service에서 타입 String으로 바꾸기

@@ -5,8 +5,7 @@ import lombok.Data;
 @Data
 public class CreateReviewCommentRequest {
     private String content;
-    private Long userId;
-    private Long codeFileId;
+    private String filePath;
     private Integer lineNumber;
     private String parentCommentId;
 }

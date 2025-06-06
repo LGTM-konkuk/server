@@ -2,6 +2,7 @@ package konkuk.ptal.service;
 
 import konkuk.ptal.dto.request.CreateReviewCommentRequest;
 import konkuk.ptal.dto.request.CreateReviewSessionRequest;
+import konkuk.ptal.dto.request.UpdateReviewCommentRequest;
 import konkuk.ptal.dto.response.ReadCommentsOfReviewResponse;
 import konkuk.ptal.entity.ReviewComment;
 import konkuk.ptal.entity.ReviewSubmission;
@@ -52,7 +53,7 @@ public interface IReviewService {
      * @param commentId 업데이트할 댓글의 고유 식별자입니다.
      * @param request   `content` 또는 `status`와 같은 업데이트된 댓글 상세 정보를 포함하는 요청 객체입니다.
      */
-    ReviewComment updateReviewComment(String commentId, CreateReviewCommentRequest request);
+    ReviewComment updateReviewComment(String commentId, UpdateReviewCommentRequest request);
 
     /**
      * 댓글의 상태를 DELETED로 변경하여 (소프트 삭제) 댓글을 삭제합니다.
