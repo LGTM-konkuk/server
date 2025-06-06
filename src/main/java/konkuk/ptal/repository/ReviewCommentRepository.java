@@ -12,4 +12,10 @@ public interface ReviewCommentRepository extends JpaRepository<ReviewComment, St
     List<ReviewComment> findByReviewSubmissionIdAndCodeFileIdAndCommentType(Long submissionId, Long codeFileId, ReviewCommentType reviewCommentType);
 
     List<ReviewComment> findByReviewSubmissionIdAndCommentTypeAndCodeFileIsNull(Long submissionId, ReviewCommentType reviewCommentType);
+    
+    // 특정 리뷰 세션의 모든 댓글을 조회 (답글 포함)
+    List<ReviewComment> findByReviewSubmissionId(Long submissionId);
+    
+    // 특정 코드 파일의 모든 댓글을 조회 (답글 포함)
+    List<ReviewComment> findByReviewSubmissionIdAndCodeFileId(Long submissionId, Long codeFileId);
 }

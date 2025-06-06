@@ -21,7 +21,7 @@ public class ReviewComment {
     private String id;
 
     @ManyToOne
-    @JoinColumn(name="review_session_id", nullable=false)
+    @JoinColumn(name="review_submission_id", nullable=false)
     private ReviewSubmission reviewSubmission;
 
     @ManyToOne
@@ -65,7 +65,7 @@ public class ReviewComment {
         return ReviewComment.builder()
                 .reviewSubmission(reviewSubmission)
                 .codeFile(codeFile)
-                .lineNumber(dto.getLineNumber())
+                .lineNumber(dto.getLineNumber() != null ? dto.getLineNumber() : 0)
                 .commentType(commentType)
                 .parentComment(parentComment)
                 .user(user)

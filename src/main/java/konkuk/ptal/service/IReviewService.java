@@ -6,8 +6,10 @@ import konkuk.ptal.dto.request.CreateReviewCommentRequest;
 import konkuk.ptal.dto.request.CreateReviewRequest;
 import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
 import konkuk.ptal.dto.request.UpdateReviewRequest;
+import konkuk.ptal.dto.request.UpdateReviewCommentRequest;
 import konkuk.ptal.dto.response.ListReviewsResponse;
 import konkuk.ptal.dto.response.ReadReviewResponse;
+import konkuk.ptal.dto.response.ReadCommentsOfReviewResponse;
 import konkuk.ptal.entity.Review;
 import konkuk.ptal.entity.ReviewComment;
 import konkuk.ptal.entity.ReviewSubmission;
@@ -62,8 +64,9 @@ public interface IReviewService {
      *
      * @param submissionId 댓글이 속할 리뷰 세션의 고유 식별자입니다.
      * @param request   댓글 내용, 선택적으로 파일 정보(미기재 시 리뷰 세션 댓글 타입)을 포함합니다.
+     * @param userId 댓글을 작성하는 사용자의 ID입니다.
      */
-    ReviewComment createReviewComment(Long submissionId, CreateReviewCommentRequest request);
+    ReviewComment createReviewComment(Long submissionId, CreateReviewCommentRequest request, Long userId);
 
     /**
      * 특정 리뷰 세션의 댓글을 조회하며, 선택적으로 코드 파일별로 필터링할 수 있습니다.
@@ -75,14 +78,14 @@ public interface IReviewService {
      * @param codeFileId 댓글을 조회할 코드 파일의 고유 식별자입니다.
      *                   세션 레벨 댓글을 조회하려면 null일 수 있습니다.
      */
-    List<ReviewComment> getReviewComments(Long submissionId, Long codeFileId);
+    ReadCommentsOfReviewResponse getReviewComments(Long submissionId, Long codeFileId);
 
     /**
      * 기존 댓글을 업데이트합니다.
      * @param commentId 업데이트할 댓글의 고유 식별자입니다.
      * @param request   `content` 또는 `status`와 같은 업데이트된 댓글 상세 정보를 포함하는 요청 객체입니다.
      */
-    ReviewComment updateReviewComment(String commentId, CreateReviewCommentRequest request);
+    ReviewComment updateReviewComment(String commentId, UpdateReviewCommentRequest request);
 
     /**
      * 댓글의 상태를 DELETED로 변경하여 (소프트 삭제) 댓글을 삭제합니다.
@@ -90,6 +93,13 @@ public interface IReviewService {
      * @return 댓글이 성공적으로 삭제(소프트 삭제)되었으면 `true`, 그렇지 않으면 `false`를 반환합니다.
      */
     boolean deleteReviewComment(String commentId);
+
+    /**
+     * 댓글 ID로 해당 댓글 정보를 조회합니다.
+     * @param commentId 조회할 댓글의 고유 식별자입니다.
+     * @return 댓글 엔티티를 반환합니다.
+     */
+    ReviewComment getReviewComment(String commentId);
 
     // 새로운 리뷰 작성
     Review createReview(Long submissionId, CreateReviewRequest request, UserPrincipal userPrincipal);
@@ -102,5 +112,4 @@ public interface IReviewService {
 
     // 리뷰 목록 조회
     Page<Review> getReviews(Long submissionId, Long reviewerId, Long revieweeId, int page, int size, UserPrincipal userPrincipal);
-
 }
