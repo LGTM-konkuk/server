@@ -58,12 +58,11 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     @Transactional
-    public ReviewComment createReviewComment(Long submissionId, CreateReviewCommentRequest request) {
+    public ReviewComment createReviewComment(Long submissionId, CreateReviewCommentRequest request, Long userId) {
         ReviewSubmission reviewSubmission = findReviewSubmissionById(submissionId);
 
-        // TODO: 현재 인증된 사용자 정보를 가져와야 함 (현재는 임시로 reviewSubmission의 작성자 사용)
-        // 실제 구현에서는 SecurityContext에서 현재 사용자를 가져와야 함
-        User user = reviewSubmission.getReviewee().getUser(); // 임시로 리뷰이를 사용
+        // 인증된 사용자 정보를 가져옴
+        User user = findUserById(userId);
 
         CodeFile codeFile = null;
         ReviewCommentType commentType;
@@ -153,6 +152,12 @@ public class ReviewServiceImpl implements IReviewService {
         return false;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ReviewComment getReviewComment(String commentId) {
+        return findReviewCommentById(commentId);
+    }
+
     // Private helper methods for reducing code duplication
 
     /**
@@ -184,6 +189,14 @@ public class ReviewServiceImpl implements IReviewService {
      */
     private Reviewer findReviewerById(Long reviewerId) {
         return reviewerRepository.findById(reviewerId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+    }
+
+    /**
+     * User를 ID로 조회하는 헬퍼 메서드
+     */
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
     }
 

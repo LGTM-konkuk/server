@@ -33,8 +33,9 @@ public interface IReviewService {
      *
      * @param submissionId 댓글이 속할 리뷰 세션의 고유 식별자입니다.
      * @param request   댓글 내용, 선택적으로 파일 정보(미기재 시 리뷰 세션 댓글 타입)을 포함합니다.
+     * @param userId 댓글을 작성하는 사용자의 ID입니다.
      */
-    ReviewComment createReviewComment(Long submissionId, CreateReviewCommentRequest request);
+    ReviewComment createReviewComment(Long submissionId, CreateReviewCommentRequest request, Long userId);
 
     /**
      * 특정 리뷰 세션의 댓글을 조회하며, 선택적으로 코드 파일별로 필터링할 수 있습니다.
@@ -61,4 +62,11 @@ public interface IReviewService {
      * @return 댓글이 성공적으로 삭제(소프트 삭제)되었으면 `true`, 그렇지 않으면 `false`를 반환합니다.
      */
     boolean deleteReviewComment(String commentId);
+
+    /**
+     * 댓글 ID로 해당 댓글 정보를 조회합니다.
+     * @param commentId 조회할 댓글의 고유 식별자입니다.
+     * @return 댓글 엔티티를 반환합니다.
+     */
+    ReviewComment getReviewComment(String commentId);
 }
