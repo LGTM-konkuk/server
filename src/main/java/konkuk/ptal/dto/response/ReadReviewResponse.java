@@ -22,7 +22,7 @@ public class ReadReviewResponse {
     LocalDateTime updatedAt;
     String reviewContent;
 
-    public static ReadReviewResponse from(Review review) {
+    public static ReadReviewResponse from(Review review, ProjectFileSystem fileSystem) {
         return ReadReviewResponse.builder()
                 .reviewContent(review.getReviewContent())
                 .reviewer(ReadReviewerResponse.from(review.getReviewSubmission().getReviewer()))
@@ -31,7 +31,7 @@ public class ReadReviewResponse {
                 .branch(review.getReviewSubmission().getBranch())
                 .requestDetails(review.getReviewSubmission().getRequestDetails())
                 .status(review.getReviewSubmission().getStatus())
-                //.fileSystem()
+                .fileSystem(fileSystem)
                 .createdAt(review.getReviewSubmission().getCreatedAt())
                 .updatedAt(review.getReviewSubmission().getUpdatedAt())
                 .build();

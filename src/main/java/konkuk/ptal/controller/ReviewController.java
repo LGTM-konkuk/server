@@ -7,8 +7,11 @@ import konkuk.ptal.dto.api.ResponseCode;
 import konkuk.ptal.dto.request.CreateReviewRequest;
 import konkuk.ptal.dto.request.UpdateReviewRequest;
 import konkuk.ptal.dto.response.ListReviewsResponse;
+import konkuk.ptal.dto.response.ProjectFileSystem;
 import konkuk.ptal.dto.response.ReadReviewResponse;
 import konkuk.ptal.entity.Review;
+import konkuk.ptal.entity.ReviewSubmission;
+import konkuk.ptal.service.IFileService;
 import konkuk.ptal.service.IReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 public class ReviewController {
     private final IReviewService reviewService;
+    private final IFileService fileService;
 
     @PostMapping("/review-submissions/{submissionId}/reviews")
     public ResponseEntity<ApiResponse<ReadReviewResponse>> createReview(
@@ -30,7 +34,9 @@ public class ReviewController {
             @Valid @RequestBody CreateReviewRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         Review review = reviewService.createReview(submissionId, request, userPrincipal);
-        ReadReviewResponse responseDto = ReadReviewResponse.from(review);
+        ReviewSubmission reviewSubmission = review.getReviewSubmission();
+        ProjectFileSystem fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());
+        ReadReviewResponse responseDto = ReadReviewResponse.from(review, fileSystem);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success(ResponseCode.REVIEW_CREATED.getMessage(), responseDto));
@@ -42,7 +48,9 @@ public class ReviewController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         Review review = reviewService.getReview(reviewId, userPrincipal);
-        ReadReviewResponse responseDto = ReadReviewResponse.from(review);
+        ReviewSubmission reviewSubmission = review.getReviewSubmission();
+        ProjectFileSystem fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());
+        ReadReviewResponse responseDto = ReadReviewResponse.from(review, fileSystem);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), responseDto));
@@ -55,7 +63,9 @@ public class ReviewController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         Review updatedReview = reviewService.updateReview(reviewId, request, userPrincipal);
-        ReadReviewResponse responseDto = ReadReviewResponse.from(updatedReview);
+        ReviewSubmission reviewSubmission = updatedReview.getReviewSubmission();
+        ProjectFileSystem fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());
+        ReadReviewResponse responseDto = ReadReviewResponse.from(updatedReview, fileSystem);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(ResponseCode.REVIEW_UPDATED.getMessage(), responseDto));
@@ -70,8 +80,7 @@ public class ReviewController {
             @RequestParam(name = "size", required = false, defaultValue = "10") int size,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        Page<Review> reviews = reviewService.getReviews(submissionId, reviewerId, revieweeId, page, size, userPrincipal);
-        ListReviewsResponse responseDtos = ListReviewsResponse.from(reviews);
+        ListReviewsResponse responseDtos = reviewService.getReviews(submissionId, reviewerId, revieweeId, page, size, userPrincipal);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
