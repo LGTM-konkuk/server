@@ -2,9 +2,12 @@ package konkuk.ptal.service;
 
 
 import konkuk.ptal.dto.request.*;
+import konkuk.ptal.dto.response.ListReviewersResponse;
 import konkuk.ptal.entity.Reviewee;
 import konkuk.ptal.entity.Reviewer;
 import konkuk.ptal.entity.User;
+
+import java.util.List;
 
 public interface IUserService {
     Reviewer registerReviewer(CreateReviewerRequest dto);
@@ -22,5 +25,7 @@ public interface IUserService {
     User getUser(Long id);
 
     User updateUser(Long id, UpdateUserRequest dto);
+
+    ListReviewersResponse getReviewers(List<String> preferences, List<String> tags, int page, int size);
 
 }

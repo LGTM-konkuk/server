@@ -7,6 +7,7 @@ import konkuk.ptal.dto.api.ResponseCode;
 import konkuk.ptal.dto.request.*;
 import konkuk.ptal.dto.response.CreateRevieweeResponse;
 import konkuk.ptal.dto.response.CreateReviewerResponse;
+import konkuk.ptal.dto.response.ListReviewersResponse;
 import konkuk.ptal.dto.response.ReadUserResponse;
 import konkuk.ptal.entity.Reviewee;
 import konkuk.ptal.entity.Reviewer;
@@ -17,6 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1") // Base path for user-specific operations
@@ -111,6 +115,30 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(ResponseCode.DATA_UPDATE_SUCCESS.getMessage(), responseDto));
+    }
+
+    @GetMapping("/reviewers")
+    public ResponseEntity<ApiResponse<ListReviewersResponse>> getReviewers(
+            @RequestParam(value = "preferences", required = false) String preferences,
+            @RequestParam(value = "tags", required = false) String tags,
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        
+        // 쉼표로 구분된 문자열을 List로 변환
+        List<String> preferencesList = null;
+        if (preferences != null && !preferences.trim().isEmpty()) {
+            preferencesList = Arrays.asList(preferences.split(","));
+        }
+        
+        List<String> tagsList = null;
+        if (tags != null && !tags.trim().isEmpty()) {
+            tagsList = Arrays.asList(tags.split(","));
+        }
+        
+        ListReviewersResponse responseDto = userService.getReviewers(preferencesList, tagsList, page, size);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), responseDto));
     }
 }
 

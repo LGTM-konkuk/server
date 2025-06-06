@@ -3,6 +3,7 @@ package konkuk.ptal.service;
 import konkuk.ptal.domain.enums.Role;
 import konkuk.ptal.dto.api.ErrorCode;
 import konkuk.ptal.dto.request.*;
+import konkuk.ptal.dto.response.ListReviewersResponse;
 import konkuk.ptal.entity.Reviewee;
 import konkuk.ptal.entity.Reviewer;
 import konkuk.ptal.entity.User;
@@ -13,8 +14,13 @@ import konkuk.ptal.repository.ReviewerRepository;
 import konkuk.ptal.repository.UserRepository;
 import konkuk.ptal.util.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -122,5 +128,24 @@ public class UserServiceImpl implements IUserService {
             user.setPasswordHash(hashedPassword);
         });
         return userRepository.save(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ListReviewersResponse getReviewers(List<String> preferences, List<String> tags, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Reviewer> reviewerPage;
+
+        // 필터링 조건에 따라 조회
+        if ((preferences != null && !preferences.isEmpty()) || (tags != null && !tags.isEmpty())) {
+            // TODO: 실제로는 JPA Specification이나 QueryDSL을 사용하여 동적 쿼리를 만들어야 합니다.
+            // 현재는 단순히 모든 리뷰어를 조회하고 메모리에서 필터링합니다.
+            reviewerPage = reviewerRepository.findAll(pageable);
+        } else {
+            // 필터링 조건이 없으면 모든 리뷰어 조회
+            reviewerPage = reviewerRepository.findAll(pageable);
+        }
+
+        return ListReviewersResponse.from(reviewerPage);
     }
 }
