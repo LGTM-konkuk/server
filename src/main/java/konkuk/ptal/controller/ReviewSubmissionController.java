@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/v1/review-submissions")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class ReviewSubmissionController {
     private final IReviewService reviewService;
     private final IFileService fileService;
 
-    @PostMapping("/new")
+    @PostMapping("/review-submissions/new")
     public ResponseEntity<ApiResponse<ReadReviewSubmissionResponse>> createReviewSubmission(
             @Valid @RequestBody CreateReviewSubmissionRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -39,7 +39,7 @@ public class ReviewSubmissionController {
                 .body(ApiResponse.success(ResponseCode.REVIEW_SUBMISSION_CREATED.getMessage(), responseDto));
     }
 
-    @GetMapping
+    @GetMapping("/review-submissions")
     public ResponseEntity<ApiResponse<ListReviewSubmissionResponse>> getReviewSubmissions(
             @RequestParam(name = "type", required = false, defaultValue = "all") ReviewSubmissionType type,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
@@ -51,7 +51,7 @@ public class ReviewSubmissionController {
                 .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), responseDtos));
     }
 
-    @GetMapping("/{submissionId}")
+    @GetMapping("/review-submissions/{submissionId}")
     public ResponseEntity<ApiResponse<ReadReviewSubmissionResponse>> getReviewSubmissionById(
             @PathVariable("submissionId") Long submissionId,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -63,7 +63,7 @@ public class ReviewSubmissionController {
                 .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), responseDto));
     }
 
-    @PatchMapping("/{submissionId}")
+    @PatchMapping("/review-submissions/{submissionId}")
     public ResponseEntity<ApiResponse<ReadReviewSubmissionResponse>> cancelReviewSubmission(
             @PathVariable("submissionId") Long submissionId,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -74,6 +74,8 @@ public class ReviewSubmissionController {
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(ResponseCode.REVIEW_SUBMISSION_CANCELED.getMessage(), responseDto));
     }
+
+
 
 }
 
