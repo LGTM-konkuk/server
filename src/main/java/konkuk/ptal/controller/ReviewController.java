@@ -7,7 +7,7 @@ import konkuk.ptal.dto.api.ResponseCode;
 import konkuk.ptal.dto.request.CreateReviewRequest;
 import konkuk.ptal.dto.request.UpdateReviewRequest;
 import konkuk.ptal.dto.response.ListReviewsResponse;
-import konkuk.ptal.dto.response.ProjectFileSystem;
+import konkuk.ptal.dto.response.ProjectFileSystemResponse;
 import konkuk.ptal.dto.response.ReadReviewResponse;
 import konkuk.ptal.entity.Review;
 import konkuk.ptal.entity.ReviewSubmission;
@@ -34,7 +34,7 @@ public class ReviewController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         Review review = reviewService.createReview(submissionId, request, userPrincipal);
         ReviewSubmission reviewSubmission = review.getReviewSubmission();
-        ProjectFileSystem fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());
+        ProjectFileSystemResponse fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());
         ReadReviewResponse responseDto = ReadReviewResponse.from(review, fileSystem);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -48,7 +48,7 @@ public class ReviewController {
 
         Review review = reviewService.getReview(reviewId, userPrincipal);
         ReviewSubmission reviewSubmission = review.getReviewSubmission();
-        ProjectFileSystem fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());
+        ProjectFileSystemResponse fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());
         ReadReviewResponse responseDto = ReadReviewResponse.from(review, fileSystem);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -63,7 +63,7 @@ public class ReviewController {
 
         Review updatedReview = reviewService.updateReview(reviewId, request, userPrincipal);
         ReviewSubmission reviewSubmission = updatedReview.getReviewSubmission();
-        ProjectFileSystem fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());
+        ProjectFileSystemResponse fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());
         ReadReviewResponse responseDto = ReadReviewResponse.from(updatedReview, fileSystem);
         return ResponseEntity
                 .status(HttpStatus.OK)

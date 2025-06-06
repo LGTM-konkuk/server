@@ -68,7 +68,7 @@ public class FileServiceImpl implements IFileService {
             lsRemote.setHeads(true).setTags(false).setRemote(gitUrl);
 
             Map<String, Ref> refs = (Map<String, Ref>) lsRemote.call();
-            List<GitBranch> branches = new ArrayList<>();
+            List<GitBranchResponse> branches = new ArrayList<>();
             String defaultBranchName = Constants.MASTER;
 
             try (RevWalk revWalk = new RevWalk(repository)) {
@@ -90,11 +90,11 @@ public class FileServiceImpl implements IFileService {
 
                     boolean isDefault = branchName.equals(defaultBranchName);
 
-                    branches.add(GitBranch.from(branchName, isDefault, commitId.name(), lastCommitDate, lastCommitMessage));
+                    branches.add(GitBranchResponse.from(branchName, isDefault, commitId.name(), lastCommitDate, lastCommitMessage));
                 }
             }
 
-            branches.sort(Comparator.comparing(GitBranch::getName));
+            branches.sort(Comparator.comparing(GitBranchResponse::getName));
 
             return ListBranchesResponse.from(gitUrl, branches, defaultBranchName);
 
@@ -105,7 +105,7 @@ public class FileServiceImpl implements IFileService {
     }
 
     @Override
-    public ProjectFileSystem getProjectFileSystem(String gitUrl, String branch, Long submissionId) {
+    public ProjectFileSystemResponse getProjectFileSystem(String gitUrl, String branch, Long submissionId) {
         File localRepoDir;
         try {
             localRepoDir = getOrCreateLocalRepo(gitUrl, branch);
@@ -125,7 +125,7 @@ public class FileServiceImpl implements IFileService {
                 RevCommit commit = revWalk.parseCommit(head);
                 RevTree tree = commit.getTree();
 
-                FileNode rootNode = walkTree(git, repository, tree, "");
+                FileNodeResponse rootNode = walkTree(git, repository, tree, "");
 
                 Long totalFiles = 0L;
                 Long totalSize = 0L;
@@ -147,7 +147,7 @@ public class FileServiceImpl implements IFileService {
                     }
                 }
 
-                return ProjectFileSystem.from(submissionId, branch, rootNode, totalFiles, totalSize);
+                return ProjectFileSystemResponse.from(submissionId, branch, rootNode, totalFiles, totalSize);
 
             }
         } catch (IOException e) {
@@ -158,7 +158,7 @@ public class FileServiceImpl implements IFileService {
 
 
     @Override
-    public FileContent getFileContent(String gitUrl, String branch, String filePath) {
+    public FileContentResponse getFileContent(String gitUrl, String branch, String filePath) {
         File localRepoDir;
         try {
             localRepoDir = getOrCreateLocalRepo(gitUrl, branch);
@@ -196,7 +196,7 @@ public class FileServiceImpl implements IFileService {
                     int lineCount = (StandardCharsets.UTF_8.equals(StandardCharsets.UTF_8)) ?
                             content.split("\r\n|\r|\n").length : 0;
 
-                    return FileContent.from(filePath, content, StandardCharsets.UTF_8.name(), loader.getSize(), lastModified, lineCount);
+                    return FileContentResponse.from(filePath, content, StandardCharsets.UTF_8.name(), loader.getSize(), lastModified, lineCount);
                 }
             }
         } catch (IOException e) {
@@ -311,8 +311,8 @@ public class FileServiceImpl implements IFileService {
         return baseDir;
     }
 
-    private FileNode walkTree(Git git, Repository repository, RevTree tree, String currentPath) throws IOException {
-        List<FileNode> children = new ArrayList<>();
+    private FileNodeResponse walkTree(Git git, Repository repository, RevTree tree, String currentPath) throws IOException {
+        List<FileNodeResponse> children = new ArrayList<>();
 
         try (TreeWalk treeWalk = new TreeWalk(repository)) {
             treeWalk.addTree(tree);
@@ -326,8 +326,8 @@ public class FileServiceImpl implements IFileService {
                 if (treeWalk.isSubtree()) {
                     try (RevWalk subRevWalk = new RevWalk(repository)) {
                         RevTree subTree = subRevWalk.parseTree(objectId);
-                        FileNode dirNode = walkTree(git, repository, subTree, entryPath);
-                        dirNode = FileNode.from(entryName, entryPath, FileNodeType.DIRECTORY, null, null, dirNode.getChildren());
+                        FileNodeResponse dirNode = walkTree(git, repository, subTree, entryPath);
+                        dirNode = FileNodeResponse.from(entryName, entryPath, FileNodeType.DIRECTORY, null, null, dirNode.getChildren());
                         children.add(dirNode);
                     } catch (MissingObjectException e) {
                         log.warn("Missing tree object for path {}: {}", entryPath, e.getMessage());
@@ -351,15 +351,15 @@ public class FileServiceImpl implements IFileService {
                         log.warn("Failed to get last commit for file {}: {}", entryPath, e.getMessage());
                     }
 
-                    FileNode fileNode = FileNode.from(entryName, entryPath, FileNodeType.FILE, fileSize, lastModified, null);
+                    FileNodeResponse fileNode = FileNodeResponse.from(entryName, entryPath, FileNodeType.FILE, fileSize, lastModified, null);
                     children.add(fileNode);
                 }
             }
         }
         children.sort(Comparator
-                .comparing((FileNode node) -> node.getType() == FileNodeType.DIRECTORY ? 0 : 1)
-                .thenComparing(FileNode::getName));
+                .comparing((FileNodeResponse node) -> node.getType() == FileNodeType.DIRECTORY ? 0 : 1)
+                .thenComparing(FileNodeResponse::getName));
 
-        return FileNode.from(currentPath.isEmpty() ? "root" : new File(currentPath).getName(), currentPath, FileNodeType.DIRECTORY, null, null, children);
+        return FileNodeResponse.from(currentPath.isEmpty() ? "root" : new File(currentPath).getName(), currentPath, FileNodeType.DIRECTORY, null, null, children);
     }
 }

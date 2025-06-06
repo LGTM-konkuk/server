@@ -5,15 +5,15 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ProjectFileSystem {
+public class ProjectFileSystemResponse {
     Long submissionId;
     String branch;
-    FileNode rootDirectory;
+    FileNodeResponse rootDirectory;
     Long totalFiles;
     Long totalSize;
 
-    public static ProjectFileSystem from(Long submissionId, String branch, FileNode rootDirectory, Long totalFiles, Long totalSize) {
-        return ProjectFileSystem.builder()
+    public static ProjectFileSystemResponse from(Long submissionId, String branch, FileNodeResponse rootDirectory, Long totalFiles, Long totalSize) {
+        return ProjectFileSystemResponse.builder()
                 .submissionId(submissionId)
                 .branch(branch)
                 .rootDirectory(rootDirectory)

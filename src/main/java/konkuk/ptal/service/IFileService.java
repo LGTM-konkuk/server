@@ -1,8 +1,8 @@
 package konkuk.ptal.service;
 
-import konkuk.ptal.dto.response.FileContent;
+import konkuk.ptal.dto.response.FileContentResponse;
 import konkuk.ptal.dto.response.ListBranchesResponse;
-import konkuk.ptal.dto.response.ProjectFileSystem;
+import konkuk.ptal.dto.response.ProjectFileSystemResponse;
 import konkuk.ptal.entity.ReviewSubmission;
 
 public interface IFileService {
@@ -22,7 +22,7 @@ public interface IFileService {
      * @param submissionId (옵션) ReviewSubmission ID. ProjectFileSystem DTO에 포함될 정보.
      * @return 프로젝트 파일 시스템 구조를 담은 응답 DTO
      */
-    ProjectFileSystem getProjectFileSystem(String gitUrl, String branch, Long submissionId);
+    ProjectFileSystemResponse getProjectFileSystem(String gitUrl, String branch, Long submissionId);
 
     /**
      * 특정 Git 저장소와 브랜치 내 특정 파일의 내용을 조회합니다.
@@ -32,7 +32,7 @@ public interface IFileService {
      * @param filePath 조회할 파일의 저장소 내 상대 경로
      * @return 파일 내용을 담은 응답 DTO
      */
-    FileContent getFileContent(String gitUrl, String branch, String filePath);
+    FileContentResponse getFileContent(String gitUrl, String branch, String filePath);
 
     /**
      * ReviewSubmission 생성 시, 해당 Git 저장소의 모든 파일 경로를 스캔하여 CodeFile 엔티티로 변환 후 DB에 저장합니다.

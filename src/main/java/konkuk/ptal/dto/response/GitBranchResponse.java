@@ -7,15 +7,15 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class GitBranch {
+public class GitBranchResponse {
     private String name;
     private Boolean isDefault;
     private String lastCommit;
     private LocalDateTime lastCommitDate;
     private String lastCommitMessage;
 
-    public static GitBranch from(String name, Boolean isDefault, String lastCommit, LocalDateTime lastCommitDate, String lastCommitMessage) {
-        return GitBranch.builder()
+    public static GitBranchResponse from(String name, Boolean isDefault, String lastCommit, LocalDateTime lastCommitDate, String lastCommitMessage) {
+        return GitBranchResponse.builder()
                 .name(name)
                 .isDefault(isDefault)
                 .lastCommit(lastCommit)

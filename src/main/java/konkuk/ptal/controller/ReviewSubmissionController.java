@@ -6,8 +6,10 @@ import konkuk.ptal.domain.enums.ReviewSubmissionType;
 import konkuk.ptal.dto.api.ApiResponse;
 import konkuk.ptal.dto.api.ResponseCode;
 import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
+import konkuk.ptal.dto.response.FileContentResponse;
+import konkuk.ptal.dto.response.ListBranchesResponse;
 import konkuk.ptal.dto.response.ListReviewSubmissionResponse;
-import konkuk.ptal.dto.response.ProjectFileSystem;
+import konkuk.ptal.dto.response.ProjectFileSystemResponse;
 import konkuk.ptal.dto.response.ReadReviewSubmissionResponse;
 import konkuk.ptal.entity.ReviewSubmission;
 import konkuk.ptal.service.IFileService;
@@ -20,18 +22,18 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/v1/review-submissions")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class ReviewSubmissionController {
     private final IReviewService reviewService;
     private final IFileService fileService;
 
-    @PostMapping("/new")
+    @PostMapping("/review-submissions/new")
     public ResponseEntity<ApiResponse<ReadReviewSubmissionResponse>> createReviewSubmission(
             @Valid @RequestBody CreateReviewSubmissionRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         ReviewSubmission reviewSubmission = reviewService.createReviewSubmission(request, userPrincipal);
-        ProjectFileSystem fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());
+        ProjectFileSystemResponse fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());
 
         ReadReviewSubmissionResponse responseDto = ReadReviewSubmissionResponse.from(reviewSubmission, fileSystem);
         return ResponseEntity
@@ -39,7 +41,7 @@ public class ReviewSubmissionController {
                 .body(ApiResponse.success(ResponseCode.REVIEW_SUBMISSION_CREATED.getMessage(), responseDto));
     }
 
-    @GetMapping
+    @GetMapping("/review-submissions")
     public ResponseEntity<ApiResponse<ListReviewSubmissionResponse>> getReviewSubmissions(
             @RequestParam(name = "type", required = false, defaultValue = "all") ReviewSubmissionType type,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
@@ -51,28 +53,81 @@ public class ReviewSubmissionController {
                 .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), responseDtos));
     }
 
-    @GetMapping("/{submissionId}")
+    @GetMapping("/review-submissions/{submissionId}")
     public ResponseEntity<ApiResponse<ReadReviewSubmissionResponse>> getReviewSubmissionById(
             @PathVariable("submissionId") Long submissionId,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         ReviewSubmission reviewSubmission = reviewService.getReviewSubmission(submissionId, userPrincipal);
-        ProjectFileSystem fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());
+        ProjectFileSystemResponse fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());
         ReadReviewSubmissionResponse responseDto = ReadReviewSubmissionResponse.from(reviewSubmission, fileSystem);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), responseDto));
     }
 
-    @PatchMapping("/{submissionId}")
+    @PatchMapping("/review-submissions/{submissionId}")
     public ResponseEntity<ApiResponse<ReadReviewSubmissionResponse>> cancelReviewSubmission(
             @PathVariable("submissionId") Long submissionId,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         ReviewSubmission canceledReviewSubmission = reviewService.cancelReviewSubmission(submissionId, userPrincipal);
-        ProjectFileSystem fileSystem = fileService.getProjectFileSystem(canceledReviewSubmission.getGitUrl(), canceledReviewSubmission.getBranch(), canceledReviewSubmission.getId());
+        ProjectFileSystemResponse fileSystem = fileService.getProjectFileSystem(canceledReviewSubmission.getGitUrl(), canceledReviewSubmission.getBranch(), canceledReviewSubmission.getId());
         ReadReviewSubmissionResponse responseDto = ReadReviewSubmissionResponse.from(canceledReviewSubmission, fileSystem);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(ResponseCode.REVIEW_SUBMISSION_CANCELED.getMessage(), responseDto));
+    }
+
+    @GetMapping("/{submissionId}/filesystem")
+    public ResponseEntity<ApiResponse<ProjectFileSystemResponse>> getProjectFileSystem(
+            @PathVariable("submissionId") Long submissionId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        ReviewSubmission reviewSubmission = reviewService.getReviewSubmission(submissionId, userPrincipal);
+
+        ProjectFileSystemResponse fileSystem = fileService.getProjectFileSystem(
+                reviewSubmission.getGitUrl(),
+                reviewSubmission.getBranch(),
+                reviewSubmission.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), fileSystem));
+    }
+
+    @GetMapping("/{submissionId}/files/{filePath}")
+    public ResponseEntity<ApiResponse<FileContentResponse>> getReviewSubmissionSpecificFile(
+            @PathVariable("submissionId") Long submissionId,
+            @PathVariable("filePath") String filePath,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        ReviewSubmission reviewSubmission = reviewService.getReviewSubmission(submissionId, userPrincipal);
+
+        String decodedFilePath;
+        try {
+            decodedFilePath = java.net.URLDecoder.decode(filePath, java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            decodedFilePath = filePath;
+        }
+
+        FileContentResponse fileContentResponse = fileService.getFileContent(
+                reviewSubmission.getGitUrl(),
+                reviewSubmission.getBranch(),
+                decodedFilePath);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), fileContentResponse));
+    }
+
+    @GetMapping("/git/branches")
+    public ResponseEntity<ApiResponse<ListBranchesResponse>> getBranches(
+            @RequestParam(name = "gitUrl") String gitUrl,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        
+        ListBranchesResponse responseDtos = fileService.getBranches(gitUrl);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), responseDtos));
     }
 
 }
