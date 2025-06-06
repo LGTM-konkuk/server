@@ -4,6 +4,7 @@ import konkuk.ptal.dto.api.ApiResponse;
 import konkuk.ptal.dto.request.CreateReviewCommentRequest;
 import konkuk.ptal.dto.request.UpdateReviewCommentRequest;
 import konkuk.ptal.dto.response.ReadCommentResponse;
+import konkuk.ptal.dto.response.ReadCommentsOfReviewResponse;
 import konkuk.ptal.entity.ReviewComment;
 import konkuk.ptal.service.IReviewService;
 import lombok.AllArgsConstructor;
@@ -20,11 +21,11 @@ public class ReviewCommentController {
     private final IReviewService reviewService;
 
     @GetMapping("/review-submissions/{submissionId}/comments")
-    public ResponseEntity<ApiResponse<List<ReadCommentResponse>>> getReviewComments(@PathVariable Long submissionId){
+    public ResponseEntity<ApiResponse<ReadCommentsOfReviewResponse>> getReviewComments(@PathVariable Long submissionId){
         // TODO : 댓글에 대해 접근 권한이 있는지 보는 코드
 
-        List<ReviewComment> reviewComment = reviewService.getReviewComments(submissionId, null);
-        return ResponseEntity.ok(ApiResponse.success("댓글 조회 성공", ReadCommentResponse.from(reviewComment)));
+        ReadCommentsOfReviewResponse response = reviewService.getReviewComments(submissionId, null);
+        return ResponseEntity.ok(ApiResponse.success("댓글 조회 성공", response));
     }
 
     @PostMapping("/review-submissions/{submissionId}/comments")

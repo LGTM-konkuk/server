@@ -18,6 +18,7 @@ public class ReadCommentResponse {
     Long submissionId;
     String content;
     String filepath;
+    Integer lineNumber;
     AuthorInfo author;
     String parentCommentId;
     List<ReadCommentResponse> replies;
@@ -38,6 +39,9 @@ public class ReadCommentResponse {
 
         if (comment.getCommentType() == ReviewCommentType.CODE_COMMENT) {
             builder.filepath(comment.getCodeFile().getRelativePath());
+            if (comment.getLineNumber() > 0) {
+                builder.lineNumber(comment.getLineNumber());
+            }
         }
 
         if (comment.getParentComment() != null) {
