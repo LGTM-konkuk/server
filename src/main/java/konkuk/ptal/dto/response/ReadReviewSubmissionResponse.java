@@ -22,7 +22,7 @@ public class ReadReviewSubmissionResponse {
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 
-    public static ReadReviewSubmissionResponse from(ReviewSubmission reviewSubmission) {
+    public static ReadReviewSubmissionResponse from(ReviewSubmission reviewSubmission, ProjectFileSystem fileSystem) {
 
         BaseAuditResponse baseAuditResponse = BaseAuditResponse.from(reviewSubmission.getCreatedAt());
         return ReadReviewSubmissionResponse.builder()
@@ -33,7 +33,7 @@ public class ReadReviewSubmissionResponse {
                 .branch(reviewSubmission.getBranch())
                 .createdAt(baseAuditResponse.getCreatedAt())
                 .updatedAt(baseAuditResponse.getUpdatedAt())
-                //.fileSystem()
+                .fileSystem(fileSystem)
                 .build();
     }
 }

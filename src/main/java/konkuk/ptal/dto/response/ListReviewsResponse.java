@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -18,15 +17,6 @@ public class ListReviewsResponse extends BasePageResponse {
     public ListReviewsResponse(Page<Review> page, List<ReadReviewResponse> content) {
         super(page);
         this.content = content;
-    }
-
-    public static ListReviewsResponse from(Page<Review> reviewPage) {
-
-        List<ReadReviewResponse> content = reviewPage.getContent().stream()
-                .map(ReadReviewResponse::from)
-                .collect(Collectors.toList());
-
-        return new ListReviewsResponse(reviewPage, content);
     }
 
 }

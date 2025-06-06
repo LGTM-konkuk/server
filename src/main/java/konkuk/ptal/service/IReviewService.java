@@ -3,13 +3,14 @@ package konkuk.ptal.service;
 import konkuk.ptal.domain.UserPrincipal;
 import konkuk.ptal.domain.enums.ReviewSubmissionType;
 import konkuk.ptal.dto.request.*;
+import konkuk.ptal.dto.response.ListReviewSubmissionResponse;
+import konkuk.ptal.dto.response.ListReviewsResponse;
 import konkuk.ptal.dto.response.ReadCommentsOfReviewResponse;
 import konkuk.ptal.entity.Review;
 import konkuk.ptal.entity.ReviewComment;
 import konkuk.ptal.entity.ReviewSubmission;
 import konkuk.ptal.exception.BadRequestException;
 import konkuk.ptal.exception.EntityNotFoundException;
-import org.springframework.data.domain.Page;
 
 public interface IReviewService {
 
@@ -38,7 +39,7 @@ public interface IReviewService {
      * @param userPrincipal 현재 인증된 사용자 정보
      * @return 필터링 및 페이지네이션된 리뷰 제출 목록 DTO
      */
-    Page<ReviewSubmission> getReviewSubmissions(ReviewSubmissionType type, int page, int size, UserPrincipal userPrincipal);
+    ListReviewSubmissionResponse getReviewSubmissions(ReviewSubmissionType type, int page, int size, UserPrincipal userPrincipal);
 
     /**
      * 특정 리뷰 제출(요청)을 취소합니다.
@@ -108,5 +109,5 @@ public interface IReviewService {
     Review updateReview(Long reviewId, UpdateReviewRequest request, UserPrincipal userPrincipal);
 
     // 리뷰 목록 조회
-    Page<Review> getReviews(Long submissionId, Long reviewerId, Long revieweeId, int page, int size, UserPrincipal userPrincipal);
+    ListReviewsResponse getReviews(Long submissionId, Long reviewerId, Long revieweeId, int page, int size, UserPrincipal userPrincipal);
 }
