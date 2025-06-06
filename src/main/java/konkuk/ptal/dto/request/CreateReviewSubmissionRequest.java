@@ -1,22 +1,24 @@
 package konkuk.ptal.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class CreateReviewSubmissionRequest {
-    @NotNull
+    @NotNull(message = "리뷰어 ID는 필수입니다")
     private Long reviewerId;
 
-    @NotNull
+    @NotBlank(message = "Git URL은 필수입니다")
+    @Pattern(regexp = "^https?://.*\\.git$", message = "올바른 Git 저장소 URL 형식이어야 합니다")
     private String gitUrl;
 
-    @NotNull
+    @NotBlank(message = "브랜치명은 필수입니다")
+    private String branch;
+
+    @NotBlank(message = "리뷰 요청 상세 내용은 필수입니다")
     private String requestDetails;
 }

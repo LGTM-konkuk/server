@@ -1,44 +1,44 @@
 package konkuk.ptal.entity;
 
 import jakarta.persistence.*;
+import konkuk.ptal.dto.request.CreateReviewRequest;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews")
+@Table(name = "review")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Review {
-
     @Id
+    @Column(name = "review_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reviewer_id", nullable = false)
-    private Reviewer reviewer; // The user who wrote the review
+    @OneToOne
+    @JoinColumn(name = "reviewer_id")
+    private Reviewer reviewer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reviewee_id", nullable = false)
-    private Reviewee reviewee; // The user who received the review
+    @OneToOne
+    @JoinColumn(name = "reviewee_id")
+    private Reviewee reviewee;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "review_request_id", nullable = false, unique = true)
-    private ReviewRequest reviewRequest; // The request this review fulfills
-
-    @Lob
-    @Column(name = "review_content", columnDefinition = "TEXT")
-    private String reviewContent;
+    @OneToOne
+    @JoinColumn(name = "review_submission_id")
+    private ReviewSubmission reviewSubmission;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
+    LocalDateTime createdAt;
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    LocalDateTime updatedAt;
+
+    @Lob
+    @Column(nullable = false, columnDefinition = "TEXT")
+    String reviewContent;
 
     @PrePersist
     protected void onCreate() {
@@ -50,4 +50,18 @@ public class Review {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void updateConclusion(String reviewContent) {
+        this.reviewContent = reviewContent;
+    }
+
+    public static Review createReview(ReviewSubmission reviewSubmission, CreateReviewRequest dto) {
+        return Review.builder()
+                .reviewer(reviewSubmission.getReviewer())
+                .reviewee(reviewSubmission.getReviewee())
+                .reviewSubmission(reviewSubmission)
+                .reviewContent(dto.getReviewContent())
+                .build();
+    }
+
 }

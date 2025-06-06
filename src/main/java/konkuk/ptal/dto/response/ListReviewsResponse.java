@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 public class ListReviewsResponse extends BasePageResponse {
     private List<ReadReviewResponse> content;
 
-
     public ListReviewsResponse(Page<Review> page, List<ReadReviewResponse> content) {
         super(page);
         this.content = content;
@@ -24,13 +23,10 @@ public class ListReviewsResponse extends BasePageResponse {
     public static ListReviewsResponse from(Page<Review> reviewPage) {
 
         List<ReadReviewResponse> content = reviewPage.getContent().stream()
-                .map(review -> ReadReviewResponse.from(
-                        review,
-                        review.getReviewee(),
-                        review.getReviewer()
-                ))
+                .map(ReadReviewResponse::from)
                 .collect(Collectors.toList());
 
         return new ListReviewsResponse(reviewPage, content);
     }
+
 }

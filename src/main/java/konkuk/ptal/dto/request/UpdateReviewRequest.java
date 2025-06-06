@@ -1,18 +1,12 @@
 package konkuk.ptal.dto.request;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
+@Builder
 public class UpdateReviewRequest {
-    @NotNull
-    @Size(min = 10, max = 5000) // 예시: 최소 10자, 최대 5000자
+    @NotBlank(message = "review content는 비어 있을 수 없습니다.")
     private String reviewContent;
 }
