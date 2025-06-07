@@ -32,6 +32,7 @@ public class ReviewController {
             @PathVariable("submissionId") Long submissionId,
             @Valid @RequestBody CreateReviewRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        request.setReviewSubmissionId(submissionId);
         Review review = reviewService.createReview(submissionId, request, userPrincipal);
         ReviewSubmission reviewSubmission = review.getReviewSubmission();
         ProjectFileSystemResponse fileSystem = fileService.getProjectFileSystem(reviewSubmission.getGitUrl(), reviewSubmission.getBranch(), reviewSubmission.getId());

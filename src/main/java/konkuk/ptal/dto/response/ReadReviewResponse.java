@@ -24,6 +24,7 @@ public class ReadReviewResponse {
 
     public static ReadReviewResponse from(Review review, ProjectFileSystemResponse fileSystem) {
         return ReadReviewResponse.builder()
+                .id(review.getReviewSubmission().getId())
                 .reviewContent(review.getReviewContent())
                 .reviewer(ReadReviewerResponse.from(review.getReviewSubmission().getReviewer()))
                 .reviewee(ReadRevieweeResponse.from(review.getReviewSubmission().getReviewee()))
