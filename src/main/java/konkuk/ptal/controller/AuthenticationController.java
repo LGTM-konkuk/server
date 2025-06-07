@@ -1,5 +1,6 @@
 package konkuk.ptal.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import konkuk.ptal.dto.api.ApiResponse;
 import konkuk.ptal.dto.api.ErrorCode;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,10 +57,12 @@ public class AuthenticationController {
 
     @PostMapping("/signout")
     public ResponseEntity<ApiResponse<Void>> logout(
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal UserDetails userDetails,
+            HttpServletRequest request
     ) {
         try {
-            authService.logout(userDetails.getUsername());
+            String accessToken = extractAccessToken(request);
+            authService.logout(userDetails.getUsername(), accessToken);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(ApiResponse.success(ResponseCode.LOGOUT_SUCCESS.getMessage(), null));
         } catch (UnauthorizedException e) {
@@ -67,4 +71,11 @@ public class AuthenticationController {
         }
     }
 
+    private String extractAccessToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
 }

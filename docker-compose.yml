@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Spring Boot Application Service
+  app:
+    build:
+      context: . # Dockerfile이 있는 현재 디렉토리를 빌드 컨텍스트로 사용
+      dockerfile: Dockerfile # Dockerfile의 이름
+    ports:
+      - "8080:8080" # 호스트 포트:컨테이너 포트
+    environment:
+      JAVA_OPTS: "-Xmx512m -Xms256m"
+      # SPRING_PROFILES_ACTIVE: "prod"
+      # Redis 연결 정보 (환경 변수로 전달)
+      # Spring Data Redis는 이 환경 변수를 자동으로 인식합니다.
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      JWT_SECRET_KEY: YmFzZTY0ZW5jb2RlZHNlY3JldGtleXN0cmluZ2hlcmU=
+       # H2 Console (개발용) - 필요하다면 추가
+      SPRING_H2_CONSOLE_ENABLED: true
+      SPRING_H2_CONSOLE_PATH: /h2-console
+      SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD:
+    depends_on:
+      - redis # app 서비스는 redis 서비스가 시작된 후에 시작됨
+    networks:
+      - my-app-network # 사용자 정의 네트워크 사용
+
+  # Redis Service
+  redis:
+    image: redis:latest # 최신 Redis 이미지 사용
+    ports:
+      - "6379:6379" # 호스트 포트:컨테이너 포트 (선택 사항, 내부 통신만 한다면 굳이 외부에 노출할 필요는 없음)
+    command: redis-server --appendonly yes # 데이터 영속성을 위해 AOF 설정
+    networks:
+      - my-app-network # 사용자 정의 네트워크 사용
+
+networks:
+  my-app-network:
+    driver: bridge # 기본 브리지 네트워크
