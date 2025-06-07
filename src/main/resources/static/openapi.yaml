@@ -2661,7 +2661,7 @@ paths:
               example:
                 message: "해당 ID의 리뷰 제출 건을 찾을 수 없습니다."
 
-  /review-submissions/{submissionId}/files/{filePath}:
+  /review-submissions/{submissionId}/files:  # filePath가 경로에서 제거됩니다.
     get:
       tags:
         - "파일 시스템 (File System)"
@@ -2670,6 +2670,7 @@ paths:
         리뷰 제출 건의 특정 파일 내용을 조회합니다.
 
         **⚠️ 중요사항:**
+        - 파일 또는 디렉토리 경로는 `path` 쿼리 파라미터로 전달됩니다.
         - 파일 경로는 반드시 URL 인코딩이 필요합니다
         - 슬래시(/)는 %2F로 인코딩해야 합니다
         - 예시: `src/main/java/UserService.java` → `src%2Fmain%2Fjava%2FUserService.java`
