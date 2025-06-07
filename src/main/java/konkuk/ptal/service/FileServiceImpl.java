@@ -31,10 +31,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static konkuk.ptal.dto.api.ErrorCode.ENTITY_NOT_FOUND;
@@ -67,14 +64,14 @@ public class FileServiceImpl implements IFileService {
             LsRemoteCommand lsRemote = git.lsRemote();
             lsRemote.setHeads(true).setTags(false).setRemote(gitUrl);
 
-            Map<String, Ref> refs = (Map<String, Ref>) lsRemote.call();
+            Collection<Ref> refs = lsRemote.call();
             List<GitBranchResponse> branches = new ArrayList<>();
             String defaultBranchName = Constants.MASTER;
 
             try (RevWalk revWalk = new RevWalk(repository)) {
-                for (Map.Entry<String, Ref> entry : refs.entrySet()) {
-                    String branchName = Repository.shortenRefName(entry.getKey());
-                    ObjectId commitId = entry.getValue().getObjectId();
+                for (Ref ref : refs) {
+                    String branchName = Repository.shortenRefName(ref.getName());
+                    ObjectId commitId = ref.getObjectId();
 
                     LocalDateTime lastCommitDate = null;
                     String lastCommitMessage = null;
