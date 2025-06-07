@@ -1,9 +1,11 @@
 package konkuk.ptal.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import konkuk.ptal.domain.UserPrincipal;
 import konkuk.ptal.domain.enums.ReviewSubmissionType;
 import konkuk.ptal.dto.api.ApiResponse;
+import konkuk.ptal.dto.api.ErrorCode;
 import konkuk.ptal.dto.api.ResponseCode;
 import konkuk.ptal.dto.request.CreateReviewSubmissionRequest;
 import konkuk.ptal.dto.response.FileContentResponse;
@@ -15,15 +17,21 @@ import konkuk.ptal.entity.ReviewSubmission;
 import konkuk.ptal.service.IFileService;
 import konkuk.ptal.service.IReviewService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.HandlerMapping;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@Slf4j
 public class ReviewSubmissionController {
     private final IReviewService reviewService;
     private final IFileService fileService;
@@ -77,7 +85,7 @@ public class ReviewSubmissionController {
                 .body(ApiResponse.success(ResponseCode.REVIEW_SUBMISSION_CANCELED.getMessage(), responseDto));
     }
 
-    @GetMapping("/{submissionId}/filesystem")
+    @GetMapping("/review-submissions/{submissionId}/filesystem")
     public ResponseEntity<ApiResponse<ProjectFileSystemResponse>> getProjectFileSystem(
             @PathVariable("submissionId") Long submissionId,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -94,25 +102,24 @@ public class ReviewSubmissionController {
                 .body(ApiResponse.success(ResponseCode.DATA_RETRIEVED.getMessage(), fileSystem));
     }
 
-    @GetMapping("/{submissionId}/files/{filePath}")
+    @GetMapping("/review-submissions/{submissionId}/files")
     public ResponseEntity<ApiResponse<FileContentResponse>> getReviewSubmissionSpecificFile(
             @PathVariable("submissionId") Long submissionId,
-            @PathVariable("filePath") String filePath,
+            @RequestParam(value = "path", required = false) String filePath,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        ReviewSubmission reviewSubmission = reviewService.getReviewSubmission(submissionId, userPrincipal);
+        String requestedPath = (filePath == null || filePath.isEmpty()) ? "" : filePath;
 
-        String decodedFilePath;
-        try {
-            decodedFilePath = java.net.URLDecoder.decode(filePath, java.nio.charset.StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            decodedFilePath = filePath;
+        if (requestedPath.contains("..") || requestedPath.startsWith("/") || requestedPath.contains("\0")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.fail(ErrorCode.NOT_PERMITTED_FILE_PATH.getMessage(), null));
         }
+        ReviewSubmission reviewSubmission = reviewService.getReviewSubmission(submissionId, userPrincipal);
 
         FileContentResponse fileContentResponse = fileService.getFileContent(
                 reviewSubmission.getGitUrl(),
                 reviewSubmission.getBranch(),
-                decodedFilePath);
+                requestedPath);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

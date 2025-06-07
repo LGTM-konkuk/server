@@ -15,6 +15,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  mvc:
+    pathmatch:
+      url-decode: true
+      use-trailing-slash-match: true
+      matching-strategy: path_pattern_parser
 # 로깅 설정
 logging:
   level:
@@ -23,6 +28,7 @@ logging:
     konkuk.ptal: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
 
 # JWT 설정
 jwt:
@@ -44,7 +50,6 @@ springdoc:
     # path: /my-api-docs # API 스펙 JSON/YAML 제공 경로 변경 (선택 사항)
   # 기본적으로 springdoc은 어노테이션 기반으로 API 문서를 생성.
   # 위 url 설정은 Swagger UI가 '추가적으로' 또는 '대체하여' 참조할 파일을 지정하는 것.
-
 # code file 저장소
 file:
   storage:
