@@ -31,6 +31,8 @@ public class ReadReviewSubmissionResponse {
                 .reviewee(ReadRevieweeResponse.from(reviewSubmission.getReviewee()))
                 .gitUrl(reviewSubmission.getGitUrl())
                 .branch(reviewSubmission.getBranch())
+                .requestDetails(reviewSubmission.getRequestDetails())
+                .status(reviewSubmission.getStatus())
                 .createdAt(baseAuditResponse.getCreatedAt())
                 .updatedAt(baseAuditResponse.getUpdatedAt())
                 .fileSystem(fileSystem)

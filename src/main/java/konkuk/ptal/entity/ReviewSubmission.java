@@ -67,6 +67,7 @@ public class ReviewSubmission {
                 .reviewee(reviewee)
                 .reviewer(reviewer)
                 .gitUrl(dto.getGitUrl())
+                .branch(dto.getBranch())
                 .status(status)
                 .build();
     }
