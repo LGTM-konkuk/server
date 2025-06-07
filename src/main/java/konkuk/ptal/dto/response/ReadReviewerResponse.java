@@ -25,6 +25,8 @@ public class ReadReviewerResponse {
                 .id(reviewer.getId())
                 .preferences(reviewer.getPreferences())
                 .user(UserMinimalResponse.from(reviewer.getUser().getId(), reviewer.getUser().getName(), reviewer.getUser().getEmail()))
+                .bio(reviewer.getBio())
+                .tags(reviewer.getTags())
                 .createdAt(baseAuditResponse.getCreatedAt())
                 .updatedAt(LocalDateTime.now())
                 .build();
