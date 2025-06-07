@@ -43,7 +43,7 @@ public class ReviewSubmissionController {
 
     @GetMapping("/review-submissions")
     public ResponseEntity<ApiResponse<ListReviewSubmissionResponse>> getReviewSubmissions(
-            @RequestParam(name = "type", required = false, defaultValue = "all") ReviewSubmissionType type,
+            @RequestParam(name = "type", required = false, defaultValue = "ALL") ReviewSubmissionType type,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "10") int size,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
