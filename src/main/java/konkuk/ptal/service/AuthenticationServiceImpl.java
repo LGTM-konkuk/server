@@ -20,6 +20,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService customUserDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     public AuthTokenResponse login(UserLoginRequest userLoginRequest) {
         try {
@@ -91,12 +94,19 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 
     @Override
     @Transactional
-    public void logout(String email) {
+    public void logout(String email, String accessToken) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
                         new UnauthorizedException(ErrorCode.USER_NOT_FOUND));
         user.clearRefreshToken();
         userRepository.save(user);
+        Date expirationDate = jwtTokenProvider.getExpirationDateFromToken(accessToken);
+        if (expirationDate != null) {
+            tokenBlacklistService.addTokenToBlacklist(accessToken, expirationDate.getTime());
+            log.info("Access Token 블랙리스트에 추가됨: {}", accessToken);
+        } else {
+            log.warn("Access Token의 만료 시간을 가져올 수 없어 블랙리스트에 추가하지 않음: {}", accessToken);
+        }
     }
 }
 

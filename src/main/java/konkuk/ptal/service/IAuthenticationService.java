@@ -8,6 +8,5 @@ public interface IAuthenticationService {
     AuthTokenResponse login(UserLoginRequest dto);
 
     AuthTokenResponse refreshAccessToken(RefreshTokenRequest dto);
-
-    void logout(String email);
+    void logout(String email, String accessToken);
 }

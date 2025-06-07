@@ -6,6 +6,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import konkuk.ptal.service.TokenBlacklistService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -18,20 +19,23 @@ import java.io.IOException;
 import java.util.Arrays;
 
 @Slf4j
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
     private final JwtTokenProvider jwtTokenProvider;
-    private final AntPathMatcher pathMatcher = new AntPathMatcher(); // 경로 매칭을 위해 추가
+    private final TokenBlacklistService tokenBlacklistService;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    // SecurityConfig에서 정의한 SWAGGER_PATHS를 여기서도 사용
     private static final String[] DEFAULT_PERMIT_PATHS = {
             "/api/v1/auth/signup/reviewer",
             "/api/v1/auth/signup/reviewee",
             "/api/v1/auth/signin",
+            // "/api/v1/auth/refresh", // 여기서 제거! SecurityConfig에서 authenticated()로 처리해야 함.
             "/h2-console/**"
-            // 다른 기본 허용 경로가 있다면 추가
     };
 
+    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, TokenBlacklistService tokenBlacklistService) {
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.tokenBlacklistService = tokenBlacklistService;
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -39,7 +43,6 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         String path = httpRequest.getRequestURI();
 
-        // Swagger 경로 및 기본 허용 경로 확인
         boolean isPermittedPath = Arrays.stream(SecurityConfig.SWAGGER_PATHS)
                 .anyMatch(pattern -> pathMatcher.match(pattern, path)) ||
                 Arrays.stream(DEFAULT_PERMIT_PATHS)
@@ -53,18 +56,26 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
         String token = resolveToken(httpRequest);
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
+        if (token != null) {
+            if (!jwtTokenProvider.validateToken(token)) {
+                log.warn("유효하지 않거나 만료된 JWT 토큰. 경로: {}", path);
+                sendUnauthorizedResponse(httpResponse, "유효하지 않거나 만료된 토큰입니다.");
+                return;
+            }
+
+            if (tokenBlacklistService.isTokenBlacklisted(token)) {
+                log.warn("블랙리스트에 등록된 JWT 토큰. 경로: {}", path);
+                sendUnauthorizedResponse(httpResponse, "블랙리스트에 등록된 토큰입니다. 다시 로그인 해주세요.");
+                return;
+            }
+
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             log.info("인증 성공: 사용자 = {}, 경로 = {}", authentication.getName(), path);
         } else {
-            log.warn("유효하지 않은 또는 누락된 JWT 토큰. 경로: {}", path);
-            // 401 Unauthorized 응답을 직접 반환
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            httpResponse.setContentType("application/json;charset=UTF-8");
-            // 간결한 에러 메시지 또는 표준 에러 DTO 사용 권장
-            httpResponse.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"유효하지 않거나 누락된 토큰입니다.\"}");
-            return;  // 필터 체인 종료
+            log.warn("JWT 토큰이 누락되었습니다. 경로: {}", path);
+            sendUnauthorizedResponse(httpResponse, "JWT 토큰이 누락되었습니다.");
+            return;
         }
 
         chain.doFilter(request, response);
@@ -72,9 +83,15 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) { // "Bearer " 뒤에 공백 주의
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    private void sendUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(String.format("{\"error\": \"Unauthorized\", \"message\": \"%s\"}", message));
     }
 }

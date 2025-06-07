@@ -16,10 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.security.Key;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,10 +24,16 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     private final Key key;
+    private final long accessTokenExpirationMillis;
+    private final long refreshTokenExpirationMillis;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey,
+                            @Value("${jwt.access-token-expiration-ms}") long accessTokenExpirationMillis,
+                            @Value("${jwt.refresh-token-expiration-ms}") long refreshTokenExpirationMillis) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.accessTokenExpirationMillis = accessTokenExpirationMillis;
+        this.refreshTokenExpirationMillis = refreshTokenExpirationMillis;
     }
 
     // 유저 정보를 가지고 AccessToken, RefreshToken 을 생성하는 메서드
@@ -47,21 +50,23 @@ public class JwtTokenProvider {
 
         long now = (new Date()).getTime();
         // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + 7 * 24 * 60 * 60 * 1000);
+        Date accessTokenExpiresIn = new Date(now + accessTokenExpirationMillis);
 
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
                 .claim("userId", userId)  // userId 클레임 추가
                 .setExpiration(accessTokenExpiresIn)
+                .setId(UUID.randomUUID().toString())
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
         // Refresh Token 생성
+        Date refreshTokenExpiresIn = new Date(now + refreshTokenExpirationMillis);
         String refreshToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("userId", userId)  // Refresh Token에도 userId 포함
-                .setExpiration(new Date(now + 7 * 24 * 60 * 60 * 1000))
+                .setExpiration(refreshTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
@@ -123,5 +128,9 @@ public class JwtTokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
+    }
+
+    public Date getExpirationDateFromToken(String token) {
+        return parseClaims(token).getExpiration();
     }
 }

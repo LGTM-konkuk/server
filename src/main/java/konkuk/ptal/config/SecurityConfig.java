@@ -1,6 +1,7 @@
 package konkuk.ptal.config;
 
 import konkuk.ptal.service.CustomUserDetailsService;
+import konkuk.ptal.service.TokenBlacklistService;
 import konkuk.ptal.util.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,7 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final CustomUserDetailsService userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     // Swagger UI 및 OpenAPI 문서 접근을 위한 경로 정의 (JwtAuthenticationFilter에서도 사용 가능하도록 public static으로)
     public static final String[] SWAGGER_PATHS = {
@@ -52,14 +54,18 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/signup/reviewee").permitAll()
                         .requestMatchers("/api/v1/auth/signin").permitAll()
                         .requestMatchers("/api/v1/auth/signout").authenticated()
+                        .requestMatchers("api/v1/auth/refresh").authenticated()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(SWAGGER_PATHS).permitAll() // Swagger 경로 허용
                         .requestMatchers("/api/v1/reviewer/**").authenticated()
                         .requestMatchers("/api/v1/reviewee/**").authenticated()
                         .requestMatchers("/api/v1/reviews/**").authenticated()
+                        .requestMatchers("/api/v1/users/**").authenticated()
+                        .requestMatchers("/api/v1/review-comments/**").authenticated()
+                        .requestMatchers("/api/v1/review-submissions/**").authenticated()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, tokenBlacklistService), UsernamePasswordAuthenticationFilter.class); // 수정
         http.headers().frameOptions().sameOrigin();
         return http.build();
     }

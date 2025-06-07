@@ -27,7 +27,8 @@ logging:
 # JWT 설정
 jwt:
   secret: YmFzZTY0ZW5jb2RlZHNlY3JldGtleXN0cmluZ2hlcmU=
-  expiration: 86400000
+  access-token-expiration-ms: 3600000
+  refresh-token-expiration-ms: 604800000
   header: Authorization
   prefix: Bearer
 
@@ -48,3 +49,23 @@ springdoc:
 file:
   storage:
     base-path: src/main/resources/code_storage
+
+  # --- Redis 설정 시작 ---
+  data:
+    redis:
+      # 호스트: Docker Compose 환경에서는 'redis' 서비스 이름으로 컨테이너에 접근
+      #         로컬에서 Redis를 직접 띄웠을 때는 'localhost'로 연결
+      host: localhost
+      # 포트: Redis 기본 포트 6379
+      port: 6379
+
+      # password: ${SPRING_DATA_REDIS_PASSWORD:} # Redis에 비밀번호가 있다면 여기에 설정 (환경 변수 또는 직접 입력)
+      # ssl: false # SSL/TLS를 사용하지 않는 경우 (기본값)
+      # timeout: 2000ms # 연결 타임아웃 (선택 사항)
+      # lettuce: # Lettuce 클라이언트 설정 (선택 사항)
+      #   pool:
+      #     max-active: 8 # 풀에서 생성할 수 있는 최대 연결 수
+      #     min-idle: 0   # 유휴 상태로 유지할 수 있는 최소 연결 수
+      #     max-idle: 8   # 유휴 상태로 유지할 수 있는 최대 연결 수
+      #     max-wait: -1ms # 풀에서 연결을 사용할 수 있을 때까지 블록 시간 (ms, -1은 무한대)
+  # --- Redis 설정 끝 ---
