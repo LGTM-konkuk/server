@@ -344,8 +344,10 @@ public class FileServiceImpl implements IFileService {
                                 .call();
                         if (commits.iterator().hasNext()) {
                             RevCommit lastFileCommit = commits.iterator().next();
-                            lastModified = LocalDateTime.ofInstant(
-                                    Instant.ofEpochSecond(lastFileCommit.getCommitTime()), ZoneId.systemDefault());
+                            if (lastFileCommit != null) {
+                                lastModified = LocalDateTime.ofInstant(
+                                        Instant.ofEpochSecond(lastFileCommit.getCommitTime()), ZoneId.systemDefault());
+                            }
                         }
                     } catch (GitAPIException e) {
                         log.warn("Failed to get last commit for file {}: {}", entryPath, e.getMessage());
