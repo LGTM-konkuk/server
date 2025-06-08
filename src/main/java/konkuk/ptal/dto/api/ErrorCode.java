@@ -25,8 +25,8 @@ public enum ErrorCode {
     PARENT_COMMENT_NOT_BELONG_TO_SESSION("부모 댓글이 세션에 속하지 않습니다."),
     SUBMISSION_CANCEL_UNAVAILABLE("이미 진행 중이거나 취소된 리뷰 제출은 취소할 수 없습니다."),
     REVIEW_ALREADY_EXIST("이미 리뷰가 작성된 제출 건입니다."),
-    REVIEW_UNAVAILABLE("이미 리뷰가 완료되었거나, 취소된 제출 건에는 리뷰를 작성할 수 없습니다.");
-
+    REVIEW_UNAVAILABLE("이미 리뷰가 완료되었거나, 취소된 제출 건에는 리뷰를 작성할 수 없습니다."),
+    NOT_PERMITTED_FILE_PATH("허용되지 않는 파일 경로입니다.");
 
     private final String message;
 
