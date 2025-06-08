@@ -17,11 +17,13 @@ public class ReadRevieweeResponse {
     LocalDateTime updatedAt;
 
     public static ReadRevieweeResponse from(Reviewee reviewee) {
-
+        BaseAuditResponse baseAuditResponse = BaseAuditResponse.from(reviewee.getCreatedAt());
         return ReadRevieweeResponse.builder()
                 .id(reviewee.getId())
                 .preferences(reviewee.getPreferences())
                 .user(UserMinimalResponse.from(reviewee.getUser().getId(), reviewee.getUser().getName(), reviewee.getUser().getEmail()))
+                .createdAt(baseAuditResponse.getCreatedAt())
+                .updatedAt(baseAuditResponse.getUpdatedAt())
                 .build();
     }
 }
