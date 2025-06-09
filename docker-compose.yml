@@ -10,7 +10,7 @@ services:
       - "8080:8080" # 호스트 포트:컨테이너 포트
     environment:
       JAVA_OPTS: "-Xmx512m -Xms256m"
-      # SPRING_PROFILES_ACTIVE: "prod"
+      SPRING_PROFILES_ACTIVE: "demo"
       # Redis 연결 정보 (환경 변수로 전달)
       # Spring Data Redis는 이 환경 변수를 자동으로 인식합니다.
       SPRING_DATA_REDIS_HOST: redis
