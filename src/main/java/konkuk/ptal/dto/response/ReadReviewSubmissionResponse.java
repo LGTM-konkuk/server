@@ -27,7 +27,7 @@ public class ReadReviewSubmissionResponse {
         BaseAuditResponse baseAuditResponse = BaseAuditResponse.from(reviewSubmission.getCreatedAt());
         return ReadReviewSubmissionResponse.builder()
                 .id(reviewSubmission.getId())
-                .reviewer(ReadReviewerResponse.from(reviewSubmission.getReviewer()))
+                .reviewer(reviewSubmission.getReviewer() != null ? ReadReviewerResponse.from(reviewSubmission.getReviewer()) : null)
                 .reviewee(ReadRevieweeResponse.from(reviewSubmission.getReviewee()))
                 .gitUrl(reviewSubmission.getGitUrl())
                 .branch(reviewSubmission.getBranch())
