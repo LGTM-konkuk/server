@@ -48,6 +48,8 @@ public class ReviewServiceImpl implements IReviewService {
         ReviewSubmission reviewSubmission = ReviewSubmission.createReviewSubmission(ReviewSubmissionStatus.PENDING, reviewer, reviewee, request);
         reviewSubmission = reviewSubmissionRepository.save(reviewSubmission);
 
+        fileService.createCodeFilesForSubmission(reviewSubmission);
+
         return reviewSubmission;
     }
 
