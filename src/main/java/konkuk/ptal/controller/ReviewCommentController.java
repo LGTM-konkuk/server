@@ -25,10 +25,11 @@ public class ReviewCommentController {
     @GetMapping("/review-submissions/{submissionId}/comments")
     public ResponseEntity<ApiResponse<ReadCommentsOfReviewResponse>> getReviewComments(
             @PathVariable Long submissionId,
+            @RequestParam(required = false) String filePath,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         authorizationService.validateReviewSubmissionAccess(submissionId, userPrincipal);
 
-        ReadCommentsOfReviewResponse response = reviewService.getReviewComments(submissionId, null);
+        ReadCommentsOfReviewResponse response = reviewService.getReviewComments(submissionId, filePath);
         return ResponseEntity.ok(ApiResponse.success("댓글 조회 성공", response));
     }
 

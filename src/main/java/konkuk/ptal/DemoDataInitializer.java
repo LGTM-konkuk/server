@@ -55,8 +55,8 @@ public class DemoDataInitializer implements ApplicationRunner {
     // 댓글 설정
     private static final String SESSION_COMMENT_CONTENT = "프로젝트 전반적으로 잘 구성되어 있네요! 특히 Spring Boot의 자동 설정 부분이 인상적입니다. 몇 가지 세부사항에 대해 코멘트 남겨드릴게요.";
     private static final String CODE_COMMENT_CONTENT = "이 부분의 예외 처리를 좀 더 구체적으로 하면 어떨까요? 현재는 일반적인 Exception을 catch하고 있는데, 특정 예외 타입별로 다른 처리를 하면 더 좋을 것 같습니다.";
-    private static final String CODE_FILE_PATH = "src/main/java/konkuk/ptal/service/ReviewServiceImpl.java";
-    private static final int CODE_LINE_NUMBER = 156;
+    private static final String CODE_FILE_PATH = "src/main/java/konkuk/ptal/PtalApplication.java";
+    private static final int CODE_LINE_NUMBER = 10;
     private static final String REPLY_COMMENT_CONTENT = "피드백 감사합니다! 말씀해주신 예외 처리 부분은 다음 버전에서 반영하겠습니다. 구체적으로 어떤 예외 타입들을 고려하면 좋을지 조언해주실 수 있나요?";
 
     // =================================

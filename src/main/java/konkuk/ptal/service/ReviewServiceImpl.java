@@ -170,10 +170,10 @@ public class ReviewServiceImpl implements IReviewService {
 
     @Override
     @Transactional(readOnly = true)
-    public ReadCommentsOfReviewResponse getReviewComments(Long submissionId, Long codeFileId) {
+    public ReadCommentsOfReviewResponse getReviewComments(Long submissionId, String codeFile) {
         findReviewSubmissionById(submissionId);
 
-        List<ReviewComment> allComments = getAllCommentsBySubmissionAndCodeFile(submissionId, codeFileId);
+        List<ReviewComment> allComments = getAllCommentsBySubmissionAndCodeFile(submissionId, codeFile);
 
         // 부모 댓글들만 필터링 (parentComment가 null인 것들)
         List<ReviewComment> parentComments = allComments.stream()
@@ -362,10 +362,14 @@ public class ReviewServiceImpl implements IReviewService {
     /**
      * 특정 세션과 코드 파일에 대한 모든 댓글을 조회하는 헬퍼 메서드
      */
-    private List<ReviewComment> getAllCommentsBySubmissionAndCodeFile(Long submissionId, Long codeFileId) {
-        if (codeFileId != null) {
+    private List<ReviewComment> getAllCommentsBySubmissionAndCodeFile(Long submissionId, String filePath) {
+        if (filePath != null && !filePath.trim().isEmpty()) {
+            // 파일 경로로 CodeFile 찾기
+            ReviewSubmission reviewSubmission = findReviewSubmissionById(submissionId);
+            CodeFile codeFile = findCodeFileByPath(reviewSubmission, filePath);
+            
             // 특정 코드 파일의 모든 댓글 조회 (부모 댓글과 답글 모두)
-            return reviewCommentRepository.findByReviewSubmissionIdAndCodeFileId(submissionId, codeFileId);
+            return reviewCommentRepository.findByReviewSubmissionIdAndCodeFileId(submissionId, codeFile.getId());
         } else {
             // 세션 레벨 댓글과 그 답글들 조회
             List<ReviewComment> sessionComments = reviewCommentRepository.findByReviewSubmissionIdAndCommentTypeAndCodeFileIsNull(submissionId, ReviewCommentType.SESSION_COMMENT);
