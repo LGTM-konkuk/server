@@ -70,10 +70,10 @@ public interface IReviewService {
      * 댓글은 스레드를 나타내는 계층적 구조로 반환됩니다.
      *
      * @param submissionId 리뷰 세션의 고유 식별자입니다.
-     * @param codeFileId   댓글을 조회할 코드 파일의 고유 식별자입니다.
+     * @param codeFile   댓글을 조회할 코드 파일의 상대경로입니다.
      *                     세션 레벨 댓글을 조회하려면 null일 수 있습니다.
      */
-    ReadCommentsOfReviewResponse getReviewComments(Long submissionId, Long codeFileId);
+    ReadCommentsOfReviewResponse getReviewComments(Long submissionId, String codeFile);
 
     /**
      * 기존 댓글을 업데이트합니다.
