@@ -84,12 +84,12 @@ public class ReviewServiceImpl implements IReviewService {
         Pageable pageable = PageRequest.of(page, size);
         Page<ReviewSubmission> reviewSubmissionPage;
         switch (type) {
-            case SENT:
+            case SUBMITTED:
                 Reviewee revieweeForSent = revieweeRepository.findByUser_Id(userId)
                         .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
                 reviewSubmissionPage = reviewSubmissionRepository.findByReviewee(revieweeForSent, pageable);
                 break;
-            case RECEIVED:
+            case REVIEWED:
                 Reviewer reviewerForReceived = reviewerRepository.findByUser_Id(userId)
                         .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
                 reviewSubmissionPage = reviewSubmissionRepository.findByReviewer(reviewerForReceived, pageable);
