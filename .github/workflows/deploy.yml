@@ -23,6 +23,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Test STS connectivity
+        run: curl -v https://sts.ap-southeast-2.amazonaws.com
+
       - name: Log in to Amazon ECR
         run: |
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
