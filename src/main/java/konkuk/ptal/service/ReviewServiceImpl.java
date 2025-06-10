@@ -85,14 +85,14 @@ public class ReviewServiceImpl implements IReviewService {
         Page<ReviewSubmission> reviewSubmissionPage;
         switch (type) {
             case SUBMITTED:
-                Reviewee revieweeForSent = revieweeRepository.findByUser_Id(userId)
+                Reviewee submittedReviewee = revieweeRepository.findByUser_Id(userId)
                         .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-                reviewSubmissionPage = reviewSubmissionRepository.findByReviewee(revieweeForSent, pageable);
+                reviewSubmissionPage = reviewSubmissionRepository.findByReviewee(submittedReviewee, pageable);
                 break;
             case REVIEWED:
-                Reviewer reviewerForReceived = reviewerRepository.findByUser_Id(userId)
+                Reviewer reviewedReviewer = reviewerRepository.findByUser_Id(userId)
                         .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-                reviewSubmissionPage = reviewSubmissionRepository.findByReviewer(reviewerForReceived, pageable);
+                reviewSubmissionPage = reviewSubmissionRepository.findByReviewer(reviewedReviewer, pageable);
                 break;
             case ALL:
             default:
