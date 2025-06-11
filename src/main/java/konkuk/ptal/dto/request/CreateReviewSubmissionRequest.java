@@ -9,7 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateReviewSubmissionRequest {
-    @NotNull(message = "리뷰어 ID는 필수입니다")
     private Long reviewerId;
 
     @Pattern(regexp = "^https?://.*$", message = "올바른 HTTP/HTTPS URL 형식이어야 합니다")

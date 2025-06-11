@@ -1790,11 +1790,11 @@ paths:
         - name: type
           in: query
           required: false
-          description: "조회할 제출 목록의 타입. `sent`: 내가 보낸 요청, `received`: 내가 받은 요청 (리뷰어만 해당), `all`: 나와 관련된 모든 요청. 기본값은 `all` 또는 사용자의 역할에 따라 적절히 설정될 수 있습니다."
+          description: "조회할 제출 목록의 타입. `SUBMITTED`: 내가 보낸 요청, `REVIEWED`: 내가 받은 요청 (리뷰어만 해당), `ALL`: 나와 관련된 모든 요청. 기본값은 `ALL` 또는 사용자의 역할에 따라 적절히 설정될 수 있습니다."
           schema:
             type: string
-            enum: [sent, received, all]
-            example: "sent"
+            enum: [SUBMITTED, REVIEWED, ALL]
+            example: "SUBMITTED"
         - name: page
           in: query
           required: false

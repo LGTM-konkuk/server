@@ -42,27 +42,40 @@ public class ReviewServiceImpl implements IReviewService {
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
         Reviewee reviewee = revieweeRepository.findByUser_Id(user.getId())
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-        Reviewer reviewer = reviewerRepository.findById(request.getReviewerId())
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
+        Reviewer reviewer = null;
+        if (request.getReviewerId() != null) {
+            reviewer = reviewerRepository.findById(request.getReviewerId())
+                    .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+        }
         ReviewSubmission reviewSubmission = ReviewSubmission.createReviewSubmission(ReviewSubmissionStatus.PENDING, reviewer, reviewee, request);
         reviewSubmission = reviewSubmissionRepository.save(reviewSubmission);
-
         fileService.createCodeFilesForSubmission(reviewSubmission);
 
         return reviewSubmission;
+
     }
 
     @Override
     @Transactional(readOnly = true)
     public ReviewSubmission getReviewSubmission(Long submissionId, UserPrincipal userPrincipal) {
         Long userId = userPrincipal.getUserId();
-        return reviewSubmissionRepository
-                .findByIdAndReviewee_User_IdOrIdAndReviewer_User_Id(
-                        submissionId, userId,
-                        submissionId, userId
-                )
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+        Optional<Reviewer> reviewer = reviewerRepository.findByUser_Id(userId);
+
+        ReviewSubmission reviewSubmission;
+
+        if (reviewer.isPresent()) {
+            reviewSubmission = reviewSubmissionRepository
+                    .findByIdAndReviewer_User_IdOrIdAndReviewerIsNullAndStatus(
+                            submissionId, userId, submissionId, ReviewSubmissionStatus.PENDING
+                    )
+                    .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+        } else {
+            reviewSubmission = reviewSubmissionRepository
+                    .findByIdAndReviewee_User_Id(submissionId, userId)
+                    .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+        }
+        return reviewSubmission;
     }
 
     @Override
@@ -71,19 +84,26 @@ public class ReviewServiceImpl implements IReviewService {
         Pageable pageable = PageRequest.of(page, size);
         Page<ReviewSubmission> reviewSubmissionPage;
         switch (type) {
-            case SENT:
-                Reviewee revieweeForSent = revieweeRepository.findByUser_Id(userId)
+            case SUBMITTED:
+                Reviewee submittedReviewee = revieweeRepository.findByUser_Id(userId)
                         .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-                reviewSubmissionPage = reviewSubmissionRepository.findByReviewee(revieweeForSent, pageable);
+                reviewSubmissionPage = reviewSubmissionRepository.findByReviewee(submittedReviewee, pageable);
                 break;
-            case RECEIVED:
-                Reviewer reviewerForReceived = reviewerRepository.findByUser_Id(userId)
+            case REVIEWED:
+                Reviewer reviewedReviewer = reviewerRepository.findByUser_Id(userId)
                         .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-                reviewSubmissionPage = reviewSubmissionRepository.findByReviewer(reviewerForReceived, pageable);
+                reviewSubmissionPage = reviewSubmissionRepository.findByReviewer(reviewedReviewer, pageable);
                 break;
             case ALL:
             default:
-                reviewSubmissionPage = reviewSubmissionRepository.findByReviewee_User_IdOrReviewer_User_Id(userId, userId, pageable);
+                Optional<Reviewer> currentReviewer = reviewerRepository.findByUser_Id(userId);
+                if (currentReviewer.isPresent()) {
+                    reviewSubmissionPage = reviewSubmissionRepository.findAllSubmissionsForReviewer(userId, ReviewSubmissionStatus.PENDING, pageable);
+                }else{
+                    Reviewee reviewee = revieweeRepository.findByUser_Id(userId)
+                            .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+                    reviewSubmissionPage = reviewSubmissionRepository.findByReviewee(reviewee, pageable);
+                }
                 break;
         }
         List<ReadReviewSubmissionResponse> content = reviewSubmissionPage.getContent().stream()
@@ -108,7 +128,8 @@ public class ReviewServiceImpl implements IReviewService {
                 .findByIdAndReviewee_User_Id(submissionId, userId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
-        if (reviewSubmission.getStatus() != ReviewSubmissionStatus.PENDING) {
+        if (reviewSubmission.getStatus() != ReviewSubmissionStatus.PENDING &&
+                reviewSubmission.getStatus() != ReviewSubmissionStatus.APPROVED) {
             throw new BadRequestException(SUBMISSION_CANCEL_UNAVAILABLE);
         }
 
@@ -126,6 +147,18 @@ public class ReviewServiceImpl implements IReviewService {
         // 인증된 사용자 정보를 가져옴
         User user = findUserById(userPrincipal.getUserId());
 
+        if (reviewSubmission.getStatus() == ReviewSubmissionStatus.PENDING) {
+            reviewSubmission.setStatus(ReviewSubmissionStatus.APPROVED);
+        }
+
+        if (reviewSubmission.getReviewer() == null) {
+            Optional<Reviewer> optionalReviewer = reviewerRepository.findByUser_Id(user.getId());
+            if (optionalReviewer.isPresent()) {
+                Reviewer actualReviewer = optionalReviewer.get();
+                reviewSubmission.setReviewer(actualReviewer);
+                reviewSubmissionRepository.save(reviewSubmission);
+            }
+        }
         CodeFile codeFile = null;
         ReviewCommentType commentType;
 
@@ -229,7 +262,9 @@ public class ReviewServiceImpl implements IReviewService {
                 .findByIdAndReviewer_User_Id(submissionId, userId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
-        if (reviewSubmission.getStatus() != ReviewSubmissionStatus.PENDING) {
+        // PENDING 또는 APPROVED 상태일 때만 리뷰 생성을 허용합니다.
+        if (reviewSubmission.getStatus() != ReviewSubmissionStatus.PENDING &&
+                reviewSubmission.getStatus() != ReviewSubmissionStatus.APPROVED) {
             throw new BadRequestException(REVIEW_UNAVAILABLE);
         }
 

@@ -1,29 +1,49 @@
 package konkuk.ptal.service;
 
 import konkuk.ptal.domain.UserPrincipal;
+import konkuk.ptal.domain.enums.ReviewSubmissionStatus;
 import konkuk.ptal.dto.api.ErrorCode;
 import konkuk.ptal.entity.ReviewComment;
 import konkuk.ptal.entity.ReviewSubmission;
+import konkuk.ptal.entity.Reviewer;
 import konkuk.ptal.exception.BadRequestException;
+import konkuk.ptal.repository.ReviewRepository;
+import konkuk.ptal.repository.ReviewerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthorizationServiceImpl implements IAuthorizationService {
 
     private final IReviewService reviewService;
+    private final ReviewerRepository reviewerRepository;
 
     @Override
     public void validateReviewSubmissionAccess(Long submissionId, UserPrincipal userPrincipal) {
         Long userId = userPrincipal.getUserId();
         ReviewSubmission reviewSubmission = reviewService.getReviewSubmission(submissionId, userPrincipal);
+        Optional<Reviewer> currentReviewer = reviewerRepository.findByUser_Id(userId);
 
-        // 해당 ReviewSubmission의 reviewee나 reviewer인지 확인
-        boolean isReviewee = reviewSubmission.getReviewee().getUser().getId().equals(userId);
-        boolean isReviewer = reviewSubmission.getReviewer().getUser().getId().equals(userId);
+        boolean hasAccess = false;
 
-        if (!isReviewee && !isReviewer) {
+        if (reviewSubmission.getReviewee().getUser().getId().equals(userId)) {
+            hasAccess = true;
+        }
+
+        if (!hasAccess && currentReviewer.isPresent()) {
+            if (reviewSubmission.getReviewer() != null &&
+                    reviewSubmission.getReviewer().getUser().getId().equals(userId)) {
+                hasAccess = true;
+            }
+            else if (reviewSubmission.getReviewer() == null &&
+                    reviewSubmission.getStatus() == ReviewSubmissionStatus.PENDING) {
+                hasAccess = true;
+            }
+        }
+        if (!hasAccess) {
             throw new BadRequestException(ErrorCode.ACCESS_DENIED);
         }
     }
