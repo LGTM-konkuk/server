@@ -22,6 +22,22 @@ public class ReadReviewSubmissionResponse {
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 
+    public static ReadReviewSubmissionResponse from(ReviewSubmission reviewSubmission) {
+
+        BaseAuditResponse baseAuditResponse = BaseAuditResponse.from(reviewSubmission.getCreatedAt());
+        return ReadReviewSubmissionResponse.builder()
+                .id(reviewSubmission.getId())
+                .reviewer(ReadReviewerResponse.from(reviewSubmission.getReviewer()))
+                .reviewee(ReadRevieweeResponse.from(reviewSubmission.getReviewee()))
+                .gitUrl(reviewSubmission.getGitUrl())
+                .branch(reviewSubmission.getBranch())
+                .requestDetails(reviewSubmission.getRequestDetails())
+                .status(reviewSubmission.getStatus())
+                .createdAt(baseAuditResponse.getCreatedAt())
+                .updatedAt(baseAuditResponse.getUpdatedAt())
+                .build();
+    }
+
     public static ReadReviewSubmissionResponse from(ReviewSubmission reviewSubmission, ProjectFileSystemResponse fileSystem) {
 
         BaseAuditResponse baseAuditResponse = BaseAuditResponse.from(reviewSubmission.getCreatedAt());
