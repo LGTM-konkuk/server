@@ -87,14 +87,7 @@ public class ReviewServiceImpl implements IReviewService {
                 break;
         }
         List<ReadReviewSubmissionResponse> content = reviewSubmissionPage.getContent().stream()
-                .map(submission -> {
-                    ProjectFileSystemResponse fileSystem = fileService.getProjectFileSystem(
-                            submission.getGitUrl(),
-                            submission.getBranch(),
-                            submission.getId()
-                    );
-                    return ReadReviewSubmissionResponse.from(submission, fileSystem);
-                })
+                .map(ReadReviewSubmissionResponse::from)
                 .collect(Collectors.toList());
 
         return new ListReviewSubmissionResponse(reviewSubmissionPage, content);
